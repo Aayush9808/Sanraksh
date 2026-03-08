@@ -3,11 +3,18 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --foreground-rgb: 241, 245, 249;
+  --background-rgb: 2, 8, 23;
 }
 
+* {
+  box-sizing: border-box;
+}
+
+html,
 body {
+  background-color: rgb(var(--background-rgb));
   color: rgb(var(--foreground-rgb));
+  margin: 0;
+  padding: 0;
 }
