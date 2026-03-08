@@ -3,12 +3,12 @@
 import { useState } from "react";
 
 const coverages = [
-  { icon: "🌧️", name: "Weather Protection", from: "₹40", col: "border-blue-400/30 from-blue-500/10 to-cyan-500/10",   ico: "bg-blue-500/20 text-blue-300"    },
-  { icon: "🚑", name: "Accident Cover",      from: "₹25", col: "border-red-400/30 from-red-500/10 to-orange-500/10",  ico: "bg-red-500/20 text-red-300"      },
-  { icon: "💼", name: "Job Loss Cover",      from: "₹60", col: "border-violet-400/30 from-violet-500/10 to-purple-500/10", ico: "bg-violet-500/20 text-violet-300" },
-  { icon: "🏥", name: "Health Add-on",       from: "₹35", col: "border-emerald-400/30 from-emerald-500/10 to-green-500/10", ico: "bg-emerald-500/20 text-emerald-300" },
-  { icon: "🛵", name: "Equipment Cover",     from: "₹20", col: "border-amber-400/30 from-amber-500/10 to-yellow-500/10", ico: "bg-amber-500/20 text-amber-300"   },
-  { icon: "🔐", name: "Cyber Fraud Guard",   from: "₹15", col: "border-pink-400/30 from-pink-500/10 to-rose-500/10",  ico: "bg-pink-500/20 text-pink-300"    },
+  { icon: "🌧️", name: "Heavy Rain Shield",    from: "₹40", col: "border-blue-400/30 from-blue-500/10 to-cyan-500/10",      ico: "bg-blue-500/20 text-blue-300"    },
+  { icon: "🌊", name: "Flood Income Cover",   from: "₹35", col: "border-sky-400/30 from-sky-500/10 to-blue-500/10",        ico: "bg-sky-500/20 text-sky-300"      },
+  { icon: "💼", name: "Job Loss Cover",       from: "₹60", col: "border-violet-400/30 from-violet-500/10 to-purple-500/10", ico: "bg-violet-500/20 text-violet-300" },
+  { icon: "😷", name: "Pollution Shutdown",   from: "₹30", col: "border-emerald-400/30 from-emerald-500/10 to-teal-500/10",  ico: "bg-emerald-500/20 text-emerald-300" },
+  { icon: "🚫", name: "Curfew / Strike Loss", from: "₹25", col: "border-amber-400/30 from-amber-500/10 to-yellow-500/10",  ico: "bg-amber-500/20 text-amber-300"   },
+  { icon: "⚡", name: "App Outage Cover",     from: "₹20", col: "border-pink-400/30 from-pink-500/10 to-rose-500/10",      ico: "bg-pink-500/20 text-pink-300"    },
 ];
 
 const heroStats = [

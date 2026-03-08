@@ -20,18 +20,22 @@ interface Policy {
 
 const MOCK_POLICIES: Policy[] = [
   { id:'1', policy_number:'GA-202603-000310', user_id:'u1', worker_name:'Rahul Kumar',   worker_platform:'Zomato',  coverage_type:'weather', weekly_premium:55.25, status:'active',  start_date:'2026-03-01', end_date:'2026-03-29' },
-  { id:'2', policy_number:'GA-202603-000260', user_id:'u2', worker_name:'Priya Sharma',  worker_platform:'Swiggy',  coverage_type:'accident',weekly_premium:51.60, status:'active',  start_date:'2026-02-28', end_date:'2026-03-28' },
-  { id:'3', policy_number:'GA-202603-000373', user_id:'u3', worker_name:'Amit Singh',    worker_platform:'Blinkit', coverage_type:'job_loss',weekly_premium:54.85, status:'active',  start_date:'2026-02-20', end_date:'2026-04-17' },
-  { id:'4', policy_number:'GA-202602-000145', user_id:'u4', worker_name:'Sneha Patel',   worker_platform:'Ola',     coverage_type:'weather', weekly_premium:48.00, status:'expired', start_date:'2026-01-01', end_date:'2026-02-28' },
-  { id:'5', policy_number:'GA-202603-000189', user_id:'u5', worker_name:'Karan Mehta',   worker_platform:'Uber',    coverage_type:'accident',weekly_premium:62.10, status:'active',  start_date:'2026-03-05', end_date:'2026-04-02' },
-  { id:'6', policy_number:'GA-202603-000421', user_id:'u6', worker_name:'Divya Nair',    worker_platform:'Zepto',   coverage_type:'health',  weekly_premium:44.50, status:'active',  start_date:'2026-03-07', end_date:'2026-04-04' },
+  { id:'2', policy_number:'GA-202603-000260', user_id:'u2', worker_name:'Priya Sharma',  worker_platform:'Swiggy',  coverage_type:'flood',     weekly_premium:51.60, status:'active',  start_date:'2026-02-28', end_date:'2026-03-28' },
+  { id:'3', policy_number:'GA-202603-000373', user_id:'u3', worker_name:'Amit Singh',    worker_platform:'Blinkit', coverage_type:'job_loss',  weekly_premium:54.85, status:'active',  start_date:'2026-02-20', end_date:'2026-04-17' },
+  { id:'4', policy_number:'GA-202602-000145', user_id:'u4', worker_name:'Sneha Patel',   worker_platform:'Ola',     coverage_type:'weather',   weekly_premium:48.00, status:'expired', start_date:'2026-01-01', end_date:'2026-02-28' },
+  { id:'5', policy_number:'GA-202603-000189', user_id:'u5', worker_name:'Karan Mehta',   worker_platform:'Uber',    coverage_type:'curfew',    weekly_premium:62.10, status:'active',  start_date:'2026-03-05', end_date:'2026-04-02' },
+  { id:'6', policy_number:'GA-202603-000421', user_id:'u6', worker_name:'Divya Nair',    worker_platform:'Zepto',   coverage_type:'pollution', weekly_premium:44.50, status:'active',  start_date:'2026-03-07', end_date:'2026-04-04' },
   { id:'7', policy_number:'GA-202602-000098', user_id:'u7', worker_name:'Rohan Gupta',   worker_platform:'Swiggy',  coverage_type:'weather', weekly_premium:57.75, status:'expired', start_date:'2025-12-01', end_date:'2026-01-28' },
   { id:'8', policy_number:'GA-202603-000502', user_id:'u8', worker_name:'Anita Joshi',   worker_platform:'Dunzo',   coverage_type:'job_loss',weekly_premium:59.00, status:'active',  start_date:'2026-03-08', end_date:'2026-04-05' },
 ]
 
 const COVERAGE_LABELS: Record<string, string> = {
-  weather: '🌧️ Weather', accident: '🚑 Accident', job_loss: '💼 Job Loss',
-  health: '🏥 Health', equipment: '🛵 Equipment', cyber: '🔐 Cyber',
+  weather:    '🌧️ Weather',
+  flood:      '🌊 Flood',
+  job_loss:   '💼 Job Loss',
+  pollution:  '😷 Pollution',
+  curfew:     '🚫 Curfew/Strike',
+  app_outage: '⚡ App Outage',
 }
 const PLATFORM_COLORS: Record<string, string> = {
   Zomato: 'bg-red-500/20 text-red-300 border-red-500/30',
@@ -45,6 +49,8 @@ const PLATFORM_COLORS: Record<string, string> = {
 
 const navItems = [
   { href: '/dashboard',            icon: '▣',  label: 'Overview'   },
+  { href: '/dashboard/my-policy',  icon: '🛡️', label: 'My Policy'  },
+  { href: '/dashboard/triggers',   icon: '⚡',  label: 'Triggers'   },
   { href: '/dashboard/workers',    icon: '👷', label: 'Workers'    },
   { href: '/dashboard/policies',   icon: '🛡️', label: 'Policies', active: true },
   { href: '/dashboard/claims',     icon: '≡',  label: 'Claims'     },
@@ -181,9 +187,11 @@ export default function PoliciesPage() {
             className="rounded-xl border border-white/[0.08] bg-[#0d1829] px-4 py-2.5 text-sm text-slate-300 outline-none cursor-pointer">
             <option value="all">All Coverage</option>
             <option value="weather">🌧️ Weather</option>
-            <option value="accident">🚑 Accident</option>
+            <option value="flood">🌊 Flood</option>
             <option value="job_loss">💼 Job Loss</option>
-            <option value="health">🏥 Health</option>
+            <option value="pollution">😷 Pollution</option>
+            <option value="curfew">🚫 Curfew/Strike</option>
+            <option value="app_outage">⚡ App Outage</option>
           </select>
           <span className="ml-auto text-sm text-slate-500">{filtered.length} results</span>
         </div>

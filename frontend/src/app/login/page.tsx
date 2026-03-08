@@ -61,10 +61,10 @@ export default function LoginPage() {
         setLoading(false);
         return;
       }
-      const demoUser = DEMO_USERS[phone] || { name: "Demo User", role: "worker", platform: "Zomato", city: "Mumbai" };
+      const demoUser = DEMO_USERS[phone] || { name: "Demo User", role: "worker", platform: "Zomato", city: "Mumbai", zone: "Andheri West" };
       localStorage.setItem("gigarmor_token", "demo_token_" + Date.now());
       localStorage.setItem("gigarmor_user", JSON.stringify({ ...demoUser, phone, id: "demo-" + phone }));
-      router.push("/dashboard");
+      router.push(demoUser.role === "admin" ? "/dashboard" : "/dashboard/my-policy");
       return;
     }
 
@@ -79,15 +79,15 @@ export default function LoginPage() {
       if (!res.ok) throw new Error(data.detail || "Invalid OTP");
       localStorage.setItem("gigarmor_token", data.access_token);
       localStorage.setItem("gigarmor_user", JSON.stringify(data.user));
-      router.push("/dashboard");
+      router.push(data.user?.role === "admin" ? "/dashboard" : "/dashboard/my-policy");
     } catch (err: unknown) {
       const isNetworkErr = err instanceof TypeError || (err instanceof Error && err.name === "TimeoutError");
       if (isNetworkErr && otp === "123456") {
         // Backend offline but correct demo OTP → allow in
-        const demoUser = DEMO_USERS[phone] || { name: "Demo User", role: "worker", platform: "Zomato", city: "Mumbai" };
+        const demoUser = DEMO_USERS[phone] || { name: "Demo User", role: "worker", platform: "Zomato", city: "Mumbai", zone: "Andheri West" };
         localStorage.setItem("gigarmor_token", "demo_token_" + Date.now());
         localStorage.setItem("gigarmor_user", JSON.stringify({ ...demoUser, phone, id: "demo-" + phone }));
-        router.push("/dashboard");
+        router.push(demoUser.role === "admin" ? "/dashboard" : "/dashboard/my-policy");
       } else {
         setError(isNetworkErr ? "Backend offline — use OTP 123456" : (err instanceof Error ? err.message : "Invalid OTP"));
       }

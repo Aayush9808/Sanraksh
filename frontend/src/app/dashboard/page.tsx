@@ -9,12 +9,14 @@ import {
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 const navItems = [
-  { href: "/dashboard",            icon: "▣",  label: "Overview",  active: true  },
-  { href: "/dashboard/workers",    icon: "👷", label: "Workers",   active: false },
-  { href: "/dashboard/policies",   icon: "🛡️", label: "Policies",  active: false },
-  { href: "/dashboard/claims",     icon: "≡",  label: "Claims",    active: false },
-  { href: "/dashboard/analytics",  icon: "↗",  label: "Analytics", active: false },
-  { href: "/dashboard/risk-map",   icon: "🗺️", label: "Risk Map",  active: false },
+  { href: "/dashboard",            icon: "▣",  label: "Overview",    active: true  },
+  { href: "/dashboard/my-policy",  icon: "🛡️", label: "My Policy",   active: false },
+  { href: "/dashboard/triggers",   icon: "⚡",  label: "Triggers",    active: false },
+  { href: "/dashboard/workers",    icon: "👷", label: "Workers",     active: false },
+  { href: "/dashboard/policies",   icon: "🛡️", label: "Policies",   active: false },
+  { href: "/dashboard/claims",     icon: "≡",  label: "Claims",      active: false },
+  { href: "/dashboard/analytics",  icon: "↗",  label: "Analytics",   active: false },
+  { href: "/dashboard/risk-map",   icon: "🗺️", label: "Risk Map",   active: false },
 ];
 
 const MOCK_CLAIMS_DATA = [
@@ -29,9 +31,10 @@ const MOCK_CLAIMS_DATA = [
 
 const MOCK_POLICY_MIX = [
   { name: "Weather",  value: 42, color: "#22d3ee" },
-  { name: "Accident", value: 23, color: "#a78bfa" },
-  { name: "Job Loss", value: 18, color: "#34d399" },
-  { name: "Health",   value: 17, color: "#f59e0b" },
+  { name: "Flood",    value: 20, color: "#38bdf8" },
+  { name: "Job Loss", value: 21, color: "#a78bfa" },
+  { name: "Curfew",   value: 10, color: "#34d399" },
+  { name: "Pollution",value: 7,  color: "#f59e0b" },
 ];
 
 const activity = [
@@ -45,7 +48,7 @@ const activity = [
 const MOCK_RECENT_CLAIMS = [
   { id: "C-2045", name: "Vikram Nair",  type: "Weather",  amount: "800",   status: "PAID",       sc: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
   { id: "C-2044", name: "Sunita Devi",  type: "Weather",  amount: "800",   status: "PROCESSING", sc: "bg-amber-500/20 text-amber-300 border-amber-500/30"       },
-  { id: "C-2043", name: "Raju Mehtani", type: "Accident", amount: "800",   status: "REVIEW",     sc: "bg-red-500/20 text-red-300 border-red-500/30"             },
+  { id: "C-2043", name: "Raju Mehtani", type: "Flood",    amount: "800",   status: "REVIEW",     sc: "bg-red-500/20 text-red-300 border-red-500/30"             },
   { id: "C-2042", name: "Priya Sharma", type: "Weather",  amount: "800",   status: "PAID",       sc: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
   { id: "C-2041", name: "Amit Singh",   type: "Weather",  amount: "800",   status: "PAID",       sc: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
 ];

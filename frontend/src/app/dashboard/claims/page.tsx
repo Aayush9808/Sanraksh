@@ -6,7 +6,9 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 const navItems = [
   { icon: "▣",  label: "Overview",  href: "/dashboard" },
-  { icon: "👷", label: "Workers",   href: "/dashboard/workers" },
+  { icon: "�️", label: "My Policy",  href: "/dashboard/my-policy" },
+  { icon: "⚡",  label: "Triggers",  href: "/dashboard/triggers" },
+  { icon: "�👷", label: "Workers",   href: "/dashboard/workers" },
   { icon: "🛡️", label: "Policies",  href: "/dashboard/policies" },
   { icon: "≡",  label: "Claims",    href: "/dashboard/claims",   active: true },
   { icon: "↗",  label: "Analytics", href: "/dashboard/analytics" },
@@ -17,7 +19,7 @@ const MOCK_CLAIMS = [
   { id: "C001", name: "Rajesh Kumar",   initials: "RK", zone: "Andheri West",    type: "Weather",  amount: "₹800",   status: "PAID",       time: "2m ago",  claim_number: "CLM-20241208-00001", fraud_score: 0.04 },
   { id: "C002", name: "Sunita Kumari",  initials: "SK", zone: "Bandra-Kurla",   type: "Weather",  amount: "₹800",   status: "PAID",       time: "5m ago",  claim_number: "CLM-20241208-00002", fraud_score: 0.07 },
   { id: "C003", name: "Ajay Patel",     initials: "AP", zone: "Pune Central",   type: "Weather",  amount: "₹800",   status: "PROCESSING", time: "8m ago",  claim_number: "CLM-20241208-00003", fraud_score: 0.32 },
-  { id: "C004", name: "Meera Sharma",   initials: "MS", zone: "Delhi NCR",      type: "Accident", amount: "₹800",   status: "REVIEW",     time: "12m ago", claim_number: "CLM-20241208-00004", fraud_score: 0.45 },
+  { id: "C004", name: "Meera Sharma",   initials: "MS", zone: "Delhi NCR",      type: "Flood",    amount: "₹800",   status: "REVIEW",     time: "12m ago", claim_number: "CLM-20241208-00004", fraud_score: 0.45 },
   { id: "C005", name: "Deepak Raut",    initials: "DR", zone: "Koramangala",    type: "Weather",  amount: "₹800",   status: "PAID",       time: "15m ago", claim_number: "CLM-20241208-00005", fraud_score: 0.11 },
   { id: "C006", name: "Priya Singh",    initials: "PS", zone: "Andheri East",   type: "Weather",  amount: "₹800",   status: "PAID",       time: "22m ago", claim_number: "CLM-20241208-00006", fraud_score: 0.05 },
   { id: "C007", name: "Kiran Naik",     initials: "KN", zone: "Thane West",     type: "Weather",  amount: "₹800",   status: "PROCESSING", time: "31m ago", claim_number: "CLM-20241208-00007", fraud_score: 0.28 },
