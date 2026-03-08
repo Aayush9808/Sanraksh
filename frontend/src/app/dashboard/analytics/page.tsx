@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 const navItems = [
-  { icon: "📊", label: "Overview",  href: "/dashboard" },
+  { icon: "▣",  label: "Overview",  href: "/dashboard" },
+  { icon: "👷", label: "Workers",   href: "/dashboard/workers" },
+  { icon: "🛡️", label: "Policies",  href: "/dashboard/policies" },
+  { icon: "≡",  label: "Claims",    href: "/dashboard/claims" },
+  { icon: "↗",  label: "Analytics", href: "/dashboard/analytics", active: true },
   { icon: "🗺️", label: "Risk Map",  href: "/dashboard/risk-map" },
-  { icon: "📋", label: "Claims",    href: "/dashboard/claims" },
-  { icon: "👥", label: "Workers",   href: "/dashboard/workers" },
-  { icon: "📈", label: "Analytics", href: "/dashboard/analytics", active: true },
 ];
 
 const automationWeeks = [
