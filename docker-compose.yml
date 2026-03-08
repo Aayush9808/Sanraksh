@@ -34,10 +34,13 @@ services:
     container_name: gigshield-backend
     ports:
       - "8000:8000"
+    env_file:
+      - .env
     environment:
       DATABASE_URL: postgresql://gigshield:gigshield123@postgres:5432/gigshield_db
       REDIS_URL: redis://redis:6379
       ENVIRONMENT: development
+      SECRET_KEY: your-super-secret-key-change-this-in-production-min-32-chars-long
     depends_on:
       postgres:
         condition: service_healthy
