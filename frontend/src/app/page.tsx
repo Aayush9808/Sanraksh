@@ -64,9 +64,11 @@ export default function Home() {
             ))}
           </div>
           <div className="flex items-center gap-2.5">
-            <a href="https://github.com/Aayush9808/Guidewire-Temp" target="_blank" rel="noreferrer"
+            <a href="https://github.com/Aayush9808/GigArmor" target="_blank" rel="noreferrer"
                className="hidden rounded-xl border border-white/10 px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/5 sm:block">GitHub</a>
-            <a href="/dashboard"
+            <a href="/login"
+               className="rounded-xl border border-white/[0.08] px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/5">Login</a>
+            <a href="/register"
                className="rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-5 py-2 text-sm font-bold text-white shadow-lg shadow-cyan-500/25 transition hover:from-cyan-400 hover:to-blue-500">
               Get Protected
             </a>
@@ -99,7 +101,7 @@ export default function Home() {
               No paperwork. No waiting. Built for 10M+ gig workers.
             </p>
             <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-              <a href="/dashboard"
+              <a href="/register"
                  className="group flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-8 py-3.5 text-base font-bold text-white shadow-xl shadow-cyan-500/30 transition hover:from-cyan-400 hover:to-blue-500">
                 Start Free Trial <span className="transition-transform group-hover:translate-x-0.5">→</span>
               </a>
@@ -245,7 +247,7 @@ export default function Home() {
                       <span className="text-sm font-semibold text-slate-300">₹{coverage.toLocaleString()}</span>
                     </div>
                   </div>
-                  <a href="/dashboard"
+                  <a href="/register"
                      className="mt-5 block w-full rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 py-3.5 text-center text-sm font-bold text-white shadow-lg shadow-cyan-500/25 transition hover:from-cyan-400 hover:to-blue-500">
                     Start Protection for ₹{weekly}/week →
                   </a>
@@ -288,11 +290,11 @@ export default function Home() {
             <h2 className="text-[clamp(1.8rem,4vw,3.25rem)] font-black text-white">Ready to protect your income?</h2>
             <p className="mx-auto mt-3 max-w-md text-slate-400">Join 10,000+ gig workers who never worry about bad weather days.</p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <a href="/dashboard"
+              <a href="/register"
                  className="rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-9 py-3.5 font-bold text-white shadow-xl shadow-cyan-500/30 transition hover:from-cyan-400 hover:to-blue-500">
                 Start Free Trial
               </a>
-              <a href="https://github.com/Aayush9808/Guidewire-Temp" target="_blank" rel="noreferrer"
+              <a href="https://github.com/Aayush9808/GigArmor" target="_blank" rel="noreferrer"
                  className="rounded-xl border border-white/10 px-9 py-3.5 font-semibold text-slate-300 transition hover:text-white">
                 View on GitHub ↗
               </a>

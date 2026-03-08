@@ -92,6 +92,8 @@ export default function RiskHeatmapPage() {
               Dashboard
             </Link>
             <span className="text-slate-700">/</span>
+            <Link href="/dashboard/policies" className="text-slate-400 hover:text-white transition-colors text-sm">Policies</Link>
+            <span className="text-slate-700">/</span>
             <h1 className="text-lg font-semibold text-white flex items-center gap-2">
               <span>🗺️</span> Risk Intelligence Map
             </h1>

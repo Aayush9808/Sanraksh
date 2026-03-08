@@ -113,6 +113,8 @@ export default function WorkersPage() {
               Dashboard
             </Link>
             <span className="text-slate-700">/</span>
+            <Link href="/dashboard/policies" className="text-slate-400 hover:text-white transition-colors text-sm">Policies</Link>
+            <span className="text-slate-700">/</span>
             <h1 className="text-lg font-semibold text-white">Worker Management</h1>
           </div>
           <div className="flex items-center gap-3">

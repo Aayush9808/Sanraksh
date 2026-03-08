@@ -9,11 +9,12 @@ import {
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 const navItems = [
-  { href: "/dashboard",           icon: "▣",  label: "Overview",  active: true  },
-  { href: "/dashboard/workers",   icon: "👷", label: "Workers",   active: false },
-  { href: "/dashboard/claims",    icon: "≡",  label: "Claims",    active: false },
-  { href: "/dashboard/analytics", icon: "↗",  label: "Analytics", active: false },
-  { href: "/",                    icon: "⌂",  label: "Home",      active: false },
+  { href: "/dashboard",            icon: "▣",  label: "Overview",  active: true  },
+  { href: "/dashboard/workers",    icon: "👷", label: "Workers",   active: false },
+  { href: "/dashboard/policies",   icon: "🛡️", label: "Policies",  active: false },
+  { href: "/dashboard/claims",     icon: "≡",  label: "Claims",    active: false },
+  { href: "/dashboard/analytics",  icon: "↗",  label: "Analytics", active: false },
+  { href: "/dashboard/risk-map",   icon: "🗺️", label: "Risk Map",  active: false },
 ];
 
 const MOCK_CLAIMS_DATA = [
