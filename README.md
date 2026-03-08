@@ -1,4 +1,4 @@
-# 🛡️ GigShield - AI-Powered Parametric Insurance for Gig Workers
+# 🛡️ GigArmor - AI-Powered Parametric Insurance for Gig Workers
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/)
@@ -7,7 +7,7 @@
 
 > **Protecting India's 10M+ delivery partners from income loss due to weather, traffic, and social disruptions**
 
-[Live Demo](https://gigshield.app) • [Documentation](./docs/API.md) • [Video Demo](https://youtu.be/your-demo)
+[Live Demo](https://gigarmor.app) • [Documentation](./docs/API.md) • [Video Demo](https://youtu.be/your-demo)
 
 ---
 
@@ -19,7 +19,7 @@ India's platform-based delivery partners (Zomato, Swiggy, Amazon, Zepto, Blinkit
 - **Zero** financial protection against uncontrollable events
 - Traditional insurance is too slow, expensive, and complex
 
-**GigShield** provides instant, affordable, AI-powered parametric insurance designed specifically for the gig economy.
+**GigArmor** provides instant, affordable, AI-powered parametric insurance designed specifically for the gig economy.
 
 ---
 
@@ -176,7 +176,7 @@ docker-compose exec backend python scripts/seed_data.py
 ### Registration Flow
 ```
 User: Hi
-Bot: 👋 Welcome to GigShield! Get instant income protection.
+Bot: 👋 Welcome to GigArmor! Get instant income protection.
      Share your phone number to get started.
 
 User: [Shares contact]
@@ -323,7 +323,7 @@ SCALE TARGETS:
 ## 🗂️ Project Structure
 
 ```
-gigshield-dev/
+gigarmor-dev/
 ├── backend/              # FastAPI application
 │   ├── app/
 │   │   ├── models/       # Database models

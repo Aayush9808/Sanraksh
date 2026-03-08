@@ -1,5 +1,5 @@
 """
-GigShield Comprehensive Seed Data Script
+GigArmor Comprehensive Seed Data Script
 Generates realistic demo data: 500 workers, 450 policies, 600 claims, 20 risk zones, 8 disruptions
 """
 import sys
@@ -12,7 +12,7 @@ from sqlalchemy.orm import sessionmaker
 from datetime import date, datetime, timedelta
 import uuid, random, json
 
-DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://gigshield:gigshield_pass@localhost:5432/gigshield_db")
+DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://gigarmor:gigarmor_pass@localhost:5432/gigarmor_db")
 engine = create_engine(DATABASE_URL)
 Session = sessionmaker(bind=engine)
 
@@ -168,7 +168,7 @@ for i in range(500):
         id=uuid.uuid4(),
         phone=phone,
         name=name,
-        email=f"worker{i+1}@gigshield.in",
+        email=f"worker{i+1}@gigarmor.in",
         delivery_platform=platform,
         work_city=city,
         work_zone=zone,
@@ -185,7 +185,7 @@ for i in range(500):
 # Add 2 demo accounts
 demo1 = User(
     id=uuid.uuid4(), phone="+917000000001", name="Raj Demo Worker",
-    email="demo@gigshield.in", delivery_platform="zomato",
+    email="demo@gigarmor.in", delivery_platform="zomato",
     work_city="Mumbai", work_zone="Andheri West",
     work_location_lat=19.1136, work_location_lng=72.8697,
     kyc_status=KYCStatus.VERIFIED, risk_score=0.45, is_active=True,
@@ -193,7 +193,7 @@ demo1 = User(
 )
 demo2 = User(
     id=uuid.uuid4(), phone="+917000000002", name="Priya Demo Admin",
-    email="admin@gigshield.in", delivery_platform="swiggy",
+    email="admin@gigarmor.in", delivery_platform="swiggy",
     work_city="Delhi", work_zone="Connaught Place",
     work_location_lat=28.6315, work_location_lng=77.2167,
     kyc_status=KYCStatus.VERIFIED, risk_score=0.35, is_active=True,
@@ -282,7 +282,7 @@ total_c = db.query(func.count(Claim.id)).scalar()
 paid_c = db.query(func.count(Claim.id)).filter(Claim.status == ClaimStatus.PAID).scalar()
 total_payout = db.query(func.sum(Claim.claim_amount)).filter(Claim.status == ClaimStatus.PAID).scalar() or 0
 print("\n" + "="*50)
-print("✅ GigShield SEED DATA COMPLETE!")
+print("✅ GigArmor SEED DATA COMPLETE!")
 print("="*50)
 print(f"  👷 Workers:          {total_u:,}")
 print(f"  📋 Total Policies:   {total_p:,} ({active_p:,} active)")

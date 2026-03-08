@@ -45,7 +45,7 @@ class Settings(BaseSettings):
     
     # SendGrid
     SENDGRID_API_KEY: str = ""
-    FROM_EMAIL: str = "noreply@gigshield.app"
+    FROM_EMAIL: str = "noreply@gigarmor.app"
     
     # Insurance Configuration
     BASE_PREMIUM_WEEKLY: float = 40.0

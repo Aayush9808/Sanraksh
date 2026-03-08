@@ -1,6 +1,6 @@
-# Contributing to GigShield
+# Contributing to GigArmor
 
-Thank you for considering contributing to GigShield! This document provides guidelines for contributing to the project.
+Thank you for considering contributing to GigArmor! This document provides guidelines for contributing to the project.
 
 ## Development Workflow
 
@@ -144,7 +144,7 @@ Add screenshots for UI changes
 ## Directory Structure
 
 ```
-gigshield-dev/
+gigarmor-dev/
 ├── backend/          # FastAPI backend
 │   ├── app/
 │   │   ├── models/   # Database models
@@ -207,7 +207,7 @@ alembic upgrade head
 
 - Open an issue for bugs or feature requests
 - Join our Discord for discussions (link in README)
-- Email: dev@gigshield.app
+- Email: dev@gigarmor.app
 
 ## Code of Conduct
 

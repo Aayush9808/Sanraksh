@@ -3,24 +3,24 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: gigshield-postgres
+    container_name: gigarmor-postgres
     environment:
-      POSTGRES_USER: gigshield
-      POSTGRES_PASSWORD: gigshield123
-      POSTGRES_DB: gigshield_db
+      POSTGRES_USER: gigarmor
+      POSTGRES_PASSWORD: gigarmor123
+      POSTGRES_DB: gigarmor_db
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U gigshield"]
+      test: ["CMD-SHELL", "pg_isready -U gigarmor"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   redis:
     image: redis:7-alpine
-    container_name: gigshield-redis
+    container_name: gigarmor-redis
     ports:
       - "6379:6379"
     healthcheck:
@@ -31,13 +31,13 @@ services:
 
   backend:
     build: ./backend
-    container_name: gigshield-backend
+    container_name: gigarmor-backend
     ports:
       - "8000:8000"
     env_file:
       - .env
     environment:
-      DATABASE_URL: postgresql://gigshield:gigshield123@postgres:5432/gigshield_db
+      DATABASE_URL: postgresql://gigarmor:gigarmor123@postgres:5432/gigarmor_db
       REDIS_URL: redis://redis:6379
       ENVIRONMENT: development
       SECRET_KEY: your-super-secret-key-change-this-in-production-min-32-chars-long
@@ -52,7 +52,7 @@ services:
 
   frontend:
     build: ./frontend
-    container_name: gigshield-frontend
+    container_name: gigarmor-frontend
     ports:
       - "3000:3000"
     environment:
@@ -70,4 +70,4 @@ volumes:
 
 networks:
   default:
-    name: gigshield-network
+    name: gigarmor-network

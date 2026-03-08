@@ -25,7 +25,7 @@ const steps = [
 ];
 
 const testimonials = [
-  { name: "Rahul Kumar",  role: "Swiggy Partner • Mumbai",  init: "RK", bg: "bg-cyan-500",    quote: "Teen din baarish mein kaam nahi hua. GigShield ne ₹2,400 seedha account mein daale. Koi form nahi, koi call nahi — bas paisa aa gaya." },
+  { name: "Rahul Kumar",  role: "Swiggy Partner • Mumbai",  init: "RK", bg: "bg-cyan-500",    quote: "Teen din baarish mein kaam nahi hua. GigArmor ne ₹2,400 seedha account mein daale. Koi form nahi, koi call nahi — bas paisa aa gaya." },
   { name: "Priya Sharma", role: "Zomato Partner • Pune",    init: "PS", bg: "bg-violet-500",  quote: "₹43/week mein itni protection? Pehle yakeen nahi tha. Ab 8 mahine ho gaye, 3 claims mile — sab automatic. Best decision ever." },
   { name: "Amit Singh",   role: "Ola Driver • Delhi NCR",   init: "AS", bg: "bg-emerald-500", quote: "WhatsApp pe hi sab ho jaata hai. Baarish ka alert 2 ghante pehle aata hai, phir payment bhi automatically aa jaati hai." },
 ];
@@ -56,7 +56,7 @@ export default function Home() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3.5">
           <a href="/" className="flex items-center gap-2.5">
             <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 text-sm font-black text-white shadow-lg shadow-cyan-500/30">G</span>
-            <span className="text-base font-black tracking-tight text-white">GigShield</span>
+            <span className="text-base font-black tracking-tight text-white">GigArmor</span>
           </a>
           <div className="hidden items-center gap-7 md:flex">
             {[["#coverage","Coverage"],["#how","How it Works"],["#calc","Pricing"],["/dashboard","Dashboard"]].map(([h,l]) => (
@@ -94,7 +94,7 @@ export default function Home() {
               </span>
             </h1>
             <p className="mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-slate-400">
-              When rain grounds your bike, GigShield pays you{" "}
+              When rain grounds your bike, GigArmor pays you{" "}
               <span className="font-semibold text-white">automatically in 60 seconds</span>.
               No paperwork. No waiting. Built for 10M+ gig workers.
             </p>
@@ -261,7 +261,7 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-5">
           <div className="text-center">
             <p className="text-xs font-bold uppercase tracking-widest text-cyan-400">Real stories</p>
-            <h2 className="mt-3 text-[clamp(1.8rem,4vw,3.25rem)] font-black text-white">Workers who trust GigShield</h2>
+            <h2 className="mt-3 text-[clamp(1.8rem,4vw,3.25rem)] font-black text-white">Workers who trust GigArmor</h2>
           </div>
           <div className="mt-12 grid gap-5 md:grid-cols-3">
             {testimonials.map(t => (
@@ -307,7 +307,7 @@ export default function Home() {
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-2.5">
               <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-400 to-blue-600 text-xs font-black text-white">G</span>
-              <span className="font-black text-white">GigShield</span>
+              <span className="font-black text-white">GigArmor</span>
             </div>
             <div className="flex flex-wrap gap-5 text-sm text-slate-500">
               {[["#coverage","Coverage"],["#how","How it Works"],["#calc","Pricing"],["/dashboard","Dashboard"],["/dashboard/claims","Claims"],["/dashboard/analytics","Analytics"],["http://localhost:8000/docs","API Docs"],["https://github.com/Aayush9808/Guidewire-Temp","GitHub"]].map(([h,l]) => (
@@ -317,7 +317,7 @@ export default function Home() {
             </div>
           </div>
           <div className="mt-8 border-t border-white/[0.05] pt-6 text-center text-xs text-slate-700">
-            Guidewire DEVTrails 2026 • GigShield • Built for India&apos;s gig workforce
+            Guidewire DEVTrails 2026 • GigArmor • Built for India&apos;s gig workforce
           </div>
         </div>
       </footer>

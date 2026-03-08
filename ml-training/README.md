@@ -1,6 +1,6 @@
-# GigShield ML Training
+# GigArmor ML Training
 
-This folder contains Jupyter notebooks for training machine learning models used in the GigShield platform.
+This folder contains Jupyter notebooks for training machine learning models used in the GigArmor platform.
 
 ## Notebooks
 

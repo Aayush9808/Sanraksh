@@ -110,7 +110,7 @@ export default function DashboardPage() {
       <aside className={"fixed inset-y-0 left-0 z-50 flex w-60 flex-col border-r border-white/[0.06] bg-[#060d1a] transition-transform duration-300 lg:translate-x-0 " + (sidebarOpen ? "translate-x-0" : "-translate-x-full")}>
         <div className="flex h-14 shrink-0 items-center gap-2.5 border-b border-white/[0.06] px-5">
           <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 text-sm font-black text-white shadow-lg shadow-cyan-500/30">G</span>
-          <span className="text-sm font-black text-white">GigShield</span>
+          <span className="text-sm font-black text-white">GigArmor</span>
         </div>
         <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
           <p className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-widest text-slate-600">Navigation</p>
@@ -145,7 +145,7 @@ export default function DashboardPage() {
               ☰
             </button>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">GigShield</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">GigArmor</p>
               <h1 className="text-base font-black leading-tight text-white">Control Center</h1>
             </div>
           </div>

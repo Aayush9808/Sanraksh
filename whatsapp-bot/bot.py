@@ -56,7 +56,7 @@ def handle_message(phone: str, message: str, state: dict) -> str:
     # Initial greeting
     if step == "initial" or message in ["hi", "hello", "start", "insurance"]:
         user_states[phone] = {"step": "ask_name"}
-        return """👋 Welcome to GigShield!
+        return """👋 Welcome to GigArmor!
 
 Protect yourself from income loss due to weather, traffic, and strikes.
 
@@ -158,7 +158,7 @@ Policy Activated: {policy_number}
 • Heavy rain/disruption detected
 • Your claim auto-filed
 • Money transferred in 60 seconds
-• Track everything at gigshield.app
+• Track everything at gigarmor.app
 
 COMMANDS:
 /status - Check policy
@@ -214,7 +214,7 @@ Auto-debit enabled ✅"""
 /help - This message
 
 Questions?
-📧 support@gigshield.app
+📧 support@gigarmor.app
 📞 1800-XXX-XXXX
 
 We're here to help! 💙"""
@@ -230,7 +230,7 @@ Try these commands:
 Or just say HI!"""
     
     # Default
-    return "Welcome to GigShield! Reply HI to get started. 👋"
+    return "Welcome to GigArmor! Reply HI to get started. 👋"
 
 
 def send_whatsapp_message(to_phone: str, message: str):

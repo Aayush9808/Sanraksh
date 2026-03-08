@@ -90,7 +90,7 @@ docker-compose -f docker-compose.prod.yml up -d
 ```nginx
 server {
     listen 80;
-    server_name api.gigshield.app;
+    server_name api.gigarmor.app;
 
     location / {
         proxy_pass http://localhost:8000;
@@ -101,7 +101,7 @@ server {
 
 server {
     listen 80;
-    server_name gigshield.app;
+    server_name gigarmor.app;
 
     location / {
         proxy_pass http://localhost:3000;
@@ -118,7 +118,7 @@ server {
 ### Backend
 ```env
 # Database
-DATABASE_URL=postgresql://user:password@host:5432/gigshield_production
+DATABASE_URL=postgresql://user:password@host:5432/gigarmor_production
 
 # Redis
 REDIS_URL=redis://host:6379
@@ -137,12 +137,12 @@ RAZORPAY_KEY_SECRET=<your-secret>
 SENDGRID_API_KEY=<your-key>
 
 # URLs
-CORS_ORIGINS=https://gigshield.app
+CORS_ORIGINS=https://gigarmor.app
 ```
 
 ### Frontend
 ```env
-NEXT_PUBLIC_API_URL=https://api.gigshield.app
+NEXT_PUBLIC_API_URL=https://api.gigarmor.app
 ```
 
 ---
@@ -185,12 +185,12 @@ docker-compose logs -f postgres
 
 ### Database backup:
 ```bash
-docker-compose exec postgres pg_dump -U gigshield gigshield_db > backup.sql
+docker-compose exec postgres pg_dump -U gigarmor gigarmor_db > backup.sql
 ```
 
 ### Database restore:
 ```bash
-docker-compose exec -T postgres psql -U gigshield gigshield_db < backup.sql
+docker-compose exec -T postgres psql -U gigarmor gigarmor_db < backup.sql
 ```
 
 ---
@@ -278,4 +278,4 @@ jobs:
 
 - Documentation: `/docs`
 - Issues: GitHub Issues
-- Email: support@gigshield.app
+- Email: support@gigarmor.app

@@ -1,5 +1,5 @@
 """
-GigShield - Main FastAPI Application
+GigArmor - Main FastAPI Application
 AI-Powered Parametric Insurance for Gig Workers
 """
 
@@ -21,7 +21,7 @@ Base.metadata.create_all(bind=engine)
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="GigShield API",
+    title="GigArmor API",
     description="AI-Powered Parametric Insurance for Gig Economy Workers",
     version="1.0.0",
     docs_url="/docs",
@@ -51,7 +51,7 @@ app.include_router(analytics.router, prefix="/api/v1/analytics", tags=["Analytic
 async def root():
     """Root endpoint"""
     return {
-        "message": "GigShield API - Protecting India's Gig Workers",
+        "message": "GigArmor API - Protecting India's Gig Workers",
         "version": "1.0.0",
         "status": "operational",
         "docs": "/docs",
@@ -72,7 +72,7 @@ async def health_check():
 @app.on_event("startup")
 async def startup_event():
     """Startup event handler"""
-    logger.info("🚀 GigShield API starting up...")
+    logger.info("🚀 GigArmor API starting up...")
     logger.info(f"Environment: {settings.ENVIRONMENT}")
     logger.info(f"Debug mode: {settings.DEBUG}")
     logger.info("📊 Database tables created/verified")
@@ -82,7 +82,7 @@ async def startup_event():
 @app.on_event("shutdown")
 async def shutdown_event():
     """Shutdown event handler"""
-    logger.info("👋 GigShield API shutting down...")
+    logger.info("👋 GigArmor API shutting down...")
 
 
 # Global exception handler

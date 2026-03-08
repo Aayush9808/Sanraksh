@@ -1,8 +1,8 @@
-# GigShield Architecture
+# GigArmor Architecture
 
 ## System Overview
 
-GigShield is a parametric insurance platform designed specifically for India's gig economy delivery partners. The system uses AI/ML for dynamic pricing, fraud detection, and hyper-local risk assessment.
+GigArmor is a parametric insurance platform designed specifically for India's gig economy delivery partners. The system uses AI/ML for dynamic pricing, fraud detection, and hyper-local risk assessment.
 
 ## High-Level Architecture
 

@@ -164,7 +164,7 @@ Status: Transferred
 
 Check your bank account in 2-3 minutes.
 
-Thank you for using GigShield! 🛡️"""
+Thank you for using GigArmor! 🛡️"""
     
     def _format_disruption_alert(self, disruption: Dict) -> str:
         """Format disruption alert message"""

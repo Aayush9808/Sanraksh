@@ -4,7 +4,7 @@
 
 ```
 Development: http://localhost:8000
-Production: https://api.gigshield.app
+Production: https://api.gigarmor.app
 ```
 
 ## Authentication

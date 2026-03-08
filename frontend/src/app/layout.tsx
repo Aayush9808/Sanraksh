@@ -5,7 +5,7 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'GigShield - AI Insurance for Gig Workers',
+  title: 'GigArmor - AI Insurance for Gig Workers',
   description: 'Protecting India\'s delivery partners from income loss',
 }
 

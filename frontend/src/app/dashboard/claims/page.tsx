@@ -110,7 +110,7 @@ export default function ClaimsPage() {
       {/* Sidebar */}
       <aside className="fixed left-0 top-0 flex h-screen w-64 flex-col border-r border-white/10 bg-slate-900">
         <div className="border-b border-white/10 px-5 py-6">
-          <p className="text-2xl font-black">🛡️ GigShield</p>
+          <p className="text-2xl font-black">🛡️ GigArmor</p>
           <p className="mt-1 text-xs text-slate-400">Control Center</p>
         </div>
         <nav className="flex-1 space-y-1 p-3">

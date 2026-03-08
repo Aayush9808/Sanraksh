@@ -1,6 +1,6 @@
 # ML Models Directory
 
-This directory stores trained machine learning models used by the GigShield platform.
+This directory stores trained machine learning models used by the GigArmor platform.
 
 ## Current Models
 
