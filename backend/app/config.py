@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
     # CORS
-    CORS_ORIGINS: str = "http://localhost:3000,https://guidewire-temp.vercel.app,https://*.vercel.app"
+    CORS_ORIGINS: str = "http://localhost:3000,https://gigarmor.vercel.app,https://*.vercel.app"
     
     # Weather APIs
     OPENWEATHER_API_KEY: str = ""
