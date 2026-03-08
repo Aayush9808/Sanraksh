@@ -1,21 +1,20 @@
-"""
-Policy Schemas
-"""
-
+"""Policy Schemas"""
 from pydantic import BaseModel, Field
 from typing import Optional
-from datetime import date, datetime
-
+from datetime import date
 
 class PolicyCreateRequest(BaseModel):
-    """Create policy request"""
     user_id: str
-    coverage_amount: Optional[float] = 800.0
-    start_date: Optional[date] = None
+    duration_weeks: int = Field(default=4, ge=1, le=52)
+    coverage_type: Optional[str] = "income_loss_only"
 
+class PremiumCalculateRequest(BaseModel):
+    city: str
+    zone: Optional[str] = ""
+    user_id: Optional[str] = None
+    tenure_months: Optional[int] = 0
 
 class PolicyResponse(BaseModel):
-    """Policy response"""
     id: str
     user_id: str
     policy_number: str
@@ -25,24 +24,5 @@ class PolicyResponse(BaseModel):
     weekly_premium: float
     coverage_amount: float
     coverage_type: str
-    created_at: datetime
-    
     class Config:
         from_attributes = True
-
-
-class PremiumCalculationRequest(BaseModel):
-    """Premium calculation request"""
-    user_id: str
-    city: str
-    zone: str
-    coverage_amount: Optional[float] = 800.0
-
-
-class PremiumCalculationResponse(BaseModel):
-    """Premium calculation response"""
-    base_premium: float
-    adjustments: list
-    final_premium: float
-    coverage_daily: float
-    calculation_timestamp: str

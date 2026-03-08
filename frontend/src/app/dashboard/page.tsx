@@ -1,19 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, PieChart, Pie, Cell,
 } from "recharts";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 const navItems = [
   { href: "/dashboard",           icon: "▣",  label: "Overview",  active: true  },
+  { href: "/dashboard/workers",   icon: "👷", label: "Workers",   active: false },
   { href: "/dashboard/claims",    icon: "≡",  label: "Claims",    active: false },
   { href: "/dashboard/analytics", icon: "↗",  label: "Analytics", active: false },
   { href: "/",                    icon: "⌂",  label: "Home",      active: false },
 ];
 
-const claimsData = [
+const MOCK_CLAIMS_DATA = [
   { day: "Mon", claims: 8,  payout: 6400  },
   { day: "Tue", claims: 12, payout: 9600  },
   { day: "Wed", claims: 23, payout: 18400 },
@@ -23,7 +26,7 @@ const claimsData = [
   { day: "Sun", claims: 14, payout: 11200 },
 ];
 
-const policyMix = [
+const MOCK_POLICY_MIX = [
   { name: "Weather",  value: 42, color: "#22d3ee" },
   { name: "Accident", value: 23, color: "#a78bfa" },
   { name: "Job Loss", value: 18, color: "#34d399" },
@@ -32,28 +35,72 @@ const policyMix = [
 
 const activity = [
   { dot: "bg-amber-400",   text: "Heavy rain alert — Andheri West (Zone 7)",        time: "2 min ago"  },
-  { dot: "bg-emerald-400", text: "12 claims auto-approved — 9,600 disbursed",        time: "5 min ago"  },
+  { dot: "bg-emerald-400", text: "12 claims auto-approved — ₹9,600 disbursed",       time: "5 min ago"  },
   { dot: "bg-cyan-400",    text: "New worker: Rahul Kumar, Bandra-Kurla",            time: "10 min ago" },
   { dot: "bg-violet-400",  text: "Fraud alert cleared — Priya Sharma verified",      time: "18 min ago" },
-  { dot: "bg-emerald-400", text: "Claim #C-2041 paid — Amit Singh",                  time: "24 min ago" },
+  { dot: "bg-emerald-400", text: "Claim #CLM-20241208-00041 paid — Amit Singh",      time: "24 min ago" },
 ];
 
-const recentClaims = [
+const MOCK_RECENT_CLAIMS = [
   { id: "C-2045", name: "Vikram Nair",  type: "Weather",  amount: "800",   status: "PAID",       sc: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
   { id: "C-2044", name: "Sunita Devi",  type: "Weather",  amount: "800",   status: "PROCESSING", sc: "bg-amber-500/20 text-amber-300 border-amber-500/30"       },
-  { id: "C-2043", name: "Raju Mehtani", type: "Accident", amount: "1,200", status: "REVIEW",     sc: "bg-red-500/20 text-red-300 border-red-500/30"             },
+  { id: "C-2043", name: "Raju Mehtani", type: "Accident", amount: "800",   status: "REVIEW",     sc: "bg-red-500/20 text-red-300 border-red-500/30"             },
   { id: "C-2042", name: "Priya Sharma", type: "Weather",  amount: "800",   status: "PAID",       sc: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
   { id: "C-2041", name: "Amit Singh",   type: "Weather",  amount: "800",   status: "PAID",       sc: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
 ];
 
+function fmt(n: number): string {
+  if (n >= 100000) return (n / 100000).toFixed(1) + "L";
+  if (n >= 1000) return (n / 1000).toFixed(1) + "K";
+  return n.toString();
+}
+
+function statusClass(s: string): string {
+  if (s === "paid") return "bg-emerald-500/20 text-emerald-300 border-emerald-500/30";
+  if (s === "pending") return "bg-amber-500/20 text-amber-300 border-amber-500/30";
+  return "bg-red-500/20 text-red-300 border-red-500/30";
+}
+
 export default function DashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [stats, setStats] = useState({ total_users: 1247, active_policies: 1089, claims_today: 23, total_payout_amount: 274000, automation_rate: 94.2, claims_review: 8 });
+  const [claimsData, setClaimsData] = useState(MOCK_CLAIMS_DATA);
+  const [policyMix, setPolicyMix] = useState(MOCK_POLICY_MIX);
+  const [recentClaims, setRecentClaims] = useState(MOCK_RECENT_CLAIMS);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [dashRes, summaryRes, mixRes, claimsRes] = await Promise.all([
+          fetch(`${API_BASE}/api/v1/analytics/dashboard`),
+          fetch(`${API_BASE}/api/v1/analytics/claims-summary?days=7`),
+          fetch(`${API_BASE}/api/v1/analytics/policy-mix`),
+          fetch(`${API_BASE}/api/v1/claims/all?limit=5`),
+        ]);
+        if (dashRes.ok) setStats(await dashRes.json());
+        if (summaryRes.ok) { const d = await summaryRes.json(); if (d.length) setClaimsData(d); }
+        if (mixRes.ok) { const d = await mixRes.json(); if (d.length) setPolicyMix(d); }
+        if (claimsRes.ok) {
+          const d = await claimsRes.json();
+          if (d.claims?.length) {
+            setRecentClaims(d.claims.slice(0, 5).map((c: any) => ({
+              id: c.claim_number, name: c.worker_name || "Worker",
+              type: "Weather", amount: c.amount?.toString() || "800",
+              status: c.status?.toUpperCase() || "PAID",
+              sc: statusClass(c.status || ""),
+            })));
+          }
+        }
+      } catch { /* use mock data */ }
+    }
+    loadData();
+  }, []);
 
   const kpis = [
-    { icon: "👥", val: "1,247",  label: "Total Workers",   sub: "+12 today",     c: "border-cyan-500/30 bg-cyan-500/10 text-cyan-300"     },
-    { icon: "📋", val: "1,089",  label: "Active Policies", sub: "87% coverage",  c: "border-violet-500/30 bg-violet-500/10 text-violet-300"},
-    { icon: "⚡", val: "23",     label: "Claims Today",    sub: "up from 18",    c: "border-amber-500/30 bg-amber-500/10 text-amber-300"  },
-    { icon: "💰", val: "2.74L",  label: "Total Payouts",   sub: "+9,600 today",  c: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"},
+    { icon: "👥", val: fmt(stats.total_users),         label: "Total Workers",   sub: "registered",      c: "border-cyan-500/30 bg-cyan-500/10 text-cyan-300"     },
+    { icon: "📋", val: fmt(stats.active_policies),      label: "Active Policies", sub: `${Math.round(stats.active_policies/Math.max(stats.total_users,1)*100)}% coverage`, c: "border-violet-500/30 bg-violet-500/10 text-violet-300"},
+    { icon: "⚡", val: stats.claims_today.toString(),   label: "Claims Today",    sub: `${stats.claims_review} in review`, c: "border-amber-500/30 bg-amber-500/10 text-amber-300"},
+    { icon: "💰", val: `₹${fmt(stats.total_payout_amount)}`, label: "Total Payouts", sub: `${stats.automation_rate}% automated`, c: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"},
   ];
 
   return (
@@ -244,9 +291,9 @@ export default function DashboardPage() {
               </div>
               <div className="mt-4 grid grid-cols-3 gap-2">
                 {[
+                  ["/dashboard/workers",  "Workers"],
                   ["/dashboard/claims",    "Claims"],
                   ["/dashboard/analytics", "Analytics"],
-                  ["/",                    "Home"],
                 ].map(([href, label]) => (
                   <a key={href} href={href}
                      className="rounded-xl border border-white/[0.07] bg-white/[0.03] px-2 py-2 text-center text-[11px] font-medium text-slate-400 transition hover:bg-white/[0.07] hover:text-white">

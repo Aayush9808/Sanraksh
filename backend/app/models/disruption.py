@@ -64,7 +64,7 @@ class Disruption(Base):
     
     # Source
     source = Column(String(50), nullable=True)  # weather_api, manual, traffic_api
-    metadata = Column(JSONB, nullable=True)  # Additional data
+    event_metadata = Column(JSONB, nullable=True)  # Additional data
     
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())

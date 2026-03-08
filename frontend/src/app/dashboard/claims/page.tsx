@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 const navItems = [
   { icon: "📊", label: "Overview", href: "/dashboard" },
@@ -10,56 +12,98 @@ const navItems = [
   { icon: "📈", label: "Analytics", href: "/dashboard/analytics" },
 ];
 
-const allClaims = [
-  { id: "C001", name: "Rajesh Kumar",   initials: "RK", zone: "Andheri West",    type: "Food",     amount: "₹800",   status: "PAID",       time: "2m ago" },
-  { id: "C002", name: "Sunita Kumari",  initials: "SK", zone: "Bandra-Kurla",   type: "Grocery",  amount: "₹1,600", status: "PAID",       time: "5m ago" },
-  { id: "C003", name: "Ajay Patel",     initials: "AP", zone: "Pune Central",   type: "Ride",     amount: "₹800",   status: "PROCESSING", time: "8m ago" },
-  { id: "C004", name: "Meera Sharma",   initials: "MS", zone: "Delhi NCR",      type: "Food",     amount: "₹800",   status: "REVIEW",     time: "12m ago" },
-  { id: "C005", name: "Deepak Raut",    initials: "DR", zone: "Koramangala",    type: "E-comm",   amount: "₹1,600", status: "PAID",       time: "15m ago" },
-  { id: "C006", name: "Priya Singh",    initials: "PS", zone: "Andheri East",   type: "Food",     amount: "₹800",   status: "PAID",       time: "22m ago" },
-  { id: "C007", name: "Kiran Naik",     initials: "KN", zone: "Thane West",     type: "Grocery",  amount: "₹1,600", status: "PROCESSING", time: "31m ago" },
-  { id: "C008", name: "Rahul Desai",    initials: "RD", zone: "Bandra West",    type: "Ride",     amount: "₹800",   status: "REVIEW",     time: "45m ago" },
-  { id: "C009", name: "Fatima Sheikh",  initials: "FS", zone: "Jogeshwari",     type: "Food",     amount: "₹800",   status: "PAID",       time: "1h ago" },
-  { id: "C010", name: "Santosh Yadav",  initials: "SY", zone: "Powai",          type: "E-comm",   amount: "₹1,600", status: "PAID",       time: "1h ago" },
+const MOCK_CLAIMS = [
+  { id: "C001", name: "Rajesh Kumar",   initials: "RK", zone: "Andheri West",    type: "Weather",  amount: "₹800",   status: "PAID",       time: "2m ago",  claim_number: "CLM-20241208-00001", fraud_score: 0.04 },
+  { id: "C002", name: "Sunita Kumari",  initials: "SK", zone: "Bandra-Kurla",   type: "Weather",  amount: "₹800",   status: "PAID",       time: "5m ago",  claim_number: "CLM-20241208-00002", fraud_score: 0.07 },
+  { id: "C003", name: "Ajay Patel",     initials: "AP", zone: "Pune Central",   type: "Weather",  amount: "₹800",   status: "PROCESSING", time: "8m ago",  claim_number: "CLM-20241208-00003", fraud_score: 0.32 },
+  { id: "C004", name: "Meera Sharma",   initials: "MS", zone: "Delhi NCR",      type: "Accident", amount: "₹800",   status: "REVIEW",     time: "12m ago", claim_number: "CLM-20241208-00004", fraud_score: 0.45 },
+  { id: "C005", name: "Deepak Raut",    initials: "DR", zone: "Koramangala",    type: "Weather",  amount: "₹800",   status: "PAID",       time: "15m ago", claim_number: "CLM-20241208-00005", fraud_score: 0.11 },
+  { id: "C006", name: "Priya Singh",    initials: "PS", zone: "Andheri East",   type: "Weather",  amount: "₹800",   status: "PAID",       time: "22m ago", claim_number: "CLM-20241208-00006", fraud_score: 0.05 },
+  { id: "C007", name: "Kiran Naik",     initials: "KN", zone: "Thane West",     type: "Weather",  amount: "₹800",   status: "PROCESSING", time: "31m ago", claim_number: "CLM-20241208-00007", fraud_score: 0.28 },
+  { id: "C008", name: "Rahul Desai",    initials: "RD", zone: "Bandra West",    type: "Weather",  amount: "₹800",   status: "REVIEW",     time: "45m ago", claim_number: "CLM-20241208-00008", fraud_score: 0.41 },
+  { id: "C009", name: "Fatima Sheikh",  initials: "FS", zone: "Jogeshwari",     type: "Weather",  amount: "₹800",   status: "PAID",       time: "1h ago",  claim_number: "CLM-20241208-00009", fraud_score: 0.08 },
+  { id: "C010", name: "Santosh Yadav",  initials: "SY", zone: "Powai",          type: "Weather",  amount: "₹800",   status: "PAID",       time: "1h ago",  claim_number: "CLM-20241208-00010", fraud_score: 0.03 },
 ];
 
 const avatarColors: Record<string, string> = {
-  RK: "bg-cyan-400/20 text-cyan-300",
-  SK: "bg-violet-400/20 text-violet-300",
-  AP: "bg-emerald-400/20 text-emerald-300",
-  MS: "bg-pink-400/20 text-pink-300",
-  DR: "bg-amber-400/20 text-amber-300",
-  PS: "bg-blue-400/20 text-blue-300",
-  KN: "bg-teal-400/20 text-teal-300",
-  RD: "bg-orange-400/20 text-orange-300",
-  FS: "bg-rose-400/20 text-rose-300",
-  SY: "bg-indigo-400/20 text-indigo-300",
+  RK: "bg-cyan-400/20 text-cyan-300", SK: "bg-violet-400/20 text-violet-300",
+  AP: "bg-emerald-400/20 text-emerald-300", MS: "bg-pink-400/20 text-pink-300",
+  DR: "bg-amber-400/20 text-amber-300", PS: "bg-blue-400/20 text-blue-300",
+  KN: "bg-teal-400/20 text-teal-300", RD: "bg-orange-400/20 text-orange-300",
+  FS: "bg-rose-400/20 text-rose-300", SY: "bg-indigo-400/20 text-indigo-300",
 };
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
-    PAID:       "bg-emerald-400/20 text-emerald-300 border border-emerald-300/30",
+    PAID: "bg-emerald-400/20 text-emerald-300 border border-emerald-300/30",
     PROCESSING: "bg-amber-400/20 text-amber-300 border border-amber-300/30",
-    REVIEW:     "bg-red-400/20 text-red-300 border border-red-300/30",
+    PENDING: "bg-amber-400/20 text-amber-300 border border-amber-300/30",
+    REVIEW: "bg-red-400/20 text-red-300 border border-red-300/30",
+    REJECTED: "bg-red-400/20 text-red-300 border border-red-300/30",
   };
-  return (
-    <span className={`rounded-full px-3 py-1 text-xs font-bold ${map[status] ?? ""}`}>
-      {status}
-    </span>
-  );
+  return <span className={`rounded-full px-3 py-1 text-xs font-bold ${map[status] ?? ""}`}>{status}</span>;
 }
 
 export default function ClaimsPage() {
   const [activeFilter, setActiveFilter] = useState("All");
+  const [allClaims, setAllClaims] = useState(MOCK_CLAIMS);
+  const [loading, setLoading] = useState(false);
+  const [approvingId, setApprovingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadClaims() {
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/claims/all?limit=50`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.claims?.length) {
+            setAllClaims(data.claims.map((c: any, i: number) => ({
+              id: c.id, name: c.worker_name || "Worker", initials: (c.worker_name || "W").split(" ").map((s: string) => s[0]).join("").toUpperCase().slice(0,2),
+              zone: c.zone || "—", type: "Weather", amount: `₹${c.amount || 800}`,
+              status: c.status?.toUpperCase() || "PAID", time: c.created_at ? new Date(c.created_at).toLocaleDateString() : "—",
+              claim_number: c.claim_number, fraud_score: c.fraud_score || 0,
+            })));
+          }
+        }
+      } catch {}
+      setLoading(false);
+    }
+    loadClaims();
+  }, []);
+
+  async function handleApprove(id: string) {
+    setApprovingId(id);
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/claims/${id}/approve`, { method: "PUT" });
+      if (res.ok) {
+        setAllClaims(prev => prev.map(c => c.id === id ? { ...c, status: "PAID" } : c));
+      }
+    } catch {}
+    setApprovingId(null);
+  }
+
+  async function handleReject(id: string) {
+    setApprovingId(id);
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/claims/${id}/reject`, { method: "PUT" });
+      if (res.ok) {
+        setAllClaims(prev => prev.map(c => c.id === id ? { ...c, status: "REJECTED" } : c));
+      }
+    } catch {}
+    setApprovingId(null);
+  }
 
   const filters = [
-    { label: "All",        count: allClaims.length },
-    { label: "PAID",       count: allClaims.filter(c => c.status === "PAID").length },
-    { label: "PROCESSING", count: allClaims.filter(c => c.status === "PROCESSING").length },
-    { label: "REVIEW",     count: allClaims.filter(c => c.status === "REVIEW").length },
+    { label: "All",      count: allClaims.length },
+    { label: "PAID",     count: allClaims.filter(c => c.status === "PAID").length },
+    { label: "PENDING",  count: allClaims.filter(c => c.status === "PENDING" || c.status === "PROCESSING").length },
+    { label: "REVIEW",   count: allClaims.filter(c => c.status === "REVIEW").length },
   ];
 
-  const filtered = activeFilter === "All" ? allClaims : allClaims.filter(c => c.status === activeFilter);
+  const filtered = activeFilter === "All" ? allClaims
+    : activeFilter === "PENDING" ? allClaims.filter(c => c.status === "PENDING" || c.status === "PROCESSING")
+    : allClaims.filter(c => c.status === activeFilter);
 
   return (
     <div className="flex min-h-screen bg-slate-950 text-slate-100">
