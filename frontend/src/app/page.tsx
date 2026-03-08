@@ -2,229 +2,322 @@
 
 import { useState } from "react";
 
-const stats = [
-  { icon: "⚡", value: "60 sec",   label: "Average Payout Time" },
-  { icon: "💰", value: "₹40/wk",  label: "Starting Premium" },
-  { icon: "🛵", value: "10M+",    label: "Workers Eligible" },
-  { icon: "✅", value: "99.8%",   label: "Auto-Approval Rate" },
+const coverages = [
+  { icon: "🌧️", name: "Weather Protection", from: "₹40", col: "border-blue-400/30 from-blue-500/10 to-cyan-500/10",   ico: "bg-blue-500/20 text-blue-300"    },
+  { icon: "🚑", name: "Accident Cover",      from: "₹25", col: "border-red-400/30 from-red-500/10 to-orange-500/10",  ico: "bg-red-500/20 text-red-300"      },
+  { icon: "💼", name: "Job Loss Cover",      from: "₹60", col: "border-violet-400/30 from-violet-500/10 to-purple-500/10", ico: "bg-violet-500/20 text-violet-300" },
+  { icon: "🏥", name: "Health Add-on",       from: "₹35", col: "border-emerald-400/30 from-emerald-500/10 to-green-500/10", ico: "bg-emerald-500/20 text-emerald-300" },
+  { icon: "🛵", name: "Equipment Cover",     from: "₹20", col: "border-amber-400/30 from-amber-500/10 to-yellow-500/10", ico: "bg-amber-500/20 text-amber-300"   },
+  { icon: "🔐", name: "Cyber Fraud Guard",   from: "₹15", col: "border-pink-400/30 from-pink-500/10 to-rose-500/10",  ico: "bg-pink-500/20 text-pink-300"    },
 ];
 
-const features = [
-  { icon: "🗺️", title: "Hyperlocal Risk Intelligence",  badge: "Street-level precision ✓", badgeColor: "bg-cyan-400/20 text-cyan-300 border-cyan-300/30",    desc: "2km×2km micro-zone mapping. Your premium is based on YOUR street's risk, not a citywide average." },
-  { icon: "⚡", title: "60-Second Claim Settlement",    badge: "Zero paperwork ✓",          badgeColor: "bg-emerald-400/20 text-emerald-300 border-emerald-300/30", desc: "Parametric triggers auto-process claims the moment disruption thresholds are crossed. No receipts needed." },
-  { icon: "💎", title: "Transparent Premium Formula",  badge: "Full breakdown ✓",          badgeColor: "bg-violet-400/20 text-violet-300 border-violet-300/30",  desc: "See exactly: Base ₹40 + Zone Risk ± Season Factor - Loyalty Discount. No hidden charges." },
-  { icon: "📱", title: "WhatsApp-First Design",        badge: "Works on any phone ✓",      badgeColor: "bg-green-400/20 text-green-300 border-green-300/30",      desc: "Register, check status, and receive your payout entirely over WhatsApp. No app download needed." },
-  { icon: "🤖", title: "ML Fraud Prevention",          badge: "Smart & fair ✓",            badgeColor: "bg-blue-400/20 text-blue-300 border-blue-300/30",         desc: "XGBoost model + Isolation Forest anomaly detection protects honest workers from bad actors." },
-  { icon: "🔔", title: "Predictive Safety Alerts",     badge: "Pre-disruption alerts ✓",   badgeColor: "bg-amber-400/20 text-amber-300 border-amber-300/30",      desc: "Know 2 hours before rain hits your zone. Plan ahead. Protect your earnings proactively." },
+const heroStats = [
+  { v: "60s",   l: "Avg payout time",  i: "⚡" },
+  { v: "10M+",  l: "Eligible workers", i: "👥" },
+  { v: "₹40",   l: "Starting/week",    i: "💰" },
+  { v: "99.8%", l: "Auto-approved",    i: "✅" },
 ];
 
 const steps = [
-  { num: "01", color: "bg-cyan-400 text-slate-950",    icon: "🔐", title: "Sign Up in 2 Minutes",   desc: "Register via WhatsApp or web. Share your zone and delivery type. Done." },
-  { num: "02", color: "bg-violet-400 text-slate-950",  icon: "🌦️", title: "We Monitor Your Zone",   desc: "Real-time weather and disruption signals across 2km×2km micro-zones, 24x7." },
-  { num: "03", color: "bg-emerald-400 text-slate-950", icon: "💸", title: "Get Paid Automatically", desc: "Disruption threshold hit? Claim auto-triggered. Money in your account in 60 seconds." },
+  { n: "01", icon: "📱", title: "Register in 2 min",     desc: "Sign up via WhatsApp or web. Share your zone and delivery platform. Done.", color: "bg-cyan-400 text-slate-950"    },
+  { n: "02", icon: "🛰️", title: "We watch your zone",    desc: "AI monitors weather, traffic and disruptions in your 2km×2km micro-zone 24/7.", color: "bg-violet-400 text-slate-950" },
+  { n: "03", icon: "💸", title: "Get paid instantly",    desc: "Disruption detected? Claim triggers automatically. Money in your account in 60 seconds.", color: "bg-emerald-400 text-slate-950" },
 ];
 
 const testimonials = [
-  { initials: "RK", color: "bg-cyan-400/20 text-cyan-300",      name: "Rahul Kumar",  role: "Swiggy Delivery Partner, Mumbai",  quote: "Ek baar baarish mein 3 din kaam nahi hua. GigShield ne 2,400 rupee seedha account mein diye. Ek form nahi bhara, ek call nahi ki. Bas paisa aa gaya." },
-  { initials: "PS", color: "bg-violet-400/20 text-violet-300",  name: "Priya Sharma", role: "Zomato Partner, Pune",              quote: "Premium sirf 43 rupee/week hai. Pehle socha fraud hoga. Ab 8 mahine ho gaye, 3 baar claim mila. Sab automatic. GigShield best hai." },
-  { initials: "AS", color: "bg-emerald-400/20 text-emerald-300",name: "Amit Singh",   role: "Ola Driver, Delhi NCR",            quote: "WhatsApp pe hi sab ho jaata hai. Bank app bhi nahi kholna padta. Baarish ka alert aata hai pehle, phir payment bhi aa jaati hai." },
+  { name: "Rahul Kumar",  role: "Swiggy Partner • Mumbai",  init: "RK", bg: "bg-cyan-500",    quote: "Teen din baarish mein kaam nahi hua. GigShield ne ₹2,400 seedha account mein daale. Koi form nahi, koi call nahi — bas paisa aa gaya." },
+  { name: "Priya Sharma", role: "Zomato Partner • Pune",    init: "PS", bg: "bg-violet-500",  quote: "₹43/week mein itni protection? Pehle yakeen nahi tha. Ab 8 mahine ho gaye, 3 claims mile — sab automatic. Best decision ever." },
+  { name: "Amit Singh",   role: "Ola Driver • Delhi NCR",   init: "AS", bg: "bg-emerald-500", quote: "WhatsApp pe hi sab ho jaata hai. Baarish ka alert 2 ghante pehle aata hai, phir payment bhi automatically aa jaati hai." },
 ];
 
+const ZONES: Record<string, number> = {
+  "Mumbai Central": 12, "Andheri West": 8, "Bandra-Kurla": 10,
+  "Pune Kothrud": 6, "Delhi NCR": 9, "Bengaluru Koramangala": 7,
+};
+const TYPES: Record<string, number> = {
+  "Food Delivery": 5, "Grocery": 3, "E-commerce": 4, "Ride Hailing": 6,
+};
+
 export default function Home() {
+  const [zone, setZone] = useState("Mumbai Central");
+  const [type, setType] = useState("Food Delivery");
   const [days, setDays] = useState(5);
-  const base = 40, zone = 8, seasonal = 3, loyalty = 5;
-  const total = base + zone + seasonal - loyalty;
+
+  const zAdj = ZONES[zone] ?? 8;
+  const tAdj = TYPES[type] ?? 5;
+  const weekly = 40 + zAdj + tAdj - 5;
+  const coverage = weekly * 20;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
+    <div className="min-h-screen bg-[#030712] text-slate-100 antialiased">
 
-      <nav className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/90 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <a href="/" className="text-xl font-black text-white">Shield GigShield</a>
-          <div className="hidden items-center gap-6 text-sm font-medium text-slate-400 md:flex">
-            <a href="#features"   className="hover:text-white transition-colors">Features</a>
-            <a href="#how"        className="hover:text-white transition-colors">How it Works</a>
-            <a href="#calculator" className="hover:text-white transition-colors">Pricing</a>
-            <a href="/dashboard"  className="hover:text-white transition-colors">Dashboard</a>
+      {/* ─── NAV ─── */}
+      <nav className="fixed top-0 inset-x-0 z-50 border-b border-white/[0.06] bg-[#030712]/80 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3.5">
+          <a href="/" className="flex items-center gap-2.5">
+            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 text-sm font-black text-white shadow-lg shadow-cyan-500/30">G</span>
+            <span className="text-base font-black tracking-tight text-white">GigShield</span>
+          </a>
+          <div className="hidden items-center gap-7 md:flex">
+            {[["#coverage","Coverage"],["#how","How it Works"],["#calc","Pricing"],["/dashboard","Dashboard"]].map(([h,l]) => (
+              <a key={l} href={h} className="text-sm font-medium text-slate-400 transition-colors hover:text-white">{l}</a>
+            ))}
           </div>
-          <div className="flex items-center gap-3">
-            <a href="/dashboard" className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-bold text-slate-950 hover:bg-cyan-300 transition-colors shadow-lg shadow-cyan-500/25">Get Protected</a>
-            <a href="https://github.com/Aayush9808/Guidewire-Temp" target="_blank" rel="noreferrer" className="hidden rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10 transition-colors sm:inline-flex">GitHub</a>
+          <div className="flex items-center gap-2.5">
+            <a href="https://github.com/Aayush9808/Guidewire-Temp" target="_blank" rel="noreferrer"
+               className="hidden rounded-xl border border-white/10 px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/5 sm:block">GitHub</a>
+            <a href="/dashboard"
+               className="rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-5 py-2 text-sm font-bold text-white shadow-lg shadow-cyan-500/25 transition hover:from-cyan-400 hover:to-blue-500">
+              Get Protected
+            </a>
           </div>
         </div>
       </nav>
 
-      <section className="relative overflow-hidden border-b border-white/10 bg-gradient-to-br from-blue-950 via-slate-950 to-violet-950">
-        <div className="pointer-events-none absolute -top-24 -left-16 h-96 w-96 rounded-full bg-cyan-500/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-24 right-0 h-96 w-96 rounded-full bg-violet-500/20 blur-3xl" />
-        <div className="relative mx-auto max-w-7xl px-6 py-24 text-center md:py-32">
-          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-yellow-300/40 bg-yellow-400/10 px-5 py-2 text-sm font-semibold text-yellow-200">
-            Guidewire DEVTrails 2026 - Best Insurtech Submission
+      {/* ─── HERO ─── */}
+      <section className="relative flex min-h-screen items-center overflow-hidden pt-16">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(56,189,248,0.18),transparent)]" />
+        <div className="absolute inset-0" style={{backgroundImage:"radial-gradient(rgba(255,255,255,0.025) 1px,transparent 1px)",backgroundSize:"28px 28px"}} />
+        <div className="absolute -top-20 right-0 h-[700px] w-[700px] rounded-full bg-violet-600/10 blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-0 left-0 h-[400px] w-[400px] rounded-full bg-cyan-600/8 blur-[100px] pointer-events-none" />
+
+        <div className="relative mx-auto w-full max-w-7xl px-5 py-24">
+          <div className="mx-auto max-w-4xl text-center">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-yellow-400/30 bg-yellow-400/10 px-5 py-2 text-xs font-bold tracking-wide text-yellow-300">
+              🏆 Guidewire DEVTrails 2026 — Best Insurtech Submission
+            </div>
+            <h1 className="text-[clamp(2.8rem,8vw,6rem)] font-black leading-[1.02] tracking-tighter">
+              <span className="text-white">Insurance built for</span>
+              <br />
+              <span className="bg-gradient-to-r from-cyan-300 via-blue-400 to-violet-400 bg-clip-text text-transparent">
+                India&apos;s gig economy
+              </span>
+            </h1>
+            <p className="mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-slate-400">
+              When rain grounds your bike, GigShield pays you{" "}
+              <span className="font-semibold text-white">automatically in 60 seconds</span>.
+              No paperwork. No waiting. Built for 10M+ gig workers.
+            </p>
+            <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+              <a href="/dashboard"
+                 className="group flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-8 py-3.5 text-base font-bold text-white shadow-xl shadow-cyan-500/30 transition hover:from-cyan-400 hover:to-blue-500">
+                Start Free Trial <span className="transition-transform group-hover:translate-x-0.5">→</span>
+              </a>
+              <a href="/dashboard"
+                 className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-8 py-3.5 text-base font-semibold text-white backdrop-blur transition hover:bg-white/10">
+                View Dashboard
+              </a>
+              <a href="http://localhost:8000/docs" target="_blank" rel="noreferrer"
+                 className="flex items-center gap-2 rounded-xl border border-white/10 px-8 py-3.5 text-base font-semibold text-slate-400 transition hover:text-white">
+                API Docs ↗
+              </a>
+            </div>
+            <div className="mx-auto mt-14 grid max-w-3xl grid-cols-2 gap-3 sm:grid-cols-4">
+              {heroStats.map(s => (
+                <div key={s.l} className="rounded-2xl border border-white/[0.07] bg-white/[0.03] p-4 text-center transition hover:bg-white/[0.06]">
+                  <div className="text-2xl">{s.i}</div>
+                  <div className="mt-1.5 text-2xl font-black text-white">{s.v}</div>
+                  <div className="mt-0.5 text-xs text-slate-500">{s.l}</div>
+                </div>
+              ))}
+            </div>
           </div>
-          <h1 className="mx-auto max-w-4xl text-5xl font-black leading-tight tracking-tight md:text-7xl">
-            <span className="text-white">Income Protection for</span>
-            <span className="block bg-gradient-to-r from-cyan-300 via-blue-300 to-violet-300 bg-clip-text text-transparent">India Gig Workers</span>
-          </h1>
-          <p className="mx-auto mt-8 max-w-2xl text-lg text-slate-300 md:text-xl">
-            When rain stops your delivery run, GigShield pays you automatically. No forms. No waiting. Just protection that works like you do.
-          </p>
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <a href="/dashboard" className="rounded-xl bg-cyan-400 px-8 py-4 text-base font-bold text-slate-950 shadow-lg shadow-cyan-500/30 hover:bg-cyan-300 transition-colors">Start Free Trial</a>
-            <a href="/dashboard" className="rounded-xl border border-white/20 px-8 py-4 text-base font-semibold text-white hover:bg-white/10 transition-colors">View Dashboard</a>
-            <a href="http://localhost:8000/docs" target="_blank" rel="noreferrer" className="rounded-xl border border-white/20 px-8 py-4 text-base font-semibold text-white hover:bg-white/10 transition-colors">API Docs</a>
+        </div>
+      </section>
+
+      {/* ─── PARTNER STRIP ─── */}
+      <div className="border-y border-white/[0.05] bg-white/[0.015] py-6">
+        <div className="mx-auto max-w-5xl px-5 text-center">
+          <p className="mb-4 text-[10px] font-bold uppercase tracking-widest text-slate-600">Protecting workers across India&apos;s top platforms</p>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            {[["bg-orange-500/20 text-orange-300 border-orange-500/20","🍊 Swiggy"],
+              ["bg-red-500/20 text-red-300 border-red-500/20","🍕 Zomato"],
+              ["bg-yellow-500/20 text-yellow-300 border-yellow-500/20","⚡ Rapido"],
+              ["bg-blue-500/20 text-blue-300 border-blue-500/20","🚗 Ola"],
+              ["bg-pink-500/20 text-pink-300 border-pink-500/20","📦 Dunzo"],
+              ["bg-emerald-500/20 text-emerald-300 border-emerald-500/20","🟢 Blinkit"],
+            ].map(([cls, name]) => (
+              <span key={name} className={"rounded-full border px-4 py-1.5 text-sm font-bold " + cls}>{name}</span>
+            ))}
           </div>
-          <div className="mx-auto mt-16 grid max-w-3xl grid-cols-2 gap-4 md:grid-cols-4">
-            {stats.map((s) => (
-              <div key={s.label} className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm transition hover:-translate-y-1 hover:border-cyan-300/40">
-                <div className="text-2xl">{s.icon}</div>
-                <div className="mt-2 text-2xl font-extrabold text-cyan-200">{s.value}</div>
-                <div className="mt-1 text-xs text-slate-400">{s.label}</div>
+        </div>
+      </div>
+
+      {/* ─── COVERAGE GRID (PolicyBazaar-style) ─── */}
+      <section id="coverage" className="py-24">
+        <div className="mx-auto max-w-7xl px-5">
+          <div className="text-center">
+            <p className="text-xs font-bold uppercase tracking-widest text-cyan-400">All-in-one protection</p>
+            <h2 className="mt-3 text-[clamp(1.8rem,4vw,3.25rem)] font-black text-white">Coverage for every risk you face</h2>
+            <p className="mx-auto mt-3 max-w-xl text-slate-400">One subscription. Six shields. Your income is protected no matter what disruption hits.</p>
+          </div>
+          <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+            {coverages.map(c => (
+              <div key={c.name}
+                   className={"group cursor-pointer rounded-2xl border bg-gradient-to-br p-5 text-center transition-all duration-200 hover:-translate-y-1.5 hover:shadow-xl " + c.col}>
+                <div className={"mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl text-2xl " + c.ico}>{c.icon}</div>
+                <div className="text-sm font-bold leading-snug text-white">{c.name}</div>
+                <div className="mt-1 text-xs text-slate-400">from {c.from}/wk</div>
+                <div className="mt-3 text-xs font-semibold text-cyan-400 opacity-0 transition-opacity group-hover:opacity-100">Get Quote →</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="how" className="border-b border-white/10 bg-slate-900/50 py-20">
-        <div className="mx-auto max-w-7xl px-6 text-center">
-          <p className="text-xs font-semibold uppercase tracking-widest text-cyan-300">Simple by design</p>
-          <h2 className="mt-3 text-4xl font-black text-white md:text-5xl">Protection in 3 steps</h2>
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {steps.map((step, i) => (
-              <div key={step.num} className="relative rounded-2xl border border-white/10 bg-white/5 p-8 text-left shadow-lg shadow-black/20 hover:border-white/20 transition-all">
-                <span className={"inline-flex h-9 w-9 items-center justify-center rounded-full text-sm font-black " + step.color}>{step.num}</span>
-                <div className="mt-4 text-4xl">{step.icon}</div>
-                <h3 className="mt-4 text-xl font-bold text-white">{step.title}</h3>
-                <p className="mt-2 text-slate-300 text-sm leading-relaxed">{step.desc}</p>
-                {i < steps.length - 1 && <span className="absolute -right-4 top-1/2 hidden -translate-y-1/2 text-2xl text-slate-600 md:block">-&gt;</span>}
+      {/* ─── HOW IT WORKS ─── */}
+      <section id="how" className="border-y border-white/[0.05] bg-white/[0.015] py-24">
+        <div className="mx-auto max-w-7xl px-5">
+          <div className="text-center">
+            <p className="text-xs font-bold uppercase tracking-widest text-cyan-400">Designed for simplicity</p>
+            <h2 className="mt-3 text-[clamp(1.8rem,4vw,3.25rem)] font-black text-white">Protection in 3 simple steps</h2>
+          </div>
+          <div className="mt-14 grid gap-5 md:grid-cols-3">
+            {steps.map((s, i) => (
+              <div key={s.n} className="relative rounded-2xl border border-white/[0.07] bg-white/[0.02] p-7 transition hover:bg-white/[0.04]">
+                <span className={"inline-flex h-10 w-10 items-center justify-center rounded-full text-sm font-black " + s.color}>{s.n}</span>
+                <div className="mt-5 text-4xl">{s.icon}</div>
+                <h3 className="mt-4 text-lg font-bold text-white">{s.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-400">{s.desc}</p>
+                {i < 2 && <span className="absolute -right-2.5 top-10 hidden text-2xl text-slate-700 md:block">›</span>}
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="features" className="py-20">
-        <div className="mx-auto max-w-7xl px-6">
-          <p className="text-xs font-semibold uppercase tracking-widest text-cyan-300">Why workers trust GigShield</p>
-          <h2 className="mt-3 text-4xl font-black text-white md:text-5xl">Simple, fast, and fair</h2>
-          <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {features.map((f) => (
-              <article key={f.title} className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-lg shadow-black/20 transition-all hover:-translate-y-1 hover:border-white/20">
-                <div className="text-4xl">{f.icon}</div>
-                <h3 className="mt-4 text-xl font-bold text-white">{f.title}</h3>
-                <p className="mt-2 text-sm text-slate-300 leading-relaxed">{f.desc}</p>
-                <span className={"mt-4 inline-block rounded-full border px-3 py-1 text-xs font-bold " + f.badgeColor}>{f.badge}</span>
-              </article>
-            ))}
+      {/* ─── CALCULATOR (MakeMyTrip-style form) ─── */}
+      <section id="calc" className="py-24">
+        <div className="mx-auto max-w-7xl px-5">
+          <div className="text-center">
+            <p className="text-xs font-bold uppercase tracking-widest text-cyan-400">Transparent pricing</p>
+            <h2 className="mt-3 text-[clamp(1.8rem,4vw,3.25rem)] font-black text-white">Calculate your weekly premium</h2>
+            <p className="mx-auto mt-3 max-w-xl text-slate-400">No hidden fees. Know exactly what you pay and what you get before signing up.</p>
           </div>
-        </div>
-      </section>
-
-      <section id="calculator" className="border-y border-white/10 bg-slate-900/50 py-20">
-        <div className="mx-auto max-w-7xl px-6">
-          <p className="text-xs font-semibold uppercase tracking-widest text-cyan-300">Know your price upfront</p>
-          <h2 className="mt-3 text-4xl font-black text-white md:text-5xl">Calculate your weekly premium</h2>
-          <div className="mt-10 grid gap-8 md:grid-cols-2">
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-8 shadow-lg shadow-black/20">
-              <h3 className="mb-6 text-lg font-bold text-white">Your Details</h3>
-              <div className="space-y-5">
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-300">Your Zone</label>
-                  <select className="w-full rounded-xl border border-white/10 bg-slate-800 px-4 py-3 text-white focus:border-cyan-400 focus:outline-none">
-                    {["Mumbai Central","Andheri West","Bandra-Kurla","Pune Kothrud","Delhi NCR","Bengaluru Koramangala"].map(z=><option key={z}>{z}</option>)}
-                  </select>
+          <div className="mx-auto mt-12 max-w-4xl overflow-hidden rounded-3xl border border-white/[0.07] bg-[#060d1a] p-1">
+            <div className="rounded-[22px] bg-[#080f1a] p-6 md:p-10">
+              <div className="grid gap-8 md:grid-cols-2">
+                <div className="space-y-5">
+                  <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider">Your details</h3>
+                  <div>
+                    <label className="mb-2 block text-xs font-semibold text-slate-500">Your delivery zone</label>
+                    <select value={zone} onChange={e => setZone(e.target.value)}
+                            className="w-full rounded-xl border border-white/[0.08] bg-slate-900 px-4 py-3 text-sm text-white transition focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20">
+                      {Object.keys(ZONES).map(z => <option key={z}>{z}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-xs font-semibold text-slate-500">Delivery type</label>
+                    <select value={type} onChange={e => setType(e.target.value)}
+                            className="w-full rounded-xl border border-white/[0.08] bg-slate-900 px-4 py-3 text-sm text-white transition focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20">
+                      {Object.keys(TYPES).map(t => <option key={t}>{t}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mb-2 flex items-center justify-between text-xs font-semibold text-slate-500">
+                      Days worked per week <span className="text-cyan-400 font-bold">{days} days</span>
+                    </label>
+                    <input type="range" min={1} max={7} value={days} onChange={e => setDays(+e.target.value)}
+                           className="h-2 w-full cursor-pointer rounded-full bg-slate-800 accent-cyan-400" />
+                    <div className="mt-1 flex justify-between text-xs text-slate-600"><span>1 day</span><span>7 days</span></div>
+                  </div>
                 </div>
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-300">Delivery Type</label>
-                  <select className="w-full rounded-xl border border-white/10 bg-slate-800 px-4 py-3 text-white focus:border-cyan-400 focus:outline-none">
-                    {["Food Delivery","Grocery","E-commerce","Ride Hailing"].map(t=><option key={t}>{t}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-2 flex justify-between text-sm font-semibold text-slate-300">Days per week <span className="text-cyan-300">{days} days</span></label>
-                  <input type="range" min={1} max={7} value={days} onChange={e=>setDays(Number(e.target.value))} className="w-full accent-cyan-400" />
-                  <div className="mt-1 flex justify-between text-xs text-slate-500"><span>1</span><span>7</span></div>
+                <div className="rounded-2xl bg-gradient-to-br from-cyan-500/10 via-blue-500/5 to-violet-500/10 p-6 border border-cyan-500/20">
+                  <h3 className="mb-5 text-sm font-bold text-slate-300 uppercase tracking-wider">Your quote</h3>
+                  <div>
+                    {[
+                      ["Base premium",  "₹40",             "text-slate-300"],
+                      ["Zone risk",     "+₹" + zAdj,       "text-amber-400"],
+                      ["Coverage type", "+₹" + tAdj,       "text-orange-400"],
+                      ["Loyalty disc.", "-₹5",             "text-emerald-400"],
+                    ].map(([lbl, val, col]) => (
+                      <div key={lbl} className="flex items-center justify-between border-b border-white/[0.06] py-2.5">
+                        <span className="text-sm text-slate-400">{lbl}</span>
+                        <span className={"text-sm font-bold " + col}>{val}</span>
+                      </div>
+                    ))}
+                    <div className="flex items-center justify-between pt-4">
+                      <span className="font-bold text-white">Weekly premium</span>
+                      <span className="text-2xl font-black text-cyan-300">₹{weekly}</span>
+                    </div>
+                    <div className="flex items-center justify-between pb-1">
+                      <span className="text-xs text-slate-500">Weekly coverage</span>
+                      <span className="text-sm font-semibold text-slate-300">₹{coverage.toLocaleString()}</span>
+                    </div>
+                  </div>
+                  <a href="/dashboard"
+                     className="mt-5 block w-full rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 py-3.5 text-center text-sm font-bold text-white shadow-lg shadow-cyan-500/25 transition hover:from-cyan-400 hover:to-blue-500">
+                    Start Protection for ₹{weekly}/week →
+                  </a>
                 </div>
               </div>
             </div>
-            <div className="rounded-2xl border border-cyan-300/30 bg-gradient-to-br from-cyan-500/10 via-blue-500/10 to-violet-500/10 p-8 shadow-lg shadow-black/20">
-              <h3 className="mb-6 text-lg font-bold text-white">Your Premium Breakdown</h3>
-              <div className="space-y-1">
-                {[["Base Premium","Rs."+base+".00","text-slate-200"],["Zone Risk Adjustment","+ Rs."+zone+".00","text-red-300"],["Seasonal Factor","+ Rs."+seasonal+".00","text-amber-300"],["Loyalty Discount",`- Rs.${loyalty}.00`,"text-emerald-300"]].map(([label,val,color])=>(
-                  <div key={label} className="flex items-center justify-between border-b border-white/10 py-3 text-sm">
-                    <span className="text-slate-300">{label}</span>
-                    <span className={"font-bold " + color}>{val}</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── TESTIMONIALS ─── */}
+      <section className="border-t border-white/[0.05] py-24">
+        <div className="mx-auto max-w-7xl px-5">
+          <div className="text-center">
+            <p className="text-xs font-bold uppercase tracking-widest text-cyan-400">Real stories</p>
+            <h2 className="mt-3 text-[clamp(1.8rem,4vw,3.25rem)] font-black text-white">Workers who trust GigShield</h2>
+          </div>
+          <div className="mt-12 grid gap-5 md:grid-cols-3">
+            {testimonials.map(t => (
+              <div key={t.name} className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-7 transition hover:bg-white/[0.04]">
+                <div className="flex gap-0.5 text-amber-400 text-sm">★★★★★</div>
+                <p className="mt-4 text-sm leading-relaxed text-slate-300">&ldquo;{t.quote}&rdquo;</p>
+                <div className="mt-6 flex items-center gap-3">
+                  <div className={"flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-black text-white " + t.bg}>{t.init}</div>
+                  <div>
+                    <div className="text-sm font-bold text-white">{t.name}</div>
+                    <div className="text-xs text-slate-500">{t.role}</div>
                   </div>
-                ))}
-                <div className="flex items-center justify-between pt-4 text-lg">
-                  <span className="font-black text-white">Your Weekly Premium</span>
-                  <span className="text-2xl font-black text-cyan-300">Rs.{total}.00</span>
-                </div>
-                <div className="flex items-center justify-between pb-2 text-sm">
-                  <span className="text-slate-400">Coverage per disruption day</span>
-                  <span className="font-bold text-white">Rs.800.00</span>
                 </div>
               </div>
-              <a href="/dashboard" className="mt-6 block w-full rounded-xl bg-cyan-400 py-4 text-center font-bold text-slate-950 hover:bg-cyan-300 transition-colors shadow-lg shadow-cyan-500/25">
-                Start Protection for Rs.{total}/week
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── CTA BANNER ─── */}
+      <section className="border-t border-white/[0.05] py-20">
+        <div className="mx-auto max-w-4xl px-5 text-center">
+          <div className="rounded-3xl border border-white/[0.07] bg-gradient-to-br from-cyan-500/10 via-blue-500/5 to-violet-500/10 px-8 py-16">
+            <h2 className="text-[clamp(1.8rem,4vw,3.25rem)] font-black text-white">Ready to protect your income?</h2>
+            <p className="mx-auto mt-3 max-w-md text-slate-400">Join 10,000+ gig workers who never worry about bad weather days.</p>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+              <a href="/dashboard"
+                 className="rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-9 py-3.5 font-bold text-white shadow-xl shadow-cyan-500/30 transition hover:from-cyan-400 hover:to-blue-500">
+                Start Free Trial
+              </a>
+              <a href="https://github.com/Aayush9808/Guidewire-Temp" target="_blank" rel="noreferrer"
+                 className="rounded-xl border border-white/10 px-9 py-3.5 font-semibold text-slate-300 transition hover:text-white">
+                View on GitHub ↗
               </a>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="py-20">
-        <div className="mx-auto max-w-7xl px-6">
-          <p className="text-xs font-semibold uppercase tracking-widest text-cyan-300">Real workers. Real stories.</p>
-          <h2 className="mt-3 text-4xl font-black text-white md:text-5xl">They trust GigShield</h2>
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
-            {testimonials.map((t) => (
-              <div key={t.name} className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-lg shadow-black/20 hover:border-white/20 transition-all">
-                <div className="flex items-center gap-3">
-                  <span className={"flex h-10 w-10 items-center justify-center rounded-full text-sm font-black " + t.color}>{t.initials}</span>
-                  <div>
-                    <div className="font-bold text-white">{t.name}</div>
-                    <div className="text-xs text-slate-400">{t.role}</div>
-                  </div>
-                </div>
-                <div className="mt-3 text-sm text-amber-300">5 stars</div>
-                <p className="mt-3 text-sm text-slate-300 leading-relaxed">{t.quote}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="border-y border-white/10 bg-slate-900/50 py-20">
-        <div className="mx-auto max-w-4xl px-6 text-center">
-          <div className="rounded-3xl border border-white/10 bg-gradient-to-r from-cyan-500/10 via-blue-500/10 to-violet-500/10 p-10 md:p-16">
-            <h2 className="text-4xl font-black text-white md:text-5xl">Ready to protect your income?</h2>
-            <p className="mx-auto mt-4 max-w-lg text-slate-300">Join 10,000+ gig workers who never worry about bad weather days.</p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-              <a href="/dashboard" className="rounded-xl bg-cyan-400 px-8 py-4 font-bold text-slate-950 hover:bg-cyan-300 transition-colors shadow-lg shadow-cyan-500/25">Start Free Trial</a>
-              <a href="https://github.com/Aayush9808/Guidewire-Temp" target="_blank" rel="noreferrer" className="rounded-xl border border-white/30 px-8 py-4 font-semibold text-white hover:bg-white/10 transition-colors">Open GitHub Project</a>
+      {/* ─── FOOTER ─── */}
+      <footer className="border-t border-white/[0.05] py-10">
+        <div className="mx-auto max-w-7xl px-5">
+          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-400 to-blue-600 text-xs font-black text-white">G</span>
+              <span className="font-black text-white">GigShield</span>
+            </div>
+            <div className="flex flex-wrap gap-5 text-sm text-slate-500">
+              {[["#coverage","Coverage"],["#how","How it Works"],["#calc","Pricing"],["/dashboard","Dashboard"],["/dashboard/claims","Claims"],["/dashboard/analytics","Analytics"],["http://localhost:8000/docs","API Docs"],["https://github.com/Aayush9808/Guidewire-Temp","GitHub"]].map(([h,l]) => (
+                <a key={l} href={h} target={h.startsWith("http") ? "_blank" : undefined} rel={h.startsWith("http") ? "noreferrer" : undefined}
+                   className="transition hover:text-white">{l}</a>
+              ))}
             </div>
           </div>
-        </div>
-      </section>
-
-      <footer className="border-t border-white/10 bg-slate-950 py-10">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
-            <div>
-              <p className="text-xl font-black text-white">GigShield</p>
-              <p className="mt-1 text-sm text-slate-400">Protecting India gig workforce, one policy at a time.</p>
-            </div>
-            <div className="flex flex-wrap gap-6 text-sm text-slate-400">
-              <a href="/dashboard" className="hover:text-white transition-colors">Dashboard</a>
-              <a href="http://localhost:8000/docs" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">API Docs</a>
-              <a href="https://github.com/Aayush9808/Guidewire-Temp" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">GitHub</a>
-              <a href="/dashboard/claims" className="hover:text-white transition-colors">Claims</a>
-              <a href="/dashboard/analytics" className="hover:text-white transition-colors">Analytics</a>
-            </div>
-          </div>
-          <div className="mt-8 border-t border-white/10 pt-6 text-center text-sm text-slate-500">
-            Guidewire DEVTrails 2026 - GigShield - Built for India gig workforce
+          <div className="mt-8 border-t border-white/[0.05] pt-6 text-center text-xs text-slate-700">
+            Guidewire DEVTrails 2026 • GigShield • Built for India&apos;s gig workforce
           </div>
         </div>
       </footer>
