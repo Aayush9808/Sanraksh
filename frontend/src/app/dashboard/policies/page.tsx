@@ -49,8 +49,6 @@ const PLATFORM_COLORS: Record<string, string> = {
 
 const navItems = [
   { href: '/dashboard',            icon: '▣',  label: 'Overview'   },
-  { href: '/dashboard/my-policy',  icon: '🛡️', label: 'My Policy'  },
-  { href: '/dashboard/triggers',   icon: '⚡',  label: 'Triggers'   },
   { href: '/dashboard/workers',    icon: '👷', label: 'Workers'    },
   { href: '/dashboard/policies',   icon: '🛡️', label: 'Policies', active: true },
   { href: '/dashboard/claims',     icon: '≡',  label: 'Claims'     },

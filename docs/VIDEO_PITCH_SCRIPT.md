@@ -1,64 +1,68 @@
 # GigArmor Video Pitch Script (Phase 1)
 
-Use this for your final public submission video.
+Use this for your final evaluator video.
 
 ---
 
 ## Version A — ~1 minute 45 seconds
 
 ### 0:00–0:12 | Intro (10–15 sec)
-Good morning judges and evaluators. I am **Ayush Mishra**, team lead of **Runtime Terror**. We are a 5-member team. There are multiple Runtime Terror teams in the hackathon, and this is our independent 5-member submission.
+Hello everyone. I am **Aayush Kumar Shrivastav**, team lead of **Runtime Terror**. I am presenting on behalf of all my four teammates. We are a 5-member team, and this is our team’s independent submission.
 
-### 0:12–0:27 | Problem
-India’s gig workers lose daily income from events they cannot control—heavy rain, floods, AQI shutdowns, curfews, and app outages. Existing insurance is not designed for this short-cycle income risk.
+### 0:12–0:25 | Problem
+Gig workers in India lose daily income due to disruptions outside their control—heavy rain, flood, pollution shutdown, curfew, app outage, and sudden demand shocks.
 
-### 0:27–0:42 | What GigArmor is
-GigArmor is an AI-powered **parametric income protection** platform with a **weekly pricing model**. It detects disruption signals, triggers claims, runs fraud checks, and processes payout simulation quickly.
+### 0:25–0:40 | Solution
+GigArmor is an AI-powered parametric income-protection platform with weekly pricing. We detect disruption signals, trigger claims, run anti-fraud checks, and route payouts quickly.
 
-### 0:42–1:02 | Worker flow demo
-I will log in as a worker, open **My Policy**, and show weekly premium, coverage, and disruption-based claim options. Then I submit a claim and show automated fraud checks and payout progression.
+### 0:40–1:05 | What to open on screen (Worker flow)
+Open **Homepage → Login → Worker Demo**.
+Use phone: **+917000000001** and OTP: **123456**.
+Then open **My Policy** and show premium, coverage, and claim eligibility.
+Open **Live Alerts** and trigger one simulated disruption to show auto-claim behavior.
 
-### 1:02–1:18 | Trigger engine demo
-Now I open **Live Triggers**. Here the system simulates real-time disruption monitoring, auto-fires claims for affected workers, and shows payout flow at scale.
+### 1:05–1:28 | What to open on screen (Admin flow)
+Log out, then login as admin with phone: **+917000000002** and OTP: **123456**.
+Open **Dashboard Overview**, then **Risk Map**, then **Market Crash**.
+In Market Crash, show risk-tier decisions: low risk auto, medium review, high risk block.
 
-### 1:18–1:34 | Market Crash response
-For the Market Crash update, we added an **Adversarial Defense & Anti-Spoofing strategy**: multi-signal trust scoring, ring-attack detection, and risk-tier routing so honest workers are not penalized while suspicious clusters are isolated.
-
-### 1:34–1:45 | Close
-This Phase 1 submission includes clear strategy, compliance with constraints, and a working prototype foundation ready for automation and scaling in Phase 2 and 3. Thank you.
+### 1:28–1:45 | Close
+This Phase 1 build demonstrates role-separated flows, compliance-focused coverage, and adversarial defense readiness for Market Crash scenarios. Thank you.
 
 ---
 
 ## Version B — Full 2 minutes
 
 ### 0:00–0:15 | Intro
-Good morning judges and evaluators. I am **Ayush Mishra**, team lead of **Runtime Terror**. We are a 5-member team. There are multiple Runtime Terror teams, and this is our independent submission.
+Hello everyone. I am **Aayush Kumar Shrivastav**, team lead of **Runtime Terror**. I am presenting on behalf of my four teammates. We are a 5-member team, and this is our independent submission.
 
 ### 0:15–0:35 | Problem framing
-India’s delivery workers face unpredictable income loss from external disruptions. Our target is strict **loss-of-income protection**, not health, life, accident, or vehicle repair.
+Our focus is strict loss-of-income protection for gig workers. We intentionally exclude health, life, accident, and vehicle-repair style coverage to stay aligned with challenge constraints.
 
 ### 0:35–0:55 | Product summary
-GigArmor is a web-first AI parametric insurance platform. It computes a **weekly premium** from zone risk, platform risk, and worker activity. It continuously monitors disruption conditions and supports automated claim orchestration.
+GigArmor computes weekly premium from zone risk, platform risk, and work activity. It monitors disruption signals continuously and executes claim orchestration with anti-spoofing controls.
 
-### 0:55–1:20 | Live product walkthrough
-I’ll show worker login, policy details, pricing transparency, and claim initiation. Then the flow runs detection, fraud checks, and payout simulation. This demonstrates an operational worker journey end-to-end.
+### 0:55–1:20 | Screen flow: worker journey
+Open **Login** and use worker demo: **+917000000001 / 123456**.
+Show **My Policy** for transparent premium and coverage.
+Show claim initiation and payout simulation.
+Open **Policy Terms** briefly to show trigger conditions and exclusions.
 
-### 1:20–1:40 | Risk & trigger intelligence
-In the risk command center, we track weather, AQI, and disruption signals by city/zone, with affected-zone visual overlays and a disruption monitor table for operational decisioning.
+### 1:20–1:45 | Screen flow: admin operations
+Switch to admin demo: **+917000000002 / 123456**.
+Open **Dashboard** for portfolio view, then **Risk Map** for city-zone signal visibility.
+Open **Market Crash** to demonstrate anti-spoofing, ring detection, and decision routing.
 
-### 1:40–1:55 | Market Crash response
-For spoofing attacks, we use multi-signal verification: route plausibility, GPS continuity, event correlation, platform behavior, and peer consistency. Claims are risk-tiered: low risk auto, high risk review-first.
-
-### 1:55–2:00 | Close
-GigArmor delivers a clear Phase 1 strategy, a practical prototype, and a scalable architecture roadmap. Thank you.
+### 1:45–2:00 | Close
+GigArmor delivers a clear Phase 1 strategy, a working role-based prototype, and a practical roadmap for Phase 2 automation and scale. Thank you.
 
 ---
 
-## Recording checklist
+## Recording checklist (quick)
 
 - Start from homepage
-- Show login (`+917000000001`, OTP `123456`)
-- Show My Policy + claim flow
-- Show Live Triggers simulation
-- Mention anti-spoofing section in README
-- Keep pace calm, no rush, no dead pauses
+- Show worker login: +917000000001 / 123456
+- Show My Policy, Live Alerts, and one claim trigger
+- Show logout, then admin login: +917000000002 / 123456
+- Show Dashboard, Risk Map, Market Crash
+- Keep voice calm and pace steady

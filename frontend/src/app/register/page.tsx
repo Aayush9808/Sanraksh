@@ -72,7 +72,7 @@ export default function RegisterPage() {
         platform: form.delivery_platform, city: form.work_city, zone: form.work_zone,
         role: "worker", id: "demo-new-" + Date.now(),
       }));
-      router.push("/dashboard");
+      router.push("/dashboard/my-policy");
       return;
     }
 
@@ -87,7 +87,7 @@ export default function RegisterPage() {
       if (!res.ok) throw new Error(data.detail || "Invalid OTP");
       localStorage.setItem("gigarmor_token", data.access_token);
       localStorage.setItem("gigarmor_user", JSON.stringify(data.user));
-      router.push("/dashboard");
+      router.push(data.user?.role === "admin" ? "/dashboard" : "/dashboard/my-policy");
     } catch (err: unknown) {
       const isNetworkErr = err instanceof TypeError || (err instanceof Error && err.name === "TimeoutError");
       if (isNetworkErr && otp === "123456") {
@@ -96,7 +96,7 @@ export default function RegisterPage() {
           name: form.name, phone: form.phone, platform: form.delivery_platform,
           city: form.work_city, zone: form.work_zone, role: "worker", id: "demo-" + Date.now(),
         }));
-        router.push("/dashboard");
+        router.push("/dashboard/my-policy");
       } else {
         setError(isNetworkErr ? "Backend offline — use OTP 123456" : (err instanceof Error ? err.message : "Invalid OTP"));
       }

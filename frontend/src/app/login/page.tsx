@@ -54,14 +54,19 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    // Demo mode — accept any phone + OTP 123456
+    // Demo mode — only configured demo numbers + OTP 123456
     if (demoMode) {
       if (otp !== "123456") {
         setError("Demo OTP is 123456");
         setLoading(false);
         return;
       }
-      const demoUser = DEMO_USERS[phone] || { name: "Demo User", role: "worker", platform: "Zomato", city: "Mumbai", zone: "Andheri West" };
+      const demoUser = DEMO_USERS[phone];
+      if (!demoUser) {
+        setError("Use +917000000001 (worker) or +917000000002 (admin) with OTP 123456");
+        setLoading(false);
+        return;
+      }
       localStorage.setItem("gigarmor_token", "demo_token_" + Date.now());
       localStorage.setItem("gigarmor_user", JSON.stringify({ ...demoUser, phone, id: "demo-" + phone }));
       router.push(demoUser.role === "admin" ? "/dashboard" : "/dashboard/my-policy");
@@ -84,7 +89,11 @@ export default function LoginPage() {
       const isNetworkErr = err instanceof TypeError || (err instanceof Error && err.name === "TimeoutError");
       if (isNetworkErr && otp === "123456") {
         // Backend offline but correct demo OTP → allow in
-        const demoUser = DEMO_USERS[phone] || { name: "Demo User", role: "worker", platform: "Zomato", city: "Mumbai", zone: "Andheri West" };
+        const demoUser = DEMO_USERS[phone];
+        if (!demoUser) {
+          setError("Use +917000000001 (worker) or +917000000002 (admin) with OTP 123456");
+          return;
+        }
         localStorage.setItem("gigarmor_token", "demo_token_" + Date.now());
         localStorage.setItem("gigarmor_user", JSON.stringify({ ...demoUser, phone, id: "demo-" + phone }));
         router.push(demoUser.role === "admin" ? "/dashboard" : "/dashboard/my-policy");

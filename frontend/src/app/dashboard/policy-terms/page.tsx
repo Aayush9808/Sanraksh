@@ -83,7 +83,6 @@ export default function PolicyTermsPage() {
             { href: "/dashboard/triggers", icon: "⚡", label: "Live Alerts" },
             { href: "/dashboard/policy-terms", icon: "📘", label: "Policy Terms", active: true },
             { href: "/dashboard/profile", icon: "👤", label: "Profile" },
-            { href: "/dashboard", icon: "▣", label: "Admin View" },
           ].map((item) => (
             <Link
               key={item.label}

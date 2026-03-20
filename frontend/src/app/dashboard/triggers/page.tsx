@@ -145,7 +145,6 @@ export default function TriggersPage() {
             { href: "/dashboard/triggers",  icon: "⚡", label: "Live Alerts", active: true },
             { href: "/dashboard/policy-terms", icon: "📘", label: "Policy Terms" },
             { href: "/dashboard/profile", icon: "👤", label: "Profile" },
-            { href: "/dashboard",           icon: "▣",  label: "Admin View"  },
           ].map(item => (
             <Link key={item.label} href={item.href}
               className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all

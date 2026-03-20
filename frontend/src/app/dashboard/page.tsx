@@ -10,8 +10,6 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 const navItems = [
   { href: "/dashboard",            icon: "▣",  label: "Overview",    active: true  },
-  { href: "/dashboard/my-policy",  icon: "🛡️", label: "My Policy",   active: false },
-  { href: "/dashboard/triggers",   icon: "⚡",  label: "Triggers",    active: false },
   { href: "/dashboard/workers",    icon: "👷", label: "Workers",     active: false },
   { href: "/dashboard/policies",   icon: "🛡️", label: "Policies",   active: false },
   { href: "/dashboard/claims",     icon: "≡",  label: "Claims",      active: false },

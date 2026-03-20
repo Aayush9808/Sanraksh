@@ -60,7 +60,7 @@ export default function Home() {
             <span className="text-base font-black tracking-tight text-white">GigArmor</span>
           </a>
           <div className="hidden items-center gap-7 md:flex">
-            {[["#coverage","Coverage"],["#how","How it Works"],["#calc","Pricing"],["/dashboard","Dashboard"]].map(([h,l]) => (
+            {[["#coverage","Coverage"],["#how","How it Works"],["#calc","Pricing"],["/login","Dashboard"]].map(([h,l]) => (
               <a key={l} href={h} className="text-sm font-medium text-slate-400 transition-colors hover:text-white">{l}</a>
             ))}
           </div>
@@ -106,7 +106,7 @@ export default function Home() {
                  className="group flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-8 py-3.5 text-base font-bold text-white shadow-xl shadow-cyan-500/30 transition hover:from-cyan-400 hover:to-blue-500">
                 Start Free Trial <span className="transition-transform group-hover:translate-x-0.5">→</span>
               </a>
-              <a href="/dashboard"
+              <a href="/login"
                  className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-8 py-3.5 text-base font-semibold text-white backdrop-blur transition hover:bg-white/10">
                 View Dashboard
               </a>
@@ -314,7 +314,7 @@ export default function Home() {
               <span className="font-black text-white">GigArmor</span>
             </div>
             <div className="flex flex-wrap gap-5 text-sm text-slate-500">
-              {[["#coverage","Coverage"],["#how","How it Works"],["#calc","Pricing"],["/dashboard","Dashboard"],["/dashboard/claims","Claims"],["/dashboard/analytics","Analytics"],["http://localhost:8000/docs","API Docs"],["https://github.com/Aayush9808/Guidewire-Temp","GitHub"]].map(([h,l]) => (
+              {[["#coverage","Coverage"],["#how","How it Works"],["#calc","Pricing"],["/login","Dashboard"],["/dashboard/claims","Claims"],["/dashboard/analytics","Analytics"],["http://localhost:8000/docs","API Docs"],["https://github.com/Aayush9808/Guidewire-Temp","GitHub"]].map(([h,l]) => (
                 <a key={l} href={h} target={h.startsWith("http") ? "_blank" : undefined} rel={h.startsWith("http") ? "noreferrer" : undefined}
                    className="transition hover:text-white">{l}</a>
               ))}

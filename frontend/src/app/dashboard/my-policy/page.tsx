@@ -121,7 +121,6 @@ export default function MyPolicyPage() {
             { href: "/dashboard/triggers",  icon: "⚡", label: "Live Alerts", active: false },
             { href: "/dashboard/policy-terms", icon: "📘", label: "Policy Terms", active: false },
             { href: "/dashboard/profile", icon: "👤", label: "Profile", active: false },
-            { href: "/dashboard",           icon: "▣",  label: "Admin View",  active: false },
           ].map(item => (
             <Link key={item.label} href={item.href}
               className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all

@@ -98,7 +98,6 @@ export default function ProfilePage() {
             { href: "/dashboard/triggers", icon: "⚡", label: "Live Alerts" },
             { href: "/dashboard/policy-terms", icon: "📘", label: "Policy Terms" },
             { href: "/dashboard/profile", icon: "👤", label: "Profile", active: true },
-            { href: "/dashboard", icon: "▣", label: "Admin View" },
           ].map((item) => (
             <Link
               key={item.label}
