@@ -211,9 +211,9 @@ export default function AnalyticsPage() {
 
         {/* Bottom: 3 summary cards */}
         <div className="grid gap-6 md:grid-cols-3">
-          {/* Payout Health */}
+          {/* Payout Reliability */}
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-lg shadow-black/20">
-            <h3 className="mb-4 font-bold text-white">💸 Payout Health</h3>
+            <h3 className="mb-4 font-bold text-white">💸 Payout Reliability</h3>
             {[
               ["Total Paid This Week", "₹18,400"],
               ["Avg. Claim Amount",    "₹960"],

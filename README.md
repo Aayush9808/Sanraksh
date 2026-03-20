@@ -75,6 +75,43 @@ This repository is structured to satisfy **Phase 1: Ideation & Foundation** with
 
 ---
 
+## 🧪 Requirement-to-Implementation Mapping (Judge View)
+
+| Hackathon Requirement | GigArmor Implementation | Status |
+|---|---|---|
+| AI-powered risk assessment | Worker-level weekly premium scoring from zone + platform + activity | ✅ |
+| Weekly pricing model | Premium generated and displayed in weekly format across worker dashboard | ✅ |
+| Intelligent fraud detection | GPS/activity/duplicate/anomaly checks in claim flow simulation | ✅ |
+| Parametric automation | Trigger engine detects disruption thresholds and auto-fires claims | ✅ |
+| Instant payout processing | End-to-end payout simulation with fast settlement UX | ✅ |
+| Integration capability (mock acceptable) | Weather/AQI/platform/payment modeled with simulation endpoints and UI | ✅ |
+| Loss-of-income only coverage | Trigger catalog and coverage restricted to income disruption events | ✅ |
+
+---
+
+## 🏢 Product-Grade Positioning (How to Present)
+
+When presenting to evaluators, position GigArmor as a production-style insurtech platform with three layers:
+
+1. **Risk Intelligence Layer**
+	- dynamic weekly pricing,
+	- hyper-local signal ingestion,
+	- explainable scoring.
+
+2. **Claims Automation Layer**
+	- parametric trigger monitoring,
+	- fraud + anomaly validation,
+	- auto-approval orchestration.
+
+3. **Payout Experience Layer**
+	- low-friction settlement flow,
+	- transparent claim state progression,
+	- worker trust via visible logic.
+
+This framing makes the solution sound not just like a hackathon demo, but a deployable product foundation.
+
+---
+
 ## 🎯 Problem Statement (Persona First)
 
 India’s platform delivery workers face direct wage volatility from disruptions they do not control:
@@ -251,6 +288,15 @@ flowchart TD
 5. Show AI fraud checks and payout countdown.
 6. Open **Triggers** page and run auto-trigger simulation.
 7. Close with roadmap (Phase 2/3).
+
+### Suggested Demo Route (exact pages)
+
+1. `/` → value proposition + weekly model messaging
+2. `/login` → worker demo auth (`+917000000001`, OTP `123456`)
+3. `/dashboard/my-policy` → premium, coverage, claim filing UI
+4. Submit claim → show fraud check + payout simulation
+5. `/dashboard/triggers` → run auto-trigger simulation live
+6. `/dashboard` (admin) → portfolio-level visibility and governance
 
 ### Presentation Tip
 Keep each step under ~15 seconds and focus on one narrative:
