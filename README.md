@@ -24,7 +24,7 @@
 
 - **Live Demo (Web):** https://gigarmor.vercel.app
 - **Repository:** https://github.com/Aayush9808/GigArmor
-- **2-Minute Strategy Video (Phase 1):** ADD_LINK_HERE
+- **2-Minute Strategy Video (Phase 1):** https://drive.google.com/file/d/1CvnhmhemT_G60ETTXPxhS2chgMhp3N_m/view?usp=drivesdk
 
 ---
 
