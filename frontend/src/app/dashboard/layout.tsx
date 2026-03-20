@@ -80,7 +80,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <>
       <button
         onClick={handleLogout}
-        className="fixed right-4 top-4 z-[70] rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-300 transition hover:bg-red-500/20 hover:text-red-200"
+        className="fixed bottom-4 right-4 z-[70] rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-300 shadow-lg shadow-black/30 transition hover:bg-red-500/20 hover:text-red-200"
       >
         Logout
       </button>
