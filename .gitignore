@@ -82,3 +82,7 @@ docker-compose.override.yml
 *.tmp
 *.temp
 .cache/
+
+# Internal demo docs (not for judge-facing repo)
+docs/VIDEO_PITCH_SCRIPT.md
+docs/DEMO_OPERATOR_GUIDE.md
