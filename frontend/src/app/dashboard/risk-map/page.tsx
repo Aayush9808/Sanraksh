@@ -70,6 +70,16 @@ const RISK_DOT: Record<string, string> = {
 
 const CITIES = ["All Cities","Mumbai","Delhi","Bengaluru","Pune","Hyderabad","Chennai"]
 
+const EVENT_HALO: Record<string, { ring: string; glow: string; label: string }> = {
+  heavy_rain:  { ring: 'border-red-400/60',  glow: 'bg-red-500/20',    label: 'Heavy Rain' },
+  flood:       { ring: 'border-sky-400/70',  glow: 'bg-sky-500/20',    label: 'Flood' },
+  aqi_shutdown:{ ring: 'border-purple-400/70', glow: 'bg-purple-500/20', label: 'AQI Alert' },
+  curfew:      { ring: 'border-amber-400/70', glow: 'bg-amber-500/20', label: 'Curfew' },
+  app_outage:  { ring: 'border-pink-400/70', glow: 'bg-pink-500/20',   label: 'App Outage' },
+  traffic_jam: { ring: 'border-yellow-400/70', glow: 'bg-yellow-500/20', label: 'Traffic Jam' },
+  road_closure:{ ring: 'border-orange-400/70', glow: 'bg-orange-500/20', label: 'Road Closure' },
+}
+
 export default function RiskHeatmapPage() {
   const [zones, setZones] = useState<RiskZone[]>(MOCK_ZONES)
   const [disruptions, setDisruptions] = useState<Disruption[]>(MOCK_DISRUPTIONS)
@@ -106,6 +116,12 @@ export default function RiskHeatmapPage() {
   const mapLng = liveLocation?.lng ?? selectedZone?.lng ?? filtered[0]?.lng ?? 72.8777
   const mapLabel = liveLocation ? 'Your Live Location' : selectedZone ? `${selectedZone.zone}, ${selectedZone.city}` : `${activeSignal.city} Risk Grid`
   const mapSrc = `https://www.google.com/maps?q=${mapLat},${mapLng}&z=12&output=embed`
+  const impactedZones = filtered.map((zone) => {
+    const events = disruptions.filter((d) => d.zone === zone.zone && d.city === zone.city)
+    const primary = events[0]
+    const halo = primary ? (EVENT_HALO[primary.event_type] || EVENT_HALO.heavy_rain) : null
+    return { zone, events, primary, halo }
+  })
 
   const formatEvent = (s: string) => s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 
@@ -234,6 +250,40 @@ export default function RiskHeatmapPage() {
               </div>
             ))}
             <p className="text-[11px] text-slate-500 pt-1">Signals are sampled every 5 minutes from weather/air-quality/traffic simulations. High values increase disruption probability and auto-trigger readiness.</p>
+          </div>
+        </div>
+
+        {/* Zone Impact Overlay Simulation */}
+        <div className="rounded-2xl border border-slate-700/60 bg-slate-800/40 p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-white">Affected Zone Overlay (Simulation)</h3>
+            <span className="text-xs text-slate-500">Color halo indicates disruption type and severity</span>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {impactedZones.slice(0, 9).map(({ zone, primary, halo, events }) => (
+              <div key={`${zone.city}-${zone.zone}`} className="relative rounded-xl border border-slate-700/50 bg-slate-900/50 p-4 overflow-hidden">
+                {primary && halo && (
+                  <>
+                    <div className={`absolute -inset-6 ${halo.glow} blur-2xl`} />
+                    <div className={`absolute inset-2 border ${halo.ring} rounded-xl animate-pulse`} />
+                  </>
+                )}
+                <div className="relative z-10">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-white">{zone.zone}</p>
+                      <p className="text-xs text-slate-500">{zone.city}</p>
+                    </div>
+                    <span className={`h-2.5 w-2.5 rounded-full ${RISK_DOT[zone.risk_level] || 'bg-slate-500'}`} />
+                  </div>
+                  <p className="mt-2 text-xs text-slate-400">Risk: {Math.round(zone.risk_score * 100)}%</p>
+                  <p className="text-xs mt-1 font-medium text-slate-300">
+                    {primary && halo ? `⚠ ${halo.label} (${primary.severity.toUpperCase()})` : '✅ No active disruption'}
+                  </p>
+                  <p className="text-[11px] text-slate-500 mt-1">{events.length} active event(s)</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 

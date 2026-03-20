@@ -45,7 +45,8 @@ export default function Home() {
 
   const zAdj = ZONES[zone] ?? 8;
   const tAdj = TYPES[type] ?? 5;
-  const weekly = 40 + zAdj + tAdj - 5;
+  const activityAdj = Math.round((4 - days) * 2); // fewer work days => higher premium
+  const weekly = Math.max(25, 40 + zAdj + tAdj + activityAdj - 5);
   const coverage = weekly * 20;
 
   return (
@@ -231,6 +232,7 @@ export default function Home() {
                       ["Base premium",  "₹40",             "text-slate-300"],
                       ["Zone risk",     "+₹" + zAdj,       "text-amber-400"],
                       ["Coverage type", "+₹" + tAdj,       "text-orange-400"],
+                      ["Activity adj.",  `${activityAdj >= 0 ? "+" : ""}₹${activityAdj}`, activityAdj > 0 ? "text-red-400" : activityAdj < 0 ? "text-emerald-400" : "text-slate-300"],
                       ["Loyalty disc.", "-₹5",             "text-emerald-400"],
                     ].map(([lbl, val, col]) => (
                       <div key={lbl} className="flex items-center justify-between border-b border-white/[0.06] py-2.5">
