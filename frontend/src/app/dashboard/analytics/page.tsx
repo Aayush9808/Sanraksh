@@ -12,6 +12,7 @@ const navItems = [
   { icon: "≡",  label: "Claims",    href: "/dashboard/claims" },
   { icon: "↗",  label: "Analytics", href: "/dashboard/analytics", active: true },
   { icon: "🗺️", label: "Risk Map",  href: "/dashboard/risk-map" },
+  { icon: "🚨", label: "Market Crash", href: "/dashboard/market-crash" },
 ];
 
 const automationWeeks = [

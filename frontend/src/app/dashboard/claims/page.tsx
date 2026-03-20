@@ -13,6 +13,7 @@ const navItems = [
   { icon: "≡",  label: "Claims",    href: "/dashboard/claims",   active: true },
   { icon: "↗",  label: "Analytics", href: "/dashboard/analytics" },
   { icon: "🗺️", label: "Risk Map",  href: "/dashboard/risk-map" },
+  { icon: "🚨", label: "Market Crash", href: "/dashboard/market-crash" },
 ];
 
 const MOCK_CLAIMS = [

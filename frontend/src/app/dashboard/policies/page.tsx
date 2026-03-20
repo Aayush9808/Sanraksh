@@ -56,6 +56,7 @@ const navItems = [
   { href: '/dashboard/claims',     icon: '≡',  label: 'Claims'     },
   { href: '/dashboard/analytics',  icon: '↗',  label: 'Analytics'  },
   { href: '/dashboard/risk-map',   icon: '🗺️', label: 'Risk Map'   },
+  { href: '/dashboard/market-crash', icon: '🚨', label: 'Market Crash' },
 ]
 
 export default function PoliciesPage() {
