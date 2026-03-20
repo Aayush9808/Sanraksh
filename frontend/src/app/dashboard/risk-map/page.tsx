@@ -18,6 +18,15 @@ interface Disruption {
   city: string; zone: string; start_time: string;
 }
 
+interface CitySignal {
+  city: string;
+  rain_mm_hr: number;
+  aqi: number;
+  flood_warning: boolean;
+  curfew_alert: boolean;
+  outage_index: number;
+}
+
 const MOCK_ZONES: RiskZone[] = [
   { city:"Mumbai", zone:"Andheri West", lat:19.1136, lng:72.8697, risk_score:0.82, risk_level:"high", weather_risk:0.85, traffic_risk:0.78, disruptions_per_month:12 },
   { city:"Mumbai", zone:"Dadar", lat:19.0178, lng:72.8478, risk_score:0.78, risk_level:"high", weather_risk:0.80, traffic_risk:0.75, disruptions_per_month:10 },
@@ -34,9 +43,19 @@ const MOCK_ZONES: RiskZone[] = [
 const MOCK_DISRUPTIONS: Disruption[] = [
   { id:"1", event_type:"heavy_rain", severity:"high", city:"Mumbai", zone:"Andheri West", start_time:new Date().toISOString() },
   { id:"2", event_type:"flood", severity:"extreme", city:"Mumbai", zone:"Dadar", start_time:new Date().toISOString() },
+  { id:"6", event_type:"aqi_shutdown", severity:"high", city:"Delhi", zone:"Connaught Place", start_time:new Date().toISOString() },
   { id:"3", event_type:"traffic_jam", severity:"medium", city:"Delhi", zone:"Connaught Place", start_time:new Date().toISOString() },
   { id:"4", event_type:"road_closure", severity:"high", city:"Delhi", zone:"Lajpat Nagar", start_time:new Date().toISOString() },
   { id:"5", event_type:"heavy_rain", severity:"medium", city:"Bengaluru", zone:"Koramangala", start_time:new Date().toISOString() },
+]
+
+const CITY_SIGNALS: CitySignal[] = [
+  { city: "Mumbai",    rain_mm_hr: 62, aqi: 178, flood_warning: true,  curfew_alert: false, outage_index: 18 },
+  { city: "Delhi",     rain_mm_hr: 8,  aqi: 412, flood_warning: false, curfew_alert: false, outage_index: 22 },
+  { city: "Bengaluru", rain_mm_hr: 24, aqi: 121, flood_warning: false, curfew_alert: false, outage_index: 14 },
+  { city: "Pune",      rain_mm_hr: 12, aqi: 138, flood_warning: false, curfew_alert: true,  outage_index: 19 },
+  { city: "Hyderabad", rain_mm_hr: 5,  aqi: 96,  flood_warning: false, curfew_alert: false, outage_index: 11 },
+  { city: "Chennai",   rain_mm_hr: 30, aqi: 104, flood_warning: true,  curfew_alert: false, outage_index: 16 },
 ]
 
 const SEVERITY_COLORS: Record<string, string> = {
@@ -56,6 +75,9 @@ export default function RiskHeatmapPage() {
   const [disruptions, setDisruptions] = useState<Disruption[]>(MOCK_DISRUPTIONS)
   const [selectedCity, setSelectedCity] = useState('All Cities')
   const [selectedZone, setSelectedZone] = useState<RiskZone | null>(null)
+  const [liveLocation, setLiveLocation] = useState<{lat: number; lng: number} | null>(null)
+  const [locating, setLocating] = useState(false)
+  const [locationError, setLocationError] = useState('')
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
@@ -78,8 +100,34 @@ export default function RiskHeatmapPage() {
   const highRisk = filtered.filter(z => z.risk_level === 'high').length
   const medRisk = filtered.filter(z => z.risk_level === 'medium').length
   const lowRisk = filtered.filter(z => z.risk_level === 'low').length
+  const activeSignal = CITY_SIGNALS.find(s => s.city === (selectedCity === 'All Cities' ? (selectedZone?.city || 'Mumbai') : selectedCity)) || CITY_SIGNALS[0]
+
+  const mapLat = liveLocation?.lat ?? selectedZone?.lat ?? filtered[0]?.lat ?? 19.076
+  const mapLng = liveLocation?.lng ?? selectedZone?.lng ?? filtered[0]?.lng ?? 72.8777
+  const mapLabel = liveLocation ? 'Your Live Location' : selectedZone ? `${selectedZone.zone}, ${selectedZone.city}` : `${activeSignal.city} Risk Grid`
+  const mapSrc = `https://www.google.com/maps?q=${mapLat},${mapLng}&z=12&output=embed`
 
   const formatEvent = (s: string) => s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+
+  function useMyLocation() {
+    if (!navigator.geolocation) {
+      setLocationError('Geolocation not supported in this browser')
+      return
+    }
+    setLocating(true)
+    setLocationError('')
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLiveLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude })
+        setLocating(false)
+      },
+      () => {
+        setLocationError('Location permission denied. Using selected zone instead.')
+        setLocating(false)
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    )
+  }
 
   return (
     <div className="min-h-screen bg-slate-900 text-white">
@@ -134,6 +182,59 @@ export default function RiskHeatmapPage() {
               {c}
             </button>
           ))}
+        </div>
+
+        {/* Live Map + Signal Command Center */}
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2 rounded-2xl border border-slate-700/60 bg-slate-800/40 overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-3 border-b border-slate-700/60">
+              <div>
+                <p className="text-xs uppercase tracking-widest text-slate-500">Live Location Risk Map</p>
+                <p className="text-sm font-semibold text-white">{mapLabel}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button onClick={useMyLocation}
+                  className="rounded-lg border border-cyan-500/40 bg-cyan-500/10 px-3 py-1.5 text-xs font-semibold text-cyan-300 hover:bg-cyan-500/20 transition-colors">
+                  {locating ? 'Detecting…' : 'Use My Live Location'}
+                </button>
+                <button onClick={() => { setLiveLocation(null); setLocationError('') }}
+                  className="rounded-lg border border-slate-600 px-3 py-1.5 text-xs text-slate-300 hover:text-white hover:border-slate-500 transition-colors">
+                  Reset
+                </button>
+              </div>
+            </div>
+            {locationError && <p className="px-5 pt-3 text-xs text-amber-400">{locationError}</p>}
+            <div className="aspect-[16/8] w-full bg-slate-900">
+              <iframe
+                title="GigArmor Live Risk Map"
+                src={mapSrc}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="h-full w-full"
+              />
+            </div>
+            <div className="px-5 py-3 border-t border-slate-700/60 text-xs text-slate-400 flex items-center justify-between">
+              <span>Map Source: Google Maps Embed</span>
+              <span>📍 {mapLat.toFixed(4)}, {mapLng.toFixed(4)}</span>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-slate-700/60 bg-slate-800/40 p-5 space-y-3">
+            <h3 className="text-sm font-semibold text-white">Environmental Signals — {activeSignal.city}</h3>
+            {[
+              { label: 'Rain Intensity', value: `${activeSignal.rain_mm_hr} mm/hr`, tone: activeSignal.rain_mm_hr > 50 ? 'text-red-400' : activeSignal.rain_mm_hr > 20 ? 'text-amber-400' : 'text-emerald-400', icon: '🌧️' },
+              { label: 'AQI Index', value: activeSignal.aqi.toString(), tone: activeSignal.aqi > 350 ? 'text-red-400' : activeSignal.aqi > 200 ? 'text-amber-400' : 'text-emerald-400', icon: '😷' },
+              { label: 'Flood Warning', value: activeSignal.flood_warning ? 'ACTIVE' : 'CLEAR', tone: activeSignal.flood_warning ? 'text-red-400' : 'text-emerald-400', icon: '🌊' },
+              { label: 'Curfew Alert', value: activeSignal.curfew_alert ? 'ACTIVE' : 'NONE', tone: activeSignal.curfew_alert ? 'text-red-400' : 'text-emerald-400', icon: '🚫' },
+              { label: 'Platform Outage', value: `${activeSignal.outage_index}%`, tone: activeSignal.outage_index > 20 ? 'text-amber-400' : 'text-emerald-400', icon: '⚡' },
+            ].map((s) => (
+              <div key={s.label} className="rounded-xl border border-slate-700/50 bg-slate-900/40 px-3 py-2.5 flex items-center justify-between">
+                <span className="text-xs text-slate-300 flex items-center gap-2"><span>{s.icon}</span>{s.label}</span>
+                <span className={`text-xs font-bold ${s.tone}`}>{s.value}</span>
+              </div>
+            ))}
+            <p className="text-[11px] text-slate-500 pt-1">Signals are sampled every 5 minutes from weather/air-quality/traffic simulations. High values increase disruption probability and auto-trigger readiness.</p>
+          </div>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
@@ -239,6 +340,47 @@ export default function RiskHeatmapPage() {
                 Each zone represents a 2km × 2km area. Risk scores update every 5 minutes using weather APIs, traffic data, and historical disruption patterns. Workers are auto-notified when their zone turns high-risk.
               </p>
             </div>
+          </div>
+        </div>
+
+        {/* Disruption Monitor Table */}
+        <div className="rounded-2xl border border-slate-700/60 bg-slate-800/40 overflow-hidden">
+          <div className="px-5 py-3 border-b border-slate-700/60 flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-white">Operational Disruption Monitor</h3>
+            <span className="text-xs text-slate-500">Updated {new Date().toLocaleTimeString()}</span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[760px]">
+              <thead>
+                <tr className="bg-slate-900/70 border-b border-slate-700/60">
+                  {['Event', 'City', 'Zone', 'Severity', 'Rain (mm/hr)', 'AQI', 'Auto Trigger', 'Status'].map((h) => (
+                    <th key={h} className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {disruptions.slice(0, 8).map((d, idx) => {
+                  const signal = CITY_SIGNALS.find(s => s.city === d.city)
+                  const autoTrigger = ['heavy_rain', 'flood', 'aqi_shutdown', 'app_outage'].includes(d.event_type)
+                  return (
+                    <tr key={d.id + idx} className="border-b border-slate-800/70 hover:bg-white/[0.02] transition-colors">
+                      <td className="px-4 py-3 text-sm font-medium text-white">{formatEvent(d.event_type)}</td>
+                      <td className="px-4 py-3 text-sm text-slate-300">{d.city}</td>
+                      <td className="px-4 py-3 text-sm text-slate-400">{d.zone}</td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-flex px-2 py-0.5 text-[10px] font-bold rounded border capitalize ${SEVERITY_COLORS[d.severity] || ''}`}>{d.severity}</span>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-slate-300">{signal?.rain_mm_hr ?? '—'}</td>
+                      <td className="px-4 py-3 text-sm text-slate-300">{signal?.aqi ?? '—'}</td>
+                      <td className="px-4 py-3 text-sm">
+                        <span className={autoTrigger ? 'text-emerald-400' : 'text-amber-400'}>{autoTrigger ? 'Enabled' : 'Review-first'}</span>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-cyan-400">Monitoring</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

@@ -119,6 +119,8 @@ export default function MyPolicyPage() {
           {[
             { href: "/dashboard/my-policy", icon: "🛡️", label: "My Policy",   active: true  },
             { href: "/dashboard/triggers",  icon: "⚡", label: "Live Alerts", active: false },
+            { href: "/dashboard/policy-terms", icon: "📘", label: "Policy Terms", active: false },
+            { href: "/dashboard/profile", icon: "👤", label: "Profile", active: false },
             { href: "/dashboard",           icon: "▣",  label: "Admin View",  active: false },
           ].map(item => (
             <Link key={item.label} href={item.href}

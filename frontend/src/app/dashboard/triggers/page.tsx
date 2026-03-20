@@ -143,6 +143,8 @@ export default function TriggersPage() {
           {[
             { href: "/dashboard/my-policy", icon: "🛡️", label: "My Policy"   },
             { href: "/dashboard/triggers",  icon: "⚡", label: "Live Alerts", active: true },
+            { href: "/dashboard/policy-terms", icon: "📘", label: "Policy Terms" },
+            { href: "/dashboard/profile", icon: "👤", label: "Profile" },
             { href: "/dashboard",           icon: "▣",  label: "Admin View"  },
           ].map(item => (
             <Link key={item.label} href={item.href}
