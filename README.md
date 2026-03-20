@@ -30,6 +30,36 @@
 
 ---
 
+## 🏁 Phase 1 Deliverables (Exact Compliance)
+
+This README is intentionally structured to satisfy every item from the Phase 1 brief.
+
+### Mandatory item 1: Idea document in GitHub README
+
+- ✅ Persona-based requirement + workflow: [Problem Statement](#-problem-statement-persona-first) and [End-to-End Worker Workflow](#-end-to-end-worker-workflow)
+- ✅ Weekly premium model + parametric triggers + Web choice: [Weekly Premium Model](#-weekly-premium-model-transparent), [Parametric Trigger Matrix](#-parametric-trigger-matrix-loss-of-income-events), [Why Web First](#-why-web-first)
+- ✅ AI/ML integration plan (premium + fraud): [AI/ML Integration Plan](#-aiml-integration-plan)
+- ✅ Tech stack + development plan: [Tech Stack](#-tech-stack), [6-Week Plan Alignment](#-6-week-plan-alignment)
+- ✅ Market Crash anti-spoofing update: [Adversarial Defense & Anti-Spoofing](#-adversarial-defense--anti-spoofing-strategy-market-crash-update)
+
+### Mandatory item 2: 2-minute public video
+
+- ✅ Placeholder present in [Submission Links](#-submission-links)
+- ⚠️ Action needed: replace `ADD_LINK_HERE` with final public URL before submission
+
+---
+
+## 🎯 What Judges Should Evaluate in This Repo
+
+1. **Clarity of business problem** (income volatility for gig workers)
+2. **Correctness of constraint handling** (loss-of-income only)
+3. **Weekly parametric model quality** (triggered payouts)
+4. **Fraud defense maturity** (anti-spoofing, risk-tier routing)
+5. **Prototype quality** (worker + admin UX, realistic flow)
+6. **Execution feasibility** (clear phase roadmap)
+
+---
+
 ## 🧭 Quick Navigation
 
 - [Phase 1 Submission Snapshot](#-phase-1-march-420-submission-snapshot)
@@ -330,6 +360,8 @@ flowchart TD
 ---
 
 ## 🎬 Demo Script (Use in 2-Min Video)
+
+> Presenter-ready script file: [docs/VIDEO_PITCH_SCRIPT.md](docs/VIDEO_PITCH_SCRIPT.md)
 
 1. Show homepage + value proposition.
 2. Login as worker demo.
