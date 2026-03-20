@@ -1,421 +1,302 @@
-# 🛡️ GigArmor - AI-Powered Parametric Insurance for Gig Workers
+<div align="center">
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.104-green.svg)](https://fastapi.tiangolo.com/)
-[![Next.js](https://img.shields.io/badge/Next.js-14-black.svg)](https://nextjs.org/)
+# 🛡️ GigArmor
+### AI-Powered Parametric Income Protection for India’s Gig Workers
 
-> **Protecting India's 10M+ delivery partners from income loss due to weather, traffic, and social disruptions**
+<img src="https://readme-typing-svg.herokuapp.com?font=Inter&weight=700&size=22&pause=1000&color=22D3EE&center=true&vCenter=true&width=900&lines=Built+for+Guidewire+DEVTrails+2026;Loss+of+Income+Only+(Weekly+Model);AI+Risk+Scoring+%2B+Parametric+Auto-Claims+%2B+Instant+Payout+Simulation" alt="typing banner" />
 
-[Live Demo](https://gigarmor.app) • [Documentation](./docs/API.md) • [Video Demo](https://youtu.be/your-demo)
+<br/>
 
----
+[![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104-009688?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
+[![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 
-## 🎯 Problem Statement
-
-India's platform-based delivery partners (Zomato, Swiggy, Amazon, Zepto, Blinkit) face severe income volatility:
-- **60%** of daily wages lost during weather disruptions
-- **20-30%** of monthly earnings affected by external events
-- **Zero** financial protection against uncontrollable events
-- Traditional insurance is too slow, expensive, and complex
-
-**GigArmor** provides instant, affordable, AI-powered parametric insurance designed specifically for the gig economy.
+</div>
 
 ---
 
-## ⚡ Key Features
+## 🔗 Submission Links
 
-### 🎯 **Unique Differentiators** (Why We Win)
+- **Live Demo (Web):** https://gigarmor.vercel.app
+- **Repository:** https://github.com/Aayush9808/GigArmor
+- **2-Minute Strategy Video (Phase 1):** ADD_LINK_HERE
 
-#### 1. 🗺️ **Hyper-Local Risk Intelligence**
-- City divided into **2km × 2km micro-zones**
-- Real-time risk scoring per zone (not just city-wide)
-- Visual heatmap showing safe/dangerous areas
-- Premium varies by zone: ₹35-₹70/week
-
-#### 2. 💎 **Transparent Dynamic Pricing**
-```
-YOUR WEEKLY PREMIUM BREAKDOWN:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Base Rate:                 ₹40
-+ Monsoon Season:          +₹5
-+ High-Risk Zone:          +₹4
-- Loyalty Discount:        -₹3
-- Safe Behavior Bonus:     -₹2
-━━━━━━━━━━━━━━━━━━━━━━━━━━━
-TOTAL:                     ₹44/week
-━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💡 TIP: Work in safer zones to reduce premium
-```
-
-#### 3. 👥 **Peer-Validated Claims**
-- Community-based fraud prevention
-- If 5+ workers in 1km radius affected → Auto-approve
-- Social trust mechanism unique to gig economy
-- 99.8% automation rate
-
-#### 4. 💼 **B2B2C Business Model**
-- Delivery platforms subsidize 60% of premium
-- Workers pay only ₹18/week (vs ₹48 full price)
-- Platforms benefit: 23% lower worker churn
-- Scalable partnership model
-
-#### 5. ⚡ **60-Second Instant Payout**
-- Weather disruption detected → Claims auto-triggered
-- Money transferred within 60 seconds
-- Zero paperwork, zero human intervention
-- True parametric insurance
-
-#### 6. 🔮 **Predictive Risk Alerts**
-```
-☀️ MORNING ALERT (8 AM):
-🟢 8-12 PM: SAFE - Work recommended
-🟡 12-3 PM: MODERATE - Heavy traffic
-🔴 3-6 PM: HIGH - Rain predicted (80%)
-
-💡 Complete deliveries by 3 PM to avoid disruption
-```
-
-#### 7. 🌍 **Multi-City Portability**
-- Work in Mumbai → Move to Bangalore → Coverage continues
-- Switch platforms (Zomato → Swiggy) → Policy stays active
-- Claims history preserved across cities
+> Replace `ADD_LINK_HERE` before final submission.
 
 ---
 
-## 🏗️ Architecture
+## ✅ Phase 1 (March 4–20) Submission Snapshot
 
-```
-┌─────────────────────────────────────────────────┐
-│        USER INTERFACES                          │
-├──────────────────┬──────────────────────────────┤
-│  WhatsApp Bot    │  Web Dashboard (Admin)       │
-│  (Primary UX)    │  (Analytics & Management)    │
-└────────┬─────────┴──────────┬───────────────────┘
-         │                    │
-┌────────▼────────────────────▼─────────────────┐
-│         API GATEWAY (FastAPI)                 │
-│  • JWT Auth  • Rate Limiting  • Validation    │
-└────────┬──────────────────────────────────────┘
-         │
-┌────────▼──────────────────────────────────────┐
-│           CORE SERVICES                       │
-├────────────┬──────────────┬───────────────────┤
-│ User Mgmt  │ Policy Mgmt  │ Claims Processing │
-└────────────┴──────────────┴───────────────────┘
-         │
-┌────────▼──────────────────────────────────────┐
-│           ML/AI ENGINE                        │
-├────────────┬──────────────┬───────────────────┤
-│ Pricing    │ Risk Score   │ Fraud Detection   │
-└────────────┴──────────────┴───────────────────┘
-         │
-┌────────▼──────────────────────────────────────┐
-│        EXTERNAL INTEGRATIONS                  │
-├────────────┬──────────────┬───────────────────┤
-│ Weather API│  Maps API    │ Payment Gateway   │
-└────────────┴──────────────┴───────────────────┘
-```
+This repository satisfies the **Phase 1: Ideation & Foundation** expectations with a working prototype and clear strategy.
 
-**Tech Stack:**
-- **Backend:** FastAPI (Python 3.11), PostgreSQL, Redis
-- **Frontend:** Next.js 14 (TypeScript), Tailwind CSS, Shadcn UI
-- **ML/AI:** XGBoost, scikit-learn, Isolation Forest
-- **Communication:** Twilio WhatsApp API, SendGrid
-- **APIs:** OpenWeatherMap, Google Maps, Razorpay
-- **DevOps:** Docker, Docker Compose, GitHub Actions
+### What is submitted today
+
+- ✅ Persona-focused problem definition
+- ✅ End-to-end workflow for the target worker
+- ✅ Weekly premium model with transparent logic
+- ✅ Parametric triggers and automation approach
+- ✅ AI/ML integration plan (pricing + fraud + anomaly)
+- ✅ Tech stack and 6-week execution plan
+- ✅ Working product prototype (web + backend + simulation)
+- ✅ Public repo + video link section
 
 ---
 
-## 🚀 Quick Start
+## 🎯 Problem Statement (Persona First)
+
+India’s platform delivery partners lose daily income due to external disruptions they cannot control:
+
+- heavy rain / flood,
+- severe pollution shutdown,
+- curfew / strike,
+- platform outage,
+- forced temporary inactivity.
+
+### Selected Persona
+
+**Food Delivery Partner (Zomato/Swiggy), Tier-1 city, weekly earnings dependent on completed trips.**
+
+### Critical Constraint Compliance
+
+GigArmor is designed for **loss of income only**.
+
+- ✅ Included: income interruption due to external disruptions
+- ❌ Excluded: accident cover, health cover, life cover, vehicle repair
+
+---
+
+## 🧠 Solution Summary
+
+GigArmor is an AI-powered parametric insurance platform that:
+
+1. prices risk weekly using zone/platform/activity signals,
+2. monitors disruption conditions in real-time,
+3. auto-triggers claims when thresholds are met,
+4. runs fraud checks,
+5. simulates instant payout.
+
+---
+
+## 🧩 End-to-End Worker Workflow
+
+```mermaid
+flowchart LR
+A[Worker Registers] --> B[AI Weekly Premium Calculation]
+B --> C[Policy Activated]
+C --> D[Zone Monitoring: Weather/AQI/Curfew/App Outage]
+D --> E{Threshold Met?}
+E -- No --> D
+E -- Yes --> F[Auto Claim Trigger]
+F --> G[Fraud + GPS + Duplicate Checks]
+G --> H[Auto Approval]
+H --> I[Instant Payout Simulation]
+I --> J[Worker Dashboard Updated]
+```
+
+---
+
+## 💸 Weekly Premium Model (Transparent)
+
+Current model follows a weighted risk score:
+
+\[
+	ext{riskScore} = 0.5 \cdot zoneRisk + 0.3 \cdot platformRisk + 0.2 \cdot activityScore
+\]
+
+\[
+	ext{weeklyPremium} = 30 + 40 \cdot \text{riskScore}
+\]
+
+Where:
+- `zoneRisk` = disruption likelihood for area,
+- `platformRisk` = platform volatility factor,
+- `activityScore` = working-days influence.
+
+### Example
+
+- Zone risk: `0.82`
+- Platform risk: `0.78`
+- Activity score (5/7 days): `0.71`
+
+\[
+	ext{riskScore} \approx 0.78 \Rightarrow \text{premium} \approx ₹61/week
+\]
+
+This aligns with the challenge requirement: **weekly pricing model**.
+
+---
+
+## ⚡ Parametric Triggers (Loss-of-Income Events)
+
+GigArmor trigger catalog:
+
+- 🌧️ Heavy Rain
+- 🌊 Flooding
+- 😷 AQI Shutdown
+- 🚫 Curfew / Strike
+- ⚡ App Outage
+- 💼 Job Loss / Deactivation signal
+
+Each event has:
+- threshold condition,
+- affected zone mapping,
+- payout amount per worker,
+- automation eligibility.
+
+---
+
+## 🤖 AI/ML Integration Plan
+
+### 1) Dynamic Premium Engine
+- Inputs: zone risk, platform risk, working pattern
+- Output: personalized weekly premium with breakdown
+
+### 2) Fraud Detection Layer
+- GPS consistency checks
+- duplicate claim checks
+- anomaly score for unusual patterns
+
+### 3) Predictive Risk Layer
+- pre-disruption alerts
+- zone severity forecasting
+
+---
+
+## 🏗️ Current Product Modules (Implemented)
+
+### Worker Experience
+- `/login` (demo + real backend support)
+- `/register`
+- `/dashboard/my-policy` (worker portal)
+- `/dashboard/triggers` (parametric simulation)
+
+### Admin Experience
+- `/dashboard` overview
+- `/dashboard/workers`
+- `/dashboard/policies`
+- `/dashboard/claims`
+- `/dashboard/analytics`
+- `/dashboard/risk-map`
+
+### Platform
+- FastAPI backend with auth, policies, claims, analytics
+- PostgreSQL + Redis
+- Dockerized local stack
+
+---
+
+## 🎬 Demo Script (Use in 2-Min Video)
+
+1. Show homepage + value proposition.
+2. Login as worker demo.
+3. Open **My Policy** page (weekly premium + coverage).
+4. File a claim (simulate disruption).
+5. Show AI fraud checks and payout countdown.
+6. Open **Triggers** page and run auto-trigger simulation.
+7. Close with roadmap (Phase 2/3).
+
+---
+
+## 🧪 Local Run Instructions
 
 ### Prerequisites
-- Docker & Docker Compose
-- Node.js 18+ (for local frontend dev)
-- Python 3.11+ (for local backend dev)
+- Docker Desktop
+- Git
 
-### Installation
+### Run
 
-1. **Clone the repository**
 ```bash
-git clone https://github.com/Aayush9808/Guidewire-Temp.git
-cd Guidewire-Temp
+git clone https://github.com/Aayush9808/GigArmor.git
+cd GigArmor
+docker compose up -d --build
 ```
 
-2. **Setup environment variables**
-```bash
-cp .env.example .env
-# Edit .env with your API keys
-```
+### Access
 
-3. **Start services**
-```bash
-docker-compose up -d
-```
-
-4. **Run database migrations**
-```bash
-docker-compose exec backend alembic upgrade head
-```
-
-5. **Access the application**
-- Backend API: http://localhost:8000
-- API Docs: http://localhost:8000/docs
 - Frontend: http://localhost:3000
-- Admin Dashboard: http://localhost:3000/dashboard
+- Backend: http://localhost:8000
+- API Docs: http://localhost:8000/docs
 
-### Seed Demo Data
-```bash
-docker-compose exec backend python scripts/seed_data.py
+---
+
+## 🔐 Demo Login Credentials
+
+Use these for quick judging flow:
+
+- **Worker Demo:** `+917000000001`
+- **Admin Demo:** `+917000000002`
+- **Demo OTP:** `123456`
+
+---
+
+## 🗓️ 6-Week Plan Alignment
+
+### Phase 1 (Weeks 1–2) — Ideation & Foundation ✅
+- Problem understanding, persona selection, architecture baseline, working prototype
+
+### Phase 2 (Weeks 3–4) — Automation & Protection
+- Expand trigger reliability
+- strengthen claim orchestration
+- tighten fraud checks
+
+### Phase 3 (Weeks 5–6) — Scale & Optimise
+- advanced fraud model tuning
+- payout integration hardening
+- final performance + production polish
+
+---
+
+## 📦 Tech Stack
+
+- **Frontend:** Next.js 14, TypeScript, Tailwind CSS
+- **Backend:** FastAPI, Python 3.11, SQLAlchemy
+- **Data:** PostgreSQL, Redis
+- **Infra:** Docker Compose
+- **ML Layer:** scoring + anomaly pipeline (progressive)
+
+---
+
+## 🧭 Why Web First?
+
+We chose web first for Phase 1 because it enables:
+
+- fastest demo and judging access,
+- easier dashboard analytics presentation,
+- rapid iteration across worker/admin flows,
+- lower integration friction while validating core insurance logic.
+
+Mobile/WhatsApp channel remains a planned expansion path for distribution scale.
+
+---
+
+## 📸 Presentation Enhancements (Optional)
+
+You can add your own assets in a folder like `docs/assets/` and plug them here:
+
+```markdown
+![Hero Demo](docs/assets/hero.gif)
+![Trigger Flow](docs/assets/triggers.gif)
 ```
 
 ---
 
-## 📱 WhatsApp Bot Usage
+## 🤝 Team Note
 
-### Registration Flow
-```
-User: Hi
-Bot: 👋 Welcome to GigArmor! Get instant income protection.
-     Share your phone number to get started.
+Built for **Guidewire DEVTrails 2026** with a focus on practical insurtech outcomes for India’s gig workforce.
 
-User: [Shares contact]
-Bot: Great! What's your name?
+If you are a judge/reviewer, the fastest path is:
 
-User: Rahul Kumar
-Bot: Which platform do you work for?
-     1️⃣ Zomato  2️⃣ Swiggy  3️⃣ Amazon
-     4️⃣ Zepto   5️⃣ Blinkit 6️⃣ Other
-
-User: 1
-Bot: Which city and area do you work in?
-
-User: Mumbai, Andheri
-Bot: Perfect! Your weekly premium: ₹48
-     Coverage: ₹800/day income loss
-     Reply YES to activate policy!
-
-User: YES
-Bot: 🎉 Policy activated! POL-2026-XXXXX
-     You're now protected against disruptions.
-```
-
-### Commands
-- `/status` - Check policy status
-- `/claims` - View claim history
-- `/premium` - Next payment due
-- `/help` - Get help
-- `/stop` - Cancel policy
+1. Open live demo,
+2. Login with worker credentials,
+3. Run claim + trigger simulation,
+4. Review README sections for model and roadmap.
 
 ---
 
-## 📊 API Documentation
+<div align="center">
 
-### Authentication
-```http
-POST /api/v1/auth/register
-POST /api/v1/auth/login
-POST /api/v1/auth/verify-otp
-```
+### 🚀 GigArmor — From disruption to payout, automatically.
 
-### Policies
-```http
-POST /api/v1/policies/create
-GET  /api/v1/policies/active
-POST /api/v1/policies/calculate-premium
-```
-
-### Claims
-```http
-POST /api/v1/claims/create
-GET  /api/v1/claims/user/{user_id}
-POST /api/v1/claims/auto-trigger
-```
-
-### Risk Zones
-```http
-GET /api/v1/risk-zones/heatmap
-GET /api/v1/risk-zones/city/{city}
-```
-
-Full API documentation: http://localhost:8000/docs
-
----
-
-## 🧪 Testing
-
-### Run Backend Tests
-```bash
-docker-compose exec backend pytest
-```
-
-### Run Frontend Tests
-```bash
-cd frontend
-npm test
-```
-
-### Test Coverage
-```bash
-docker-compose exec backend pytest --cov=app --cov-report=html
-```
-
----
-
-## 🎨 Demo Scenarios
-
-### Scenario 1: Heavy Rain Auto-Claim
-1. Weather API detects heavy rain in Andheri West
-2. System identifies 12 affected workers in zone
-3. Claims automatically triggered
-4. WhatsApp notifications sent: "₹800 approved"
-5. Payment transferred via Razorpay
-6. **Time:** 60 seconds end-to-end
-
-### Scenario 2: Peer Validation
-1. Worker files claim: "Rain disruption"
-2. System checks: 7 other workers in 1km also affected
-3. Peer validation: ✓ Confirmed
-4. Auto-approve (high confidence)
-5. Lone claims → Manual review queue
-
-### Scenario 3: Transparent Pricing
-1. Worker views premium breakdown
-2. Sees zone-based adjustment: +₹4
-3. Gets tip: "Work in Bandra to save ₹4/week"
-4. Makes informed decision on work zones
-
----
-
-## 📈 Business Model & Unit Economics
-
-### Revenue Streams
-1. **Direct (D2C):** Worker pays ₹48/week
-2. **Platform-Subsidized (B2B2C):** Platform ₹30 + Worker ₹18
-
-### Unit Economics (Per Worker/6 Months)
-```
-REVENUE:
-Premium: ₹192/month × 6 = ₹1,152
-
-COSTS:
-Claims payout: ₹1,200
-Platform fees: ₹23
-API costs: ₹20
-CAC (B2B): ₹0 (platform brings users)
-
-MARGIN: ₹100-150 per worker
-
-SCALE TARGETS:
-- 10K workers: ₹1L/month profit
-- 100K workers: ₹10L/month profit
-- 1M workers: ₹1Cr/month profit
-```
-
-### Platform Value Proposition
-- **23% lower worker churn** (data-driven)
-- **₹8,000 saved** per worker in recruitment costs
-- **Better workforce reliability** during disruptions
-- **ESG & CSR benefits** (worker welfare)
-
----
-
-## 🗂️ Project Structure
-
-```
-gigarmor-dev/
-├── backend/              # FastAPI application
-│   ├── app/
-│   │   ├── models/       # Database models
-│   │   ├── routers/      # API endpoints
-│   │   ├── services/     # Business logic
-│   │   ├── ml_models/    # ML models
-│   │   └── workers/      # Background jobs
-│   ├── tests/
-│   └── requirements.txt
-│
-├── frontend/             # Next.js application
-│   ├── src/
-│   │   ├── app/          # Pages
-│   │   ├── components/   # React components
-│   │   └── lib/          # Utilities
-│   └── package.json
-│
-├── whatsapp-bot/         # Twilio webhook handler
-│   ├── bot.py
-│   └── flows/
-│
-├── ml-training/          # ML model training
-│   ├── notebooks/
-│   ├── data/
-│   └── scripts/
-│
-└── docs/                 # Documentation
-    ├── API.md
-    ├── ARCHITECTURE.md
-    └── DEPLOYMENT.md
-```
-
----
-
-## 🤝 Contributing
-
-This is a hackathon submission project. For any questions or collaboration:
-- **Team:** Runtime Terror
-- **Contact:** [Your Email]
-- **GitHub:** https://github.com/Aayush9808
-
----
-
-## 📄 License
-
-MIT License - See [LICENSE](LICENSE) file
-
----
-
-## 🏆 Hackathon Submission
-
-**Event:** Guidewire DEVTrails 2026  
-**Phase:** Seed (Deadline: March 20, 2026)  
-**Category:** AI-Powered Insurance Innovation  
-
-### Deliverables
-- ✅ Working prototype with core features
-- ✅ 2-minute demo video
-- ✅ Comprehensive documentation
-- ✅ Deployed live demo
-- ✅ Business model & unit economics
-
----
-
-## 🎬 Demo Video
-
-[Watch 2-Minute Demo →](https://youtu.be/your-demo-video)
-
-**Highlights:**
-1. 30-second registration via WhatsApp
-2. Live weather disruption detection
-3. Automated claim approval in 60 seconds
-4. Hyper-local risk heatmap visualization
-5. Transparent pricing breakdown
-
----
-
-## 📞 Support & Resources
-
-### Setup Help
-- [Installation Guide](./docs/INSTALLATION.md)
-- [Troubleshooting](./docs/TROUBLESHOOTING.md)
-- [FAQ](./docs/FAQ.md)
-
-### API Keys Required
-- OpenWeatherMap (Free: 1000 calls/day)
-- Twilio WhatsApp (Free trial: $15 credit)
-- Razorpay Test Mode (Free)
-- Google Maps Geocoding (Free: 28K requests/month)
-
----
-
-**Built with ❤️ for India's gig economy heroes**
-
-*Protecting 10M+ delivery partners, one claim at a time.*
+</div>
