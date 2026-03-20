@@ -1,5 +1,7 @@
 <div align="center">
 
+<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&height=180&color=0:0f172a,50:0ea5e9,100:2563eb&text=GigArmor&fontSize=54&fontColor=ffffff&animation=twinkling&fontAlignY=36&desc=AI-Powered%20Parametric%20Income%20Protection%20for%20Gig%20Workers&descAlignY=58&descSize=18" />
+
 # 🛡️ GigArmor
 ### AI-Powered Parametric Income Protection for India’s Gig Workers
 
@@ -12,6 +14,7 @@
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Vercel](https://img.shields.io/badge/Deploy-Vercel-black?style=for-the-badge&logo=vercel)](https://gigarmor.vercel.app)
 
 </div>
 
@@ -27,32 +30,60 @@
 
 ---
 
+## 🧭 Quick Navigation
+
+- [Phase 1 Submission Snapshot](#-phase-1-march-420-submission-snapshot)
+- [Problem Statement](#-problem-statement-persona-first)
+- [Solution Summary](#-solution-summary)
+- [Worker Workflow](#-end-to-end-worker-workflow)
+- [Weekly Premium Model](#-weekly-premium-model-transparent)
+- [Parametric Trigger Matrix](#-parametric-trigger-matrix-loss-of-income-events)
+- [AI/ML Integration Plan](#-aiml-integration-plan)
+- [Product Modules](#️-current-product-modules-implemented)
+- [Demo Script](#-demo-script-use-in-2-min-video)
+- [Local Run](#-local-run-instructions)
+
+---
+
+## ⚡ Judge in 90 Seconds
+
+1. Open live app: **https://gigarmor.vercel.app**
+2. Login as worker: **+917000000001**
+3. OTP: **123456**
+4. Open **My Policy** and submit a simulated claim
+5. Open **Triggers** and run auto-trigger payout simulation
+
+---
+
 ## ✅ Phase 1 (March 4–20) Submission Snapshot
 
-This repository satisfies the **Phase 1: Ideation & Foundation** expectations with a working prototype and clear strategy.
+This repository is structured to satisfy **Phase 1: Ideation & Foundation** with both:
+
+- a clear strategic concept document (problem, persona, model, roadmap), and
+- a working prototype that demonstrates the core insurtech flow.
 
 ### What is submitted today
 
 - ✅ Persona-focused problem definition
-- ✅ End-to-end workflow for the target worker
-- ✅ Weekly premium model with transparent logic
-- ✅ Parametric triggers and automation approach
+- ✅ End-to-end workflow for target worker
+- ✅ Weekly premium model (transparent + explainable)
+- ✅ Parametric trigger strategy (event → claim → payout)
 - ✅ AI/ML integration plan (pricing + fraud + anomaly)
-- ✅ Tech stack and 6-week execution plan
-- ✅ Working product prototype (web + backend + simulation)
-- ✅ Public repo + video link section
+- ✅ Tech stack + execution roadmap
+- ✅ Working prototype (worker portal + admin + trigger simulation)
+- ✅ Public repository + video placeholder for submission
 
 ---
 
 ## 🎯 Problem Statement (Persona First)
 
-India’s platform delivery partners lose daily income due to external disruptions they cannot control:
+India’s platform delivery workers face direct wage volatility from disruptions they do not control:
 
 - heavy rain / flood,
 - severe pollution shutdown,
 - curfew / strike,
 - platform outage,
-- forced temporary inactivity.
+- abrupt temporary deactivation.
 
 ### Selected Persona
 
@@ -76,6 +107,13 @@ GigArmor is an AI-powered parametric insurance platform that:
 3. auto-triggers claims when thresholds are met,
 4. runs fraud checks,
 5. simulates instant payout.
+
+### Why this is differentiated
+
+- **Loss-of-income specific** (strictly compliant with challenge constraints)
+- **Weekly model** aligned to gig worker payout cycle
+- **Parametric automation** minimizes paperwork and settlement delay
+- **Explainable premium logic** for trust and transparency
 
 ---
 
@@ -101,13 +139,10 @@ I --> J[Worker Dashboard Updated]
 
 Current model follows a weighted risk score:
 
-\[
-	ext{riskScore} = 0.5 \cdot zoneRisk + 0.3 \cdot platformRisk + 0.2 \cdot activityScore
-\]
-
-\[
-	ext{weeklyPremium} = 30 + 40 \cdot \text{riskScore}
-\]
+```text
+riskScore     = 0.5*zoneRisk + 0.3*platformRisk + 0.2*activityScore
+weeklyPremium = 30 + 40*riskScore
+```
 
 Where:
 - `zoneRisk` = disruption likelihood for area,
@@ -120,30 +155,45 @@ Where:
 - Platform risk: `0.78`
 - Activity score (5/7 days): `0.71`
 
-\[
-	ext{riskScore} \approx 0.78 \Rightarrow \text{premium} \approx ₹61/week
-\]
+```text
+riskScore ≈ 0.78  =>  premium ≈ ₹61/week
+```
 
 This aligns with the challenge requirement: **weekly pricing model**.
 
 ---
 
-## ⚡ Parametric Triggers (Loss-of-Income Events)
+## ⚡ Parametric Trigger Matrix (Loss-of-Income Events)
 
-GigArmor trigger catalog:
+| Trigger | Condition Type | Sample Threshold | Auto Claim | Indicative Payout |
+|---|---|---|---|---|
+| 🌧️ Heavy Rain | Weather API | Rainfall > 50mm/hr for 2 hrs | ✅ | ₹800 |
+| 🌊 Flooding | Municipal + weather | Zone flood warning active | ✅ | ₹1,200 |
+| 😷 AQI Shutdown | Pollution signal | AQI > 400 + restriction | ✅ | ₹600 |
+| 🚫 Curfew / Strike | Civic advisory | Official curfew in zone | ✅ | ₹900 |
+| ⚡ App Outage | Platform health | Platform down > 3 hrs | ✅ | ₹500 |
+| 💼 Job Loss Signal | Account status | abrupt deactivation pattern | ⚠️ Review-first | ₹2,000 |
 
-- 🌧️ Heavy Rain
-- 🌊 Flooding
-- 😷 AQI Shutdown
-- 🚫 Curfew / Strike
-- ⚡ App Outage
-- 💼 Job Loss / Deactivation signal
+All triggers are modeled as **income interruption events only**.
 
-Each event has:
-- threshold condition,
-- affected zone mapping,
-- payout amount per worker,
-- automation eligibility.
+---
+
+## 🏛️ Architecture (High-Level)
+
+```mermaid
+flowchart TD
+	A[Worker / Admin UI] --> B[Next.js Frontend]
+	B --> C[FastAPI Gateway]
+	C --> D[Auth + User Service]
+	C --> E[Policy + Premium Service]
+	C --> F[Claims + Trigger Service]
+	E --> G[(PostgreSQL)]
+	F --> G
+	C --> H[(Redis)]
+	I[Weather/AQI/Platform Signals] --> F
+	F --> J[Fraud Checks]
+	J --> K[Payout Simulation]
+```
 
 ---
 
@@ -161,6 +211,11 @@ Each event has:
 ### 3) Predictive Risk Layer
 - pre-disruption alerts
 - zone severity forecasting
+
+### 4) Explainability Layer
+- premium components exposed to user
+- risk factors visible on worker dashboard
+- clear threshold-to-claim trace for auditability
 
 ---
 
@@ -197,6 +252,10 @@ Each event has:
 6. Open **Triggers** page and run auto-trigger simulation.
 7. Close with roadmap (Phase 2/3).
 
+### Presentation Tip
+Keep each step under ~15 seconds and focus on one narrative:
+**“External disruption happened → system detected it → worker got protected income.”**
+
 ---
 
 ## 🧪 Local Run Instructions
@@ -211,6 +270,13 @@ Each event has:
 git clone https://github.com/Aayush9808/GigArmor.git
 cd GigArmor
 docker compose up -d --build
+```
+
+### Verify services
+
+```bash
+docker compose ps
+curl http://localhost:8000/health
 ```
 
 ### Access
@@ -228,6 +294,24 @@ Use these for quick judging flow:
 - **Worker Demo:** `+917000000001`
 - **Admin Demo:** `+917000000002`
 - **Demo OTP:** `123456`
+
+---
+
+## 📽️ README Animation & Visuals
+
+This README already includes:
+
+- animated hero wave banner,
+- animated typing headline,
+- visual badges for stack + deployment,
+- Mermaid workflow + architecture diagrams.
+
+To make it even more premium for final judging, add 2 GIFs inside `docs/assets/`:
+
+```markdown
+![Worker Claim Flow](docs/assets/worker-claim-flow.gif)
+![Parametric Trigger Demo](docs/assets/trigger-engine.gif)
+```
 
 ---
 
