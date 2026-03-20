@@ -69,5 +69,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
   }
 
-  return <>{children}</>;
+  function handleLogout() {
+    localStorage.removeItem("gigarmor_token");
+    localStorage.removeItem("gigarmor_user");
+    localStorage.removeItem("gigarmor_profile");
+    router.replace("/login");
+  }
+
+  return (
+    <>
+      <button
+        onClick={handleLogout}
+        className="fixed right-4 top-4 z-[70] rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-300 transition hover:bg-red-500/20 hover:text-red-200"
+      >
+        Logout
+      </button>
+      {children}
+    </>
+  );
 }
