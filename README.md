@@ -26,8 +26,6 @@
 - **Repository:** https://github.com/Aayush9808/GigArmor
 - **2-Minute Strategy Video (Phase 1):** ADD_LINK_HERE
 
-> Replace `ADD_LINK_HERE` before final submission.
-
 ---
 
 ## 🏁 Phase 1 Deliverables (Exact Compliance)
@@ -44,19 +42,7 @@ This README is intentionally structured to satisfy every item from the Phase 1 b
 
 ### Mandatory item 2: 2-minute public video
 
-- ✅ Placeholder present in [Submission Links](#-submission-links)
-- ⚠️ Action needed: replace `ADD_LINK_HERE` with final public URL before submission
-
----
-
-## 🎯 What Judges Should Evaluate in This Repo
-
-1. **Clarity of business problem** (income volatility for gig workers)
-2. **Correctness of constraint handling** (loss-of-income only)
-3. **Weekly parametric model quality** (triggered payouts)
-4. **Fraud defense maturity** (anti-spoofing, risk-tier routing)
-5. **Prototype quality** (worker + admin UX, realistic flow)
-6. **Execution feasibility** (clear phase roadmap)
+- ✅ Link slot present in [Submission Links](#-submission-links)
 
 ---
 
@@ -71,18 +57,7 @@ This README is intentionally structured to satisfy every item from the Phase 1 b
 - [Adversarial Defense & Anti-Spoofing](#-adversarial-defense--anti-spoofing-strategy-market-crash-update)
 - [AI/ML Integration Plan](#-aiml-integration-plan)
 - [Product Modules](#️-current-product-modules-implemented)
-- [Demo Script](#-demo-script-use-in-2-min-video)
 - [Local Run](#-local-run-instructions)
-
----
-
-## ⚡ Judge in 90 Seconds
-
-1. Open live app: **https://gigarmor.vercel.app**
-2. Login as worker: **+917000000001**
-3. OTP: **123456**
-4. Open **My Policy** and submit a simulated claim
-5. Open **Triggers** and run auto-trigger payout simulation
 
 ---
 
@@ -106,7 +81,7 @@ This repository is structured to satisfy **Phase 1: Ideation & Foundation** with
 
 ---
 
-## 🧪 Requirement-to-Implementation Mapping (Judge View)
+## 🧪 Requirement-to-Implementation Mapping
 
 | Hackathon Requirement | GigArmor Implementation | Status |
 |---|---|---|
@@ -359,33 +334,6 @@ flowchart TD
 
 ---
 
-## 🎬 Demo Script (Use in 2-Min Video)
-
-> Presenter-ready script file: [docs/VIDEO_PITCH_SCRIPT.md](docs/VIDEO_PITCH_SCRIPT.md)
-
-1. Show homepage + value proposition.
-2. Login as worker demo.
-3. Open **My Policy** page (weekly premium + coverage).
-4. File a claim (simulate disruption).
-5. Show AI fraud checks and payout countdown.
-6. Open **Triggers** page and run auto-trigger simulation.
-7. Close with roadmap (Phase 2/3).
-
-### Suggested Demo Route (exact pages)
-
-1. `/` → value proposition + weekly model messaging
-2. `/login` → worker demo auth (`+917000000001`, OTP `123456`)
-3. `/dashboard/my-policy` → premium, coverage, claim filing UI
-4. Submit claim → show fraud check + payout simulation
-5. `/dashboard/triggers` → run auto-trigger simulation live
-6. `/dashboard` (admin) → portfolio-level visibility and governance
-
-### Presentation Tip
-Keep each step under ~15 seconds and focus on one narrative:
-**“External disruption happened → system detected it → worker got protected income.”**
-
----
-
 ## 🧪 Local Run Instructions
 
 ### Prerequisites
@@ -460,13 +408,21 @@ To make it even more premium for final judging, add 2 GIFs inside `docs/assets/`
 
 ---
 
-## 📦 Tech Stack
+## 📦 Tech Stack (Product-Oriented)
 
-- **Frontend:** Next.js 14, TypeScript, Tailwind CSS
-- **Backend:** FastAPI, Python 3.11, SQLAlchemy
-- **Data:** PostgreSQL, Redis
-- **Infra:** Docker Compose
-- **ML Layer:** scoring + anomaly pipeline (progressive)
+| Layer | Stack | Why this choice |
+|---|---|---|
+| Frontend Experience | Next.js 14, TypeScript, Tailwind CSS | Fast UI development, clean dashboard UX, strong component reusability |
+| API & Business Logic | FastAPI, Python 3.11, Pydantic, SQLAlchemy | High developer velocity with typed APIs and clear service boundaries |
+| Data & State | PostgreSQL, Redis | Reliable transactional storage + fast temporary state/caching for claim workflows |
+| Risk & Fraud Logic | Rule-based scoring + anomaly checks (extensible ML path) | Explainable decisions now, smooth upgrade path to learned models later |
+| DevOps & Runtime | Docker Compose, Vercel (frontend), containerized backend | Reproducible local setup and simple deployment path for demo-to-prod progression |
+
+### Current architecture style
+
+- **Modular services:** auth, policy, claims, analytics
+- **Worker/Admin split:** focused portals for policy actions and operational oversight
+- **Parametric flow:** trigger signal → validation → claim decision → payout simulation
 
 ---
 
@@ -483,27 +439,9 @@ Mobile/WhatsApp channel remains a planned expansion path for distribution scale.
 
 ---
 
-## 📸 Presentation Enhancements (Optional)
-
-You can add your own assets in a folder like `docs/assets/` and plug them here:
-
-```markdown
-![Hero Demo](docs/assets/hero.gif)
-![Trigger Flow](docs/assets/triggers.gif)
-```
-
----
-
 ## 🤝 Team Note
 
 Built for **Guidewire DEVTrails 2026** with a focus on practical insurtech outcomes for India’s gig workforce.
-
-If you are a judge/reviewer, the fastest path is:
-
-1. Open live demo,
-2. Login with worker credentials,
-3. Run claim + trigger simulation,
-4. Review README sections for model and roadmap.
 
 ---
 
