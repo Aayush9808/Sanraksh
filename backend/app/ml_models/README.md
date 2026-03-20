@@ -52,7 +52,7 @@ predicted_premium = pricing_model.predict(input_data)[0]
 
 ## Training
 
-See `ml-training/notebooks/` for training scripts.
+See `archive/ml-training/notebooks/` for training scripts.
 
 ## Model Files
 
