@@ -38,6 +38,7 @@
 - [Worker Workflow](#-end-to-end-worker-workflow)
 - [Weekly Premium Model](#-weekly-premium-model-transparent)
 - [Parametric Trigger Matrix](#-parametric-trigger-matrix-loss-of-income-events)
+- [Adversarial Defense & Anti-Spoofing](#-adversarial-defense--anti-spoofing-strategy-market-crash-update)
 - [AI/ML Integration Plan](#-aiml-integration-plan)
 - [Product Modules](#️-current-product-modules-implemented)
 - [Demo Script](#-demo-script-use-in-2-min-video)
@@ -86,6 +87,7 @@ This repository is structured to satisfy **Phase 1: Ideation & Foundation** with
 | Instant payout processing | End-to-end payout simulation with fast settlement UX | ✅ |
 | Integration capability (mock acceptable) | Weather/AQI/platform/payment modeled with simulation endpoints and UI | ✅ |
 | Loss-of-income only coverage | Trigger catalog and coverage restricted to income disruption events | ✅ |
+| Adversarial anti-spoofing strategy | Multi-signal fraud scoring + risk-based routing + human review path | ✅ |
 
 ---
 
@@ -212,6 +214,54 @@ This aligns with the challenge requirement: **weekly pricing model**.
 | 💼 Job Loss Signal | Account status | abrupt deactivation pattern | ⚠️ Review-first | ₹2,000 |
 
 All triggers are modeled as **income interruption events only**.
+
+---
+
+## 🧱 Adversarial Defense & Anti-Spoofing Strategy (Market Crash Update)
+
+To address the **Market Crash** scenario (GPS spoofing + synthetic claim rings), GigArmor uses a defense-in-depth model.
+
+### 1) Differentiation: genuine worker vs spoofed actor
+
+Each claim gets a **trust score** from multiple dimensions, not only GPS:
+
+- route plausibility (speed/time feasibility),
+- location continuity (sudden geo-jumps flagged),
+- disruption correlation (event actually active in zone/time),
+- platform activity consistency (online/offline patterns),
+- peer corroboration density in micro-zone.
+
+Claims with coherent multi-signal behavior are treated as genuine; inconsistent patterns are flagged.
+
+### 2) Data signals used (beyond basic coordinates)
+
+- Time-series GPS pings (drift, teleport, impossible motion)
+- Device/network fingerprint stability
+- App session and order-activity metadata
+- Zone weather/AQI/flood/civic event timestamp alignment
+- Historical claim behavior and duplicate signatures
+- Neighbor-worker consistency within 1–2 km cluster
+
+### 3) UX Balance: fraud control without harming honest workers
+
+GigArmor uses **risk-tier routing**:
+
+- **Low risk:** instant auto-approval and payout
+- **Medium risk:** soft-friction validation (extra signal checks)
+- **High risk:** manual review queue with SLA and reason transparency
+
+This preserves speed for genuine workers while isolating suspicious clusters.
+
+### 4) Ring-Attack Detection Logic (cluster level)
+
+The system monitors sudden claim bursts for patterns like:
+
+- same device/network family across many workers,
+- high claim velocity from newly active accounts,
+- weak alignment with real disruption geography,
+- synchronized claim timestamps with low route plausibility.
+
+When ring probability is high, auto-payout is paused for that cluster only; unaffected workers continue normal flow.
 
 ---
 
