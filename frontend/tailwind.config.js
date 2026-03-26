@@ -8,25 +8,62 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          900: '#1e3a8a',
+        surface: {
+          0: '#06080f',
+          1: '#0c1019',
+          2: '#121724',
+          3: '#1a2035',
+          4: '#232a42',
         },
-        danger: {
-          500: '#ef4444',
-          600: '#dc2626',
+        accent: {
+          amber: '#f59e0b',
+          gold: '#fbbf24',
+          violet: '#8b5cf6',
+          lavender: '#a78bfa',
+          ember: '#f97316',
         },
-        success: {
-          500: '#22c55e',
-          600: '#16a34a',
+        state: {
+          success: '#34d399',
+          warning: '#fbbf24',
+          danger: '#f87171',
+          info: '#60a5fa',
         },
-        warning: {
-          500: '#f59e0b',
-          600: '#d97706',
+        text: {
+          primary: '#f1f5f9',
+          secondary: '#94a3b8',
+          muted: '#475569',
+        },
+      },
+      fontFamily: {
+        display: ['Inter', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+      },
+      borderRadius: {
+        '2xl': '1rem',
+        '3xl': '1.5rem',
+        '4xl': '2rem',
+      },
+      backdropBlur: {
+        xs: '2px',
+      },
+      animation: {
+        'float': 'float 6s ease-in-out infinite',
+        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'glow': 'glow 2s ease-in-out infinite alternate',
+        'orbit': 'orbit 20s linear infinite',
+      },
+      keyframes: {
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-20px)' },
+        },
+        glow: {
+          '0%': { opacity: '0.4' },
+          '100%': { opacity: '1' },
+        },
+        orbit: {
+          '0%': { transform: 'rotate(0deg) translateX(120px) rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg) translateX(120px) rotate(-360deg)' },
         },
       },
     },

@@ -36,13 +36,18 @@ describe("Page module imports", () => {
 });
 
 describe("Shared component imports", () => {
-  it("imports AdminSidebar", async () => {
-    const mod = await import("../components/AdminSidebar");
+  it("imports OrbitalDock", async () => {
+    const mod = await import("../components/ui/OrbitalDock");
     expect(mod.default).toBeDefined();
   });
 
-  it("imports WorkerSidebar", async () => {
-    const mod = await import("../components/WorkerSidebar");
+  it("imports CommandPalette", async () => {
+    const mod = await import("../components/ui/CommandPalette");
+    expect(mod.default).toBeDefined();
+  });
+
+  it("imports BentoCard", async () => {
+    const mod = await import("../components/ui/BentoCard");
     expect(mod.default).toBeDefined();
   });
 });

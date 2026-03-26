@@ -1,242 +1,155 @@
-'use client'
-
-import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
-import AdminSidebar from '../../../components/AdminSidebar'
-import { API_BASE } from '../../../lib/config'
+"use client";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { API_BASE } from "../../../lib/config";
 
 interface Policy {
-  id: string
-  policy_number: string
-  user_id: string
-  worker_name?: string
-  worker_platform?: string
-  coverage_type?: string
-  weekly_premium: number
-  status: string
-  start_date: string
-  end_date: string
+  id:string; policy_number:string; user_id:string; worker_name?:string;
+  worker_platform?:string; coverage_type?:string; weekly_premium:number;
+  status:string; start_date:string; end_date:string;
 }
 
-const MOCK_POLICIES: Policy[] = [
-  { id:'1', policy_number:'GA-202603-000310', user_id:'u1', worker_name:'Rahul Kumar',   worker_platform:'Zomato',  coverage_type:'weather', weekly_premium:55.25, status:'active',  start_date:'2026-03-01', end_date:'2026-03-29' },
-  { id:'2', policy_number:'GA-202603-000260', user_id:'u2', worker_name:'Priya Sharma',  worker_platform:'Swiggy',  coverage_type:'flood',     weekly_premium:51.60, status:'active',  start_date:'2026-02-28', end_date:'2026-03-28' },
-  { id:'3', policy_number:'GA-202603-000373', user_id:'u3', worker_name:'Amit Singh',    worker_platform:'Blinkit', coverage_type:'job_loss',  weekly_premium:54.85, status:'active',  start_date:'2026-02-20', end_date:'2026-04-17' },
-  { id:'4', policy_number:'GA-202602-000145', user_id:'u4', worker_name:'Sneha Patel',   worker_platform:'Ola',     coverage_type:'weather',   weekly_premium:48.00, status:'expired', start_date:'2026-01-01', end_date:'2026-02-28' },
-  { id:'5', policy_number:'GA-202603-000189', user_id:'u5', worker_name:'Karan Mehta',   worker_platform:'Uber',    coverage_type:'curfew',    weekly_premium:62.10, status:'active',  start_date:'2026-03-05', end_date:'2026-04-02' },
-  { id:'6', policy_number:'GA-202603-000421', user_id:'u6', worker_name:'Divya Nair',    worker_platform:'Zepto',   coverage_type:'pollution', weekly_premium:44.50, status:'active',  start_date:'2026-03-07', end_date:'2026-04-04' },
-  { id:'7', policy_number:'GA-202602-000098', user_id:'u7', worker_name:'Rohan Gupta',   worker_platform:'Swiggy',  coverage_type:'weather', weekly_premium:57.75, status:'expired', start_date:'2025-12-01', end_date:'2026-01-28' },
-  { id:'8', policy_number:'GA-202603-000502', user_id:'u8', worker_name:'Anita Joshi',   worker_platform:'Dunzo',   coverage_type:'job_loss',weekly_premium:59.00, status:'active',  start_date:'2026-03-08', end_date:'2026-04-05' },
-]
+const MOCK: Policy[] = [
+  { id:"1", policy_number:"GA-202603-000310", user_id:"u1", worker_name:"Rahul Kumar", worker_platform:"Zomato", coverage_type:"weather", weekly_premium:55.25, status:"active", start_date:"2026-03-01", end_date:"2026-03-29" },
+  { id:"2", policy_number:"GA-202603-000260", user_id:"u2", worker_name:"Priya Sharma", worker_platform:"Swiggy", coverage_type:"flood", weekly_premium:51.60, status:"active", start_date:"2026-02-28", end_date:"2026-03-28" },
+  { id:"3", policy_number:"GA-202603-000373", user_id:"u3", worker_name:"Amit Singh", worker_platform:"Blinkit", coverage_type:"job_loss", weekly_premium:54.85, status:"active", start_date:"2026-02-20", end_date:"2026-04-17" },
+  { id:"4", policy_number:"GA-202602-000145", user_id:"u4", worker_name:"Sneha Patel", worker_platform:"Ola", coverage_type:"weather", weekly_premium:48.00, status:"expired", start_date:"2026-01-01", end_date:"2026-02-28" },
+  { id:"5", policy_number:"GA-202603-000189", user_id:"u5", worker_name:"Karan Mehta", worker_platform:"Uber", coverage_type:"curfew", weekly_premium:62.10, status:"active", start_date:"2026-03-05", end_date:"2026-04-02" },
+  { id:"6", policy_number:"GA-202603-000421", user_id:"u6", worker_name:"Divya Nair", worker_platform:"Zepto", coverage_type:"pollution", weekly_premium:44.50, status:"active", start_date:"2026-03-07", end_date:"2026-04-04" },
+  { id:"7", policy_number:"GA-202602-000098", user_id:"u7", worker_name:"Rohan Gupta", worker_platform:"Swiggy", coverage_type:"weather", weekly_premium:57.75, status:"expired", start_date:"2025-12-01", end_date:"2026-01-28" },
+  { id:"8", policy_number:"GA-202603-000502", user_id:"u8", worker_name:"Anita Joshi", worker_platform:"Dunzo", coverage_type:"job_loss", weekly_premium:59.00, status:"active", start_date:"2026-03-08", end_date:"2026-04-05" },
+];
 
-const COVERAGE_LABELS: Record<string, string> = {
-  weather:    '🌧️ Weather',
-  flood:      '🌊 Flood',
-  job_loss:   '💼 Job Loss',
-  pollution:  '😷 Pollution',
-  curfew:     '🚫 Curfew/Strike',
-  app_outage: '⚡ App Outage',
-}
-const PLATFORM_COLORS: Record<string, string> = {
-  Zomato: 'bg-red-500/20 text-red-300 border-red-500/30',
-  Swiggy: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
-  Blinkit: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
-  Ola: 'bg-green-500/20 text-green-300 border-green-500/30',
-  Uber: 'bg-slate-500/20 text-slate-300 border-slate-500/30',
-  Zepto: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
-  Dunzo: 'bg-pink-500/20 text-pink-300 border-pink-500/30',
-}
+const COV:Record<string,string> = { weather:"🌧️ Weather", flood:"🌊 Flood", job_loss:"💼 Job Loss", pollution:"😷 Pollution", curfew:"🚫 Curfew", app_outage:"⚡ App Outage" };
+const PLAT:Record<string,string> = {
+  Zomato:"bg-state-danger/15 text-state-danger border-state-danger/20",
+  Swiggy:"bg-accent-ember/15 text-accent-ember border-accent-ember/20",
+  Blinkit:"bg-state-warning/15 text-state-warning border-state-warning/20",
+  Ola:"bg-state-success/15 text-state-success border-state-success/20",
+  Uber:"bg-text-muted/15 text-text-muted border-text-muted/20",
+  Zepto:"bg-accent-violet/15 text-accent-violet border-accent-violet/20",
+  Dunzo:"bg-accent-lavender/15 text-accent-lavender border-accent-lavender/20",
+};
 
 export default function PoliciesPage() {
-  const [policies, setPolicies] = useState<Policy[]>(MOCK_POLICIES)
-  const [total, setTotal] = useState(450)
-  const [loading, setLoading] = useState(false)
-  const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('all')
-  const [coverageFilter, setCoverageFilter] = useState('all')
+  const [policies, setPolicies] = useState<Policy[]>(MOCK);
+  const [total, setTotal] = useState(450);
+  const [search, setSearch] = useState("");
+  const [statusF, setStatusF] = useState("all");
+  const [coverageF, setCoverageF] = useState("all");
 
   useEffect(() => {
-    async function load() {
-      setLoading(true)
+    (async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/v1/policies/all?limit=100`)
-        if (res.ok) {
-          const data = await res.json()
-          if (data.policies?.length) {
-            setPolicies(data.policies)
-            setTotal(data.total)
-          }
-        }
-      } catch {}
-      setLoading(false)
-    }
-    load()
-  }, [])
+        const r = await fetch(`${API_BASE}/api/v1/policies/all?limit=100`);
+        if (r.ok) { const d = await r.json(); if (d.policies?.length) { setPolicies(d.policies); setTotal(d.total); } }
+      } catch{}
+    })();
+  }, []);
 
   const filtered = policies.filter(p => {
-    const matchSearch = !search ||
-      p.policy_number.toLowerCase().includes(search.toLowerCase()) ||
-      (p.worker_name || '').toLowerCase().includes(search.toLowerCase())
-    const matchStatus = statusFilter === 'all' || p.status === statusFilter
-    const matchCoverage = coverageFilter === 'all' || p.coverage_type === coverageFilter
-    return matchSearch && matchStatus && matchCoverage
-  })
+    const ms = !search || p.policy_number.toLowerCase().includes(search.toLowerCase()) || (p.worker_name||"").toLowerCase().includes(search.toLowerCase());
+    const mst = statusF==="all" || p.status===statusF;
+    const mc = coverageF==="all" || p.coverage_type===coverageF;
+    return ms && mst && mc;
+  });
 
-  const active = policies.filter(p => p.status === 'active').length
-  const expired = policies.filter(p => p.status === 'expired').length
-  const totalRevenue = policies.filter(p => p.status === 'active')
-    .reduce((s, p) => s + p.weekly_premium, 0)
+  const active = policies.filter(p=>p.status==="active").length;
+  const expired = policies.filter(p=>p.status==="expired").length;
+  const revenue = policies.filter(p=>p.status==="active").reduce((s,p)=>s+p.weekly_premium,0);
+  const daysLeft = (e:string) => Math.ceil((new Date(e).getTime()-Date.now())/86400000);
 
-  const daysLeft = (end: string) => {
-    const diff = Math.ceil((new Date(end).getTime() - Date.now()) / 86400000)
-    return diff
-  }
+  const card = "rounded-2xl bg-surface-1 border border-white/[0.04]";
+  const b = (d:number) => ({ initial:{opacity:0,y:12}, animate:{opacity:1,y:0}, transition:{delay:d*0.06} } as const);
+  const sel = "rounded-xl border border-white/[0.06] bg-surface-2 px-3 py-2.5 text-sm text-text-secondary outline-none cursor-pointer focus:border-accent-amber/50";
 
   return (
-    <div className="flex min-h-screen bg-[#060d1a] text-slate-100">
-      <AdminSidebar />
-
-      {/* Main */}
-      <main className="ml-60 flex-1 px-8 py-8">
-        {/* Header */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="mb-7 flex items-center justify-between">
-          <div>
-            <p className="mb-1 text-xs text-slate-500 uppercase tracking-widest">GigArmor / Policies</p>
-            <h1 className="text-3xl font-black text-white">Policy Management</h1>
-            <p className="mt-1 text-sm text-slate-400">All active and historical insurance policies</p>
-          </div>
-          <div className="flex items-center gap-3">
-            {loading && <span className="text-xs text-slate-500 animate-pulse">Loading live data…</span>}
-            <button className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-300 hover:bg-cyan-500/20 transition-colors">
-              + New Policy
-            </button>
-          </div>
-        </motion.div>
-
-        {/* KPI Cards */}
-        <div className="mb-7 grid grid-cols-2 gap-4 xl:grid-cols-4">
-          {[
-            { label: 'Total Policies',   value: total.toLocaleString(), icon: '📋', sub: 'All time', color: 'border-cyan-500/20 bg-cyan-500/5' },
-            { label: 'Active',           value: active.toLocaleString(), icon: '✅', sub: 'Currently covered', color: 'border-emerald-500/20 bg-emerald-500/5' },
-            { label: 'Expired',          value: expired.toLocaleString(), icon: '⏰', sub: 'Needs renewal', color: 'border-amber-500/20 bg-amber-500/5' },
-            { label: 'Weekly Revenue',   value: `₹${totalRevenue.toFixed(0)}`, icon: '💰', sub: 'Active premiums', color: 'border-violet-500/20 bg-violet-500/5' },
-          ].map((k, i) => (
-            <motion.div key={k.label} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + i * 0.08 }} whileHover={{ y: -2 }} className={`rounded-2xl border p-5 ${k.color}`}>
-              <div className="mb-2 text-2xl">{k.icon}</div>
-              <div className="text-2xl font-black text-white">{k.value}</div>
-              <div className="mt-0.5 text-sm font-medium text-slate-200">{k.label}</div>
-              <div className="text-xs text-slate-500">{k.sub}</div>
-            </motion.div>
-          ))}
+    <motion.div className="p-6 space-y-5 max-w-[1400px] mx-auto" initial={{opacity:0}} animate={{opacity:1}}>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-text-primary">Policy Management</h1>
+          <p className="text-sm text-text-secondary mt-0.5">All active and historical insurance policies</p>
         </div>
+        <button className="rounded-xl bg-accent-amber/15 border border-accent-amber/25 px-4 py-2.5 text-sm font-semibold text-accent-amber hover:bg-accent-amber/25 transition">+ New Policy</button>
+      </div>
 
-        {/* Filters */}
-        <div className="mb-5 flex flex-wrap items-center gap-3">
-          <div className="relative flex-1 min-w-[220px] max-w-xs">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">🔍</span>
-            <input
-              value={search} onChange={e => setSearch(e.target.value)}
-              placeholder="Search policy # or worker name…"
-              className="w-full rounded-xl border border-white/[0.08] bg-white/[0.04] py-2.5 pl-9 pr-4 text-sm text-white placeholder-slate-500 outline-none focus:border-cyan-500/50 transition-colors"
-            />
+      {/* KPIs */}
+      <motion.div {...b(1)} className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+        {[
+          { l:"Total Policies", v:total.toLocaleString(), icon:"📋", accent:"border-accent-amber/30 bg-accent-amber/[0.04]" },
+          { l:"Active", v:active.toLocaleString(), icon:"✅", accent:"border-state-success/30 bg-state-success/[0.04]" },
+          { l:"Expired", v:expired.toLocaleString(), icon:"⏰", accent:"border-state-warning/30 bg-state-warning/[0.04]" },
+          { l:"Weekly Revenue", v:`₹${revenue.toFixed(0)}`, icon:"💰", accent:"border-accent-violet/30 bg-accent-violet/[0.04]" },
+        ].map(k=>(
+          <div key={k.l} className={`rounded-2xl border p-4 ${k.accent}`}>
+            <div className="text-xl mb-1">{k.icon}</div>
+            <div className="text-2xl font-black text-text-primary">{k.v}</div>
+            <div className="text-sm text-text-secondary">{k.l}</div>
           </div>
-          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-            className="rounded-xl border border-white/[0.08] bg-[#0d1829] px-4 py-2.5 text-sm text-slate-300 outline-none cursor-pointer">
-            <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="expired">Expired</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
-          <select value={coverageFilter} onChange={e => setCoverageFilter(e.target.value)}
-            className="rounded-xl border border-white/[0.08] bg-[#0d1829] px-4 py-2.5 text-sm text-slate-300 outline-none cursor-pointer">
-            <option value="all">All Coverage</option>
-            <option value="weather">🌧️ Weather</option>
-            <option value="flood">🌊 Flood</option>
-            <option value="job_loss">💼 Job Loss</option>
-            <option value="pollution">😷 Pollution</option>
-            <option value="curfew">🚫 Curfew/Strike</option>
-            <option value="app_outage">⚡ App Outage</option>
-          </select>
-          <span className="ml-auto text-sm text-slate-500">{filtered.length} results</span>
-        </div>
+        ))}
+      </motion.div>
 
-        {/* Table */}
-        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-white/[0.06] bg-white/[0.02]">
-                  {['Policy #', 'Worker', 'Platform', 'Coverage', 'Premium/wk', 'Status', 'Valid Until', 'Days Left'].map(h => (
-                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((p, i) => {
-                  const days = daysLeft(p.end_date)
-                  const isExpiring = days > 0 && days <= 7
-                  return (
-                    <tr key={p.id} className={`border-b border-white/[0.04] transition-colors hover:bg-white/[0.03] ${i % 2 === 0 ? '' : 'bg-white/[0.01]'}`}>
-                      <td className="px-4 py-3.5">
-                        <span className="font-mono text-xs font-semibold text-cyan-400">{p.policy_number}</span>
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <div className="flex items-center gap-2.5">
-                          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-slate-600 to-slate-700 text-xs font-bold text-white">
-                            {(p.worker_name || 'W').charAt(0)}
-                          </div>
-                          <span className="text-sm font-medium text-white">{p.worker_name || p.user_id.slice(0, 8)}</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3.5">
-                        {p.worker_platform ? (
-                          <span className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-semibold ${PLATFORM_COLORS[p.worker_platform] || 'bg-slate-500/20 text-slate-300 border-slate-500/30'}`}>
-                            {p.worker_platform}
-                          </span>
-                        ) : <span className="text-slate-500 text-xs">—</span>}
-                      </td>
-                      <td className="px-4 py-3.5 text-sm text-slate-300">
-                        {p.coverage_type ? (COVERAGE_LABELS[p.coverage_type] || p.coverage_type) : '—'}
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <span className="text-sm font-bold text-white">₹{p.weekly_premium.toFixed(2)}</span>
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold border ${
-                          p.status === 'active' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' :
-                          p.status === 'expired' ? 'bg-slate-500/20 text-slate-400 border-slate-500/30' :
-                          'bg-red-500/20 text-red-300 border-red-500/30'
-                        }`}>
-                          <span className={`h-1.5 w-1.5 rounded-full ${p.status === 'active' ? 'bg-emerald-400' : 'bg-slate-400'}`} />
-                          {p.status.charAt(0).toUpperCase() + p.status.slice(1)}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3.5 text-sm text-slate-400">
-                        {new Date(p.end_date).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })}
-                      </td>
-                      <td className="px-4 py-3.5">
-                        {days <= 0 ? (
-                          <span className="text-xs text-slate-500">Expired</span>
-                        ) : isExpiring ? (
-                          <span className="rounded-full bg-amber-500/20 border border-amber-500/30 px-2 py-0.5 text-xs font-bold text-amber-300">⚠️ {days}d</span>
-                        ) : (
-                          <span className="text-xs text-slate-400">{days}d</span>
-                        )}
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-          {filtered.length === 0 && (
-            <div className="py-16 text-center text-slate-500">
-              <p className="text-3xl mb-2">🔍</p>
-              <p className="text-sm">No policies match your filters</p>
-            </div>
-          )}
+      {/* Filters */}
+      <motion.div {...b(2)} className="flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[200px] max-w-xs">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-sm">🔍</span>
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search policy # or name…"
+            className="w-full rounded-xl border border-white/[0.06] bg-surface-2 py-2.5 pl-9 pr-4 text-sm text-text-primary placeholder-text-muted/40 outline-none focus:border-accent-amber/50 transition" />
         </div>
-      </main>
-    </div>
-  )
+        <select value={statusF} onChange={e=>setStatusF(e.target.value)} className={sel}>
+          <option value="all">All Status</option><option value="active">Active</option><option value="expired">Expired</option>
+        </select>
+        <select value={coverageF} onChange={e=>setCoverageF(e.target.value)} className={sel}>
+          <option value="all">All Coverage</option><option value="weather">🌧️ Weather</option><option value="flood">🌊 Flood</option>
+          <option value="job_loss">💼 Job Loss</option><option value="pollution">😷 Pollution</option><option value="curfew">🚫 Curfew</option>
+        </select>
+        <span className="ml-auto text-xs text-text-muted">{filtered.length} results</span>
+      </motion.div>
+
+      {/* Table */}
+      <motion.div {...b(3)} className={`${card} overflow-hidden`}>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[900px]">
+            <thead><tr className="border-b border-white/[0.04] bg-surface-2/50">
+              {["Policy #","Worker","Platform","Coverage","Premium/wk","Status","Valid Until","Days Left"].map(h=>(
+                <th key={h} className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">{h}</th>
+              ))}
+            </tr></thead>
+            <tbody>
+              {filtered.map(p => {
+                const days = daysLeft(p.end_date);
+                return (
+                  <tr key={p.id} className="border-b border-white/[0.03] hover:bg-white/[0.02] transition">
+                    <td className="px-4 py-3 font-mono text-xs text-accent-amber">{p.policy_number}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-surface-3 text-[10px] font-bold text-text-secondary">{(p.worker_name||"W")[0]}</div>
+                        <span className="text-sm font-medium text-text-primary">{p.worker_name||p.user_id.slice(0,8)}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">{p.worker_platform ? <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${PLAT[p.worker_platform]||""}`}>{p.worker_platform}</span> : <span className="text-text-muted text-xs">—</span>}</td>
+                    <td className="px-4 py-3 text-sm text-text-secondary">{p.coverage_type?(COV[p.coverage_type]||p.coverage_type):"—"}</td>
+                    <td className="px-4 py-3 text-sm font-semibold text-text-primary">₹{p.weekly_premium.toFixed(2)}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold ${p.status==="active"?"bg-state-success/15 text-state-success border-state-success/25":"bg-surface-2 text-text-muted border-white/[0.06]"}`}>
+                        <span className={`h-1.5 w-1.5 rounded-full ${p.status==="active"?"bg-state-success":"bg-text-muted"}`}/>
+                        {p.status[0].toUpperCase()+p.status.slice(1)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-xs text-text-muted">{new Date(p.end_date).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})}</td>
+                    <td className="px-4 py-3">
+                      {days<=0 ? <span className="text-xs text-text-muted">Expired</span>
+                       : days<=7 ? <span className="rounded-full bg-state-warning/15 border border-state-warning/25 px-2 py-0.5 text-[10px] font-bold text-state-warning">⚠️ {days}d</span>
+                       : <span className="text-xs text-text-muted">{days}d</span>}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        {filtered.length===0 && <div className="py-16 text-center text-text-muted"><p className="text-3xl mb-2">🔍</p><p className="text-sm">No policies match your filters</p></div>}
+      </motion.div>
+    </motion.div>
+  );
 }
