@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import WorkerSidebar from "../../../components/WorkerSidebar";
 import { API_BASE } from "../../../lib/config";
 
 const DISRUPTIONS = [
@@ -231,40 +232,10 @@ export default function TriggersPage() {
 
   return (
     <div className="flex min-h-screen bg-[#060d1a] text-slate-100">
-      {/* Sidebar */}
-      <aside className="fixed left-0 top-0 flex h-screen w-60 flex-col border-r border-white/[0.06] bg-[#060d1a]">
-        <div className="border-b border-white/[0.06] px-5 py-5">
-          <Link href="/" className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-400 to-blue-500 text-sm font-black text-slate-950">G</span>
-            <span className="text-lg font-black tracking-tight text-white">GigArmor</span>
-          </Link>
-          <p className="mt-1 text-[10px] uppercase tracking-widest text-slate-500">Worker Portal</p>
-        </div>
-        <nav className="flex-1 space-y-0.5 px-3 py-4">
-          {[
-            { href: "/dashboard/my-policy", icon: "🛡️", label: "My Policy"   },
-            { href: "/dashboard/triggers",  icon: "⚡", label: "Live Alerts", active: true },
-            { href: "/dashboard/policy-terms", icon: "📘", label: "Policy Terms" },
-            { href: "/dashboard/profile", icon: "👤", label: "Profile" },
-          ].map(item => (
-            <Link key={item.label} href={item.href}
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all
-                ${"active" in item && item.active ? "bg-cyan-500/10 text-cyan-300 border border-cyan-500/20" : "text-slate-400 hover:bg-white/5 hover:text-white"}`}>
-              <span className="text-base">{item.icon}</span>
-              <span>{item.label}</span>
-            </Link>
-          ))}
-        </nav>
-        <div className="border-t border-white/[0.06] p-4">
-          <div className="flex items-center gap-2 text-xs">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-red-400" />
-            <span className="text-red-400 font-semibold">3 Active Alerts</span>
-          </div>
-        </div>
-      </aside>
+      <WorkerSidebar />
 
       <main className="ml-60 flex-1 px-8 py-8 space-y-6">
-        <div>
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
           <p className="mb-1 text-xs text-slate-500 uppercase tracking-widest">GigArmor / Parametric Engine</p>
           <h1 className="text-3xl font-black text-white">⚡ Live Disruption Triggers</h1>
           <div className="mt-2 inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3 py-1 text-xs text-cyan-300">
@@ -272,24 +243,25 @@ export default function TriggersPage() {
             Engine source: {engineSource === "backend" ? "Phase 2 API" : "Local fallback"}
           </div>
           <p className="mt-1 text-sm text-slate-400">Real-time parametric insurance engine. Disruption detected → claims auto-fired → instant payout.</p>
-        </div>
+        </motion.div>
 
         {/* Live status bar */}
-        <div className="flex gap-3 flex-wrap">
-          {DISRUPTIONS.filter(d => d.autoFire).map(d => (
-            <div key={d.id} className={`flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-semibold ${d.badge}`}>
+        <motion.div className="flex gap-3 flex-wrap" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+          {DISRUPTIONS.filter(d => d.autoFire).map((d, i) => (
+            <motion.div key={d.id} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 + i * 0.08 }}
+              className={`flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-semibold ${d.badge}`}>
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-current" />
               {d.icon} {d.label} — {d.affected} workers
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Disruption selector */}
           <div className="lg:col-span-1 space-y-3">
             <h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider">Select Disruption to Simulate</h2>
-            {DISRUPTIONS.map(d => (
-              <button key={d.id} onClick={() => {
+            {DISRUPTIONS.map((d, i) => (
+              <motion.button key={d.id} initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 + i * 0.06 }} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => {
                 setActiveDisruption(d);
                 setTriggerState("idle");
                 setLog([]);
@@ -315,7 +287,7 @@ export default function TriggersPage() {
                     <span className="h-1 w-1 rounded-full bg-emerald-400 animate-pulse" /> Auto-trigger
                   </span>
                 )}
-              </button>
+              </motion.button>
             ))}
           </div>
 
@@ -356,16 +328,17 @@ export default function TriggersPage() {
             </div>
 
             {/* Run simulation */}
+            <AnimatePresence mode="wait">
             {triggerState === "idle" && (
-              <button onClick={runSimulation}
+              <motion.button key="run-btn" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} onClick={runSimulation}
                 className="w-full rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 py-4 text-base font-bold text-white shadow-xl shadow-cyan-500/20 hover:from-cyan-400 hover:to-blue-500 transition-all">
                 🚀 Simulate Disruption + Auto-Trigger Claims
-              </button>
+              </motion.button>
             )}
 
             {/* Progress */}
             {triggerState !== "idle" && (
-              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 space-y-5">
+              <motion.div key="progress" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }} className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 space-y-5">
                 <div className="flex items-center justify-between">
                   <h3 className="font-bold text-white">
                     {triggerState === "scanning"    && "🛰️ Scanning Zone…"}
@@ -424,11 +397,12 @@ export default function TriggersPage() {
                     )}
                   </div>
                 </div>
-              </div>
+              </motion.div>
             )}
+            </AnimatePresence>
 
             {/* How it works */}
-            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
               <h3 className="text-sm font-bold text-slate-300 mb-4 uppercase tracking-wider">How Parametric Triggers Work</h3>
               <div className="flex items-center gap-2 flex-wrap">
                 {[
@@ -443,17 +417,17 @@ export default function TriggersPage() {
                   { icon: "💸", label: "UPI Payout" },
                 ].map((s, i) => (
                   s.label ? (
-                    <div key={i} className="flex flex-col items-center gap-1">
+                    <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 + i * 0.06 }} className="flex flex-col items-center gap-1">
                       <span className="text-xl">{s.icon}</span>
                       <span className="text-[10px] text-slate-500 text-center">{s.label}</span>
-                    </div>
+                    </motion.div>
                   ) : (
-                    <span key={i} className="text-slate-600 text-lg">→</span>
+                    <motion.span key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 + i * 0.06 }} className="text-slate-600 text-lg">→</motion.span>
                   )
                 ))}
               </div>
               <p className="mt-4 text-xs text-slate-600">Zero manual intervention. Workers don&apos;t need to file — claims trigger and pay automatically when parametric conditions are met.</p>
-            </div>
+            </motion.div>
           </div>
         </div>
       </main>

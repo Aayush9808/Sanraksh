@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { motion } from "framer-motion";
+import WorkerSidebar from "../../../components/WorkerSidebar";
 
 interface WorkerProfile {
   name: string;
@@ -84,39 +85,10 @@ export default function ProfilePage() {
 
   return (
     <div className="flex min-h-screen bg-[#060d1a] text-slate-100">
-      <aside className="fixed left-0 top-0 flex h-screen w-60 flex-col border-r border-white/[0.06] bg-[#060d1a]">
-        <div className="border-b border-white/[0.06] px-5 py-5">
-          <Link href="/" className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-400 to-blue-500 text-sm font-black text-slate-950">G</span>
-            <span className="text-lg font-black tracking-tight text-white">GigArmor</span>
-          </Link>
-          <p className="mt-1 text-[10px] uppercase tracking-widest text-slate-500">Worker Portal</p>
-        </div>
-        <nav className="flex-1 space-y-0.5 px-3 py-4">
-          {[
-            { href: "/dashboard/my-policy", icon: "🛡️", label: "My Policy" },
-            { href: "/dashboard/triggers", icon: "⚡", label: "Live Alerts" },
-            { href: "/dashboard/policy-terms", icon: "📘", label: "Policy Terms" },
-            { href: "/dashboard/profile", icon: "👤", label: "Profile", active: true },
-          ].map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
-                item.active
-                  ? "bg-cyan-500/10 text-cyan-300 border border-cyan-500/20"
-                  : "text-slate-400 hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              <span>{item.icon}</span>
-              <span>{item.label}</span>
-            </Link>
-          ))}
-        </nav>
-      </aside>
+      <WorkerSidebar />
 
       <main className="ml-60 flex-1 px-8 py-8 space-y-6">
-        <div className="flex items-center justify-between">
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="flex items-center justify-between">
           <div>
             <p className="mb-1 text-xs uppercase tracking-widest text-slate-500">GigArmor / Worker Profile</p>
             <h1 className="text-3xl font-black text-white">👤 Worker Profile & Emergency Details</h1>
@@ -129,16 +101,16 @@ export default function ProfilePage() {
           >
             {saving ? "Saving..." : "Save Profile"}
           </button>
-        </div>
+        </motion.div>
 
         {savedAt && (
-          <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-300">
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-300">
             Profile updated successfully at {savedAt}
-          </div>
+          </motion.div>
         )}
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <section className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 space-y-4">
+          <motion.section initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }} className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 space-y-4">
             <h2 className="text-lg font-bold text-white">Personal Information</h2>
             <div className="grid gap-4 md:grid-cols-2">
               {[{k:'name',l:'Full Name'},{k:'phone',l:'Phone Number'},{k:'email',l:'Email'},{k:'dob',l:'Date of Birth'},{k:'gender',l:'Gender'},{k:'bloodGroup',l:'Blood Group'}].map((f) => (
@@ -161,9 +133,9 @@ export default function ProfilePage() {
                 className="w-full rounded-xl border border-white/[0.08] bg-slate-900/70 px-3 py-2.5 text-sm text-white outline-none focus:border-cyan-500"
               />
             </label>
-          </section>
+          </motion.section>
 
-          <section className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 space-y-4">
+          <motion.section initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }} className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 space-y-4">
             <h2 className="text-lg font-bold text-white">Work & Policy Mapping</h2>
             <div className="grid gap-4 md:grid-cols-2">
               {[{k:'platform',l:'Platform'},{k:'city',l:'City'},{k:'zone',l:'Zone'}].map((f) => (
@@ -191,17 +163,17 @@ export default function ProfilePage() {
                 </label>
               ))}
             </div>
-          </section>
+          </motion.section>
         </div>
 
-        <section className="rounded-2xl border border-cyan-500/20 bg-cyan-500/5 p-5">
+        <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="rounded-2xl border border-cyan-500/20 bg-cyan-500/5 p-5">
           <h3 className="text-sm font-bold text-cyan-300">Profile Usage in Insurance Decisioning</h3>
           <ul className="mt-2 list-disc list-inside text-sm text-slate-300 space-y-1">
             <li>City/zone and platform drive weekly premium personalization.</li>
             <li>Emergency details are used for support escalation workflows.</li>
             <li>Profile consistency helps reduce fraud risk and claim delays.</li>
           </ul>
-        </section>
+        </motion.section>
       </main>
     </div>
   );

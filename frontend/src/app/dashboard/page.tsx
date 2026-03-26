@@ -5,18 +5,9 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, PieChart, Pie, Cell,
 } from "recharts";
+import { motion } from "framer-motion";
+import AdminSidebar from "../../components/AdminSidebar";
 import { API_BASE } from "../../lib/config";
-
-const navItems = [
-  { href: "/dashboard",            icon: "▣",  label: "Overview",    active: true  },
-  { href: "/dashboard/control-tower", icon: "🛰️", label: "Control Tower", active: false },
-  { href: "/dashboard/workers",    icon: "👷", label: "Workers",     active: false },
-  { href: "/dashboard/policies",   icon: "🛡️", label: "Policies",   active: false },
-  { href: "/dashboard/claims",     icon: "≡",  label: "Claims",      active: false },
-  { href: "/dashboard/analytics",  icon: "↗",  label: "Analytics",   active: false },
-  { href: "/dashboard/risk-map",   icon: "🗺️", label: "Risk Map",   active: false },
-  { href: "/dashboard/market-crash", icon: "🚨", label: "Market Crash", active: false },
-];
 
 const MOCK_CLAIMS_DATA = [
   { day: "Mon", claims: 8,  payout: 6400  },
@@ -65,7 +56,6 @@ function statusClass(s: string): string {
 }
 
 export default function DashboardPage() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [stats, setStats] = useState({ total_users: 1247, active_policies: 1089, claims_today: 23, total_payout_amount: 274000, automation_rate: 94.2, claims_review: 8 });
   const [claimsData, setClaimsData] = useState(MOCK_CLAIMS_DATA);
   const [policyMix, setPolicyMix] = useState(MOCK_POLICY_MIX);
@@ -109,33 +99,7 @@ export default function DashboardPage() {
   return (
     <div className="flex h-screen bg-[#030712] text-slate-100 overflow-hidden">
 
-      {/* ─── SIDEBAR ─── */}
-      <aside className={"fixed inset-y-0 left-0 z-50 flex w-60 flex-col border-r border-white/[0.06] bg-[#060d1a] transition-transform duration-300 lg:translate-x-0 " + (sidebarOpen ? "translate-x-0" : "-translate-x-full")}>
-        <div className="flex h-14 shrink-0 items-center gap-2.5 border-b border-white/[0.06] px-5">
-          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 text-sm font-black text-white shadow-lg shadow-cyan-500/30">G</span>
-          <span className="text-sm font-black text-white">GigArmor</span>
-        </div>
-        <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
-          <p className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-widest text-slate-600">Navigation</p>
-          {navItems.map(item => (
-            <a key={item.href} href={item.href}
-               className={"flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors " + (item.active ? "bg-cyan-500/15 text-cyan-300 border border-cyan-500/20" : "text-slate-400 hover:bg-white/5 hover:text-white")}>
-              <span className="w-5 text-center text-base">{item.icon}</span>
-              {item.label}
-              {item.active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-cyan-400" />}
-            </a>
-          ))}
-        </nav>
-        <div className="shrink-0 border-t border-white/[0.06] p-3">
-          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.07] px-3 py-2.5">
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
-              <span className="text-xs font-semibold text-emerald-300">All systems live</span>
-            </div>
-            <div className="mt-0.5 text-[11px] text-slate-600">99.9% uptime this month</div>
-          </div>
-        </div>
-      </aside>
+      <AdminSidebar />
 
       {/* ─── MAIN ─── */}
       <div className="flex flex-1 flex-col overflow-hidden lg:ml-60">
@@ -143,10 +107,6 @@ export default function DashboardPage() {
         {/* Header */}
         <header className="flex h-14 shrink-0 items-center justify-between border-b border-white/[0.06] bg-[#030712]/90 px-5 backdrop-blur">
           <div className="flex items-center gap-3">
-            <button onClick={() => setSidebarOpen(!sidebarOpen)}
-                    className="rounded-lg p-1.5 text-slate-500 hover:text-white lg:hidden">
-              ☰
-            </button>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">GigArmor</p>
               <h1 className="text-base font-black leading-tight text-white">Control Center</h1>
@@ -168,15 +128,15 @@ export default function DashboardPage() {
 
           {/* KPI row */}
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            {kpis.map(k => (
-              <div key={k.label} className={"rounded-2xl border p-4 transition hover:-translate-y-0.5 " + k.c}>
+            {kpis.map((k, i) => (
+              <motion.div key={k.label} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.08 }} whileHover={{ y: -3 }} className={"rounded-2xl border p-4 " + k.c}>
                 <div className="text-xl">{k.icon}</div>
                 <div className="mt-2 text-2xl font-black text-white">
                   {k.val === "2.74L" ? <>&#8377;{k.val}</> : k.val}
                 </div>
                 <div className="text-xs font-semibold text-slate-200">{k.label}</div>
                 <div className="mt-0.5 text-[11px] opacity-60">{k.sub}</div>
-              </div>
+              </motion.div>
             ))}
           </div>
 

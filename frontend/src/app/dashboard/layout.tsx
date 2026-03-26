@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 
 type Role = "admin" | "worker";
 
@@ -13,7 +14,7 @@ const ADMIN_ROUTES = [
   "/dashboard/claims",
   "/dashboard/analytics",
   "/dashboard/risk-map",
-  "/dashboard/market-crash",
+  "/dashboard/threat-defense",
 ];
 
 const WORKER_ROUTES = [
@@ -85,7 +86,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       >
         Logout
       </button>
-      {children}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={pathname}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -6 }}
+          transition={{ duration: 0.2 }}
+        >
+          {children}
+        </motion.div>
+      </AnimatePresence>
     </>
   );
 }

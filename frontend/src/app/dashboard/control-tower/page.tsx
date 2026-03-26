@@ -1,18 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
+import AdminSidebar from "../../../components/AdminSidebar";
 import { API_BASE } from "../../../lib/config";
-
-const navItems = [
-  { href: "/dashboard", icon: "▣", label: "Overview" },
-  { href: "/dashboard/control-tower", icon: "🛰️", label: "Control Tower", active: true },
-  { href: "/dashboard/workers", icon: "👷", label: "Workers" },
-  { href: "/dashboard/policies", icon: "🛡️", label: "Policies" },
-  { href: "/dashboard/claims", icon: "≡", label: "Claims" },
-  { href: "/dashboard/analytics", icon: "↗", label: "Analytics" },
-  { href: "/dashboard/risk-map", icon: "🗺️", label: "Risk Map" },
-  { href: "/dashboard/market-crash", icon: "🚨", label: "Market Crash" },
-];
 
 type Severity = "high" | "extreme" | "medium";
 
@@ -552,35 +543,10 @@ export default function ControlTowerPage() {
 
   return (
     <div className="flex min-h-screen bg-slate-950 text-slate-100">
-      <aside className="fixed left-0 top-0 flex h-screen w-64 flex-col border-r border-white/10 bg-slate-900">
-        <div className="border-b border-white/10 px-5 py-6">
-          <p className="text-2xl font-black">GigArmor</p>
-          <p className="mt-1 text-xs text-slate-400">Phase 2 Operations</p>
-        </div>
-        <nav className="flex-1 space-y-1 p-3">
-          {navItems.map((item) => (
-            <a
-              key={item.label}
-              href={item.href}
-              className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all ${
-                "active" in item && item.active
-                  ? "border-l-4 border-cyan-400 bg-cyan-400/10 text-cyan-300"
-                  : "text-slate-400 hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              <span>{item.icon}</span>
-              <span>{item.label}</span>
-            </a>
-          ))}
-        </nav>
-        <div className="border-t border-white/10 p-4 text-xs text-slate-400">
-          <p className="font-semibold text-emerald-300">Operations mode: Live</p>
-          <p className="mt-1">{statusLine}</p>
-        </div>
-      </aside>
+      <AdminSidebar />
 
-      <main className="ml-64 flex-1 px-8 py-8 space-y-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      <main className="ml-60 flex-1 px-8 py-8 space-y-6">
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-widest text-slate-500">GigArmor / Control Tower</p>
             <h1 className="text-3xl font-black text-white">Phase 2 Command Center</h1>
@@ -593,7 +559,7 @@ export default function ControlTowerPage() {
           >
             {refreshing ? "Refreshing..." : "Refresh"}
           </button>
-        </div>
+        </motion.div>
 
         <div className="flex flex-wrap items-center gap-2 text-xs">
           {(["metrics", "queue", "trend", "runs"] as const).map((panel) => (

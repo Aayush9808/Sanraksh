@@ -1,5 +1,6 @@
 "use client";
-import Link from "next/link";
+import { motion } from "framer-motion";
+import WorkerSidebar from "../../../components/WorkerSidebar";
 
 const TERMS = [
   {
@@ -69,61 +70,32 @@ const EXCLUSIONS = [
 export default function PolicyTermsPage() {
   return (
     <div className="flex min-h-screen bg-[#060d1a] text-slate-100">
-      <aside className="fixed left-0 top-0 flex h-screen w-60 flex-col border-r border-white/[0.06] bg-[#060d1a]">
-        <div className="border-b border-white/[0.06] px-5 py-5">
-          <Link href="/" className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-400 to-blue-500 text-sm font-black text-slate-950">G</span>
-            <span className="text-lg font-black tracking-tight text-white">GigArmor</span>
-          </Link>
-          <p className="mt-1 text-[10px] uppercase tracking-widest text-slate-500">Worker Portal</p>
-        </div>
-        <nav className="flex-1 space-y-0.5 px-3 py-4">
-          {[
-            { href: "/dashboard/my-policy", icon: "🛡️", label: "My Policy" },
-            { href: "/dashboard/triggers", icon: "⚡", label: "Live Alerts" },
-            { href: "/dashboard/policy-terms", icon: "📘", label: "Policy Terms", active: true },
-            { href: "/dashboard/profile", icon: "👤", label: "Profile" },
-          ].map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
-                item.active
-                  ? "bg-cyan-500/10 text-cyan-300 border border-cyan-500/20"
-                  : "text-slate-400 hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              <span>{item.icon}</span>
-              <span>{item.label}</span>
-            </Link>
-          ))}
-        </nav>
-      </aside>
+      <WorkerSidebar />
 
       <main className="ml-60 flex-1 px-8 py-8 space-y-6">
-        <div className="flex items-center justify-between">
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="flex items-center justify-between">
           <div>
             <p className="mb-1 text-xs uppercase tracking-widest text-slate-500">GigArmor / Policy Terms</p>
             <h1 className="text-3xl font-black text-white">📘 Worker Policy Terms & Conditions</h1>
             <p className="mt-1 text-sm text-slate-400">Clear rules for coverage activation, trigger logic, payouts, and exclusions.</p>
           </div>
           <span className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-4 py-2 text-xs font-semibold text-cyan-300">Version 1.0 • Weekly Model</span>
-        </div>
+        </motion.div>
 
         <div className="grid gap-4 md:grid-cols-3">
           {[
             ["Policy Type", "Parametric Income Protection"],
             ["Billing Cycle", "Weekly"],
             ["Payout SLA", "Instant / Auto-processed"],
-          ].map((x) => (
-            <div key={x[0]} className="rounded-xl border border-white/[0.08] bg-white/[0.03] p-4">
+          ].map((x, i) => (
+            <motion.div key={x[0]} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + i * 0.08 }} whileHover={{ y: -2 }} className="rounded-xl border border-white/[0.08] bg-white/[0.03] p-4">
               <p className="text-xs text-slate-500">{x[0]}</p>
               <p className="mt-1 text-base font-semibold text-white">{x[1]}</p>
-            </div>
+            </motion.div>
           ))}
         </div>
 
-        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] overflow-hidden">
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="rounded-2xl border border-white/[0.08] bg-white/[0.02] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1100px]">
               <thead>
@@ -154,17 +126,17 @@ export default function PolicyTermsPage() {
               </tbody>
             </table>
           </div>
-        </div>
+        </motion.div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5">
+          <motion.div initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }} className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5">
             <h2 className="text-lg font-bold text-amber-300">⚠️ Global Exclusions</h2>
             <ul className="mt-3 space-y-2 text-sm text-slate-300 list-disc list-inside">
               {EXCLUSIONS.map((x) => <li key={x}>{x}</li>)}
             </ul>
-          </div>
+          </motion.div>
 
-          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-5">
+          <motion.div initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6 }} className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-5">
             <h2 className="text-lg font-bold text-emerald-300">✅ Worker Obligations</h2>
             <ul className="mt-3 space-y-2 text-sm text-slate-300 list-disc list-inside">
               <li>Maintain valid profile details and emergency contact.</li>
@@ -173,7 +145,7 @@ export default function PolicyTermsPage() {
               <li>Avoid duplicate/false claims; such activity can terminate policy.</li>
               <li>Use support workflow for manual review scenarios.</li>
             </ul>
-          </div>
+          </motion.div>
         </div>
       </main>
     </div>

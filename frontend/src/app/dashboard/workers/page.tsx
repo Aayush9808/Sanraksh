@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
+import AdminSidebar from "../../../components/AdminSidebar";
 import { API_BASE } from "../../../lib/config";
 
 interface Worker {
@@ -102,7 +104,9 @@ export default function WorkersPage() {
   const platforms = ["all", "zomato", "swiggy", "amazon", "zepto", "blinkit", "other"];
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white">
+    <div className="flex min-h-screen bg-slate-900 text-white">
+      <AdminSidebar />
+      <main className="ml-60 flex-1">
       {/* Header */}
       <div className="border-b border-slate-800 bg-slate-900/95 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -263,6 +267,7 @@ export default function WorkersPage() {
           </div>
         </div>
       </div>
+      </main>
     </div>
   );
 }

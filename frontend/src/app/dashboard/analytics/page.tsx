@@ -1,17 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import AdminSidebar from "../../../components/AdminSidebar";
 import { API_BASE } from "../../../lib/config";
-
-const navItems = [
-  { icon: "▣",  label: "Overview",  href: "/dashboard" },
-  { icon: "🛰️", label: "Control Tower", href: "/dashboard/control-tower" },
-  { icon: "👷", label: "Workers",   href: "/dashboard/workers" },
-  { icon: "🛡️", label: "Policies",  href: "/dashboard/policies" },
-  { icon: "≡",  label: "Claims",    href: "/dashboard/claims" },
-  { icon: "↗",  label: "Analytics", href: "/dashboard/analytics", active: true },
-  { icon: "🗺️", label: "Risk Map",  href: "/dashboard/risk-map" },
-  { icon: "🚨", label: "Market Crash", href: "/dashboard/market-crash" },
-];
 
 const automationWeeks = [
   { label: "Week 1 (Feb 9)",  pct: 97.2, best: false },
@@ -81,41 +72,10 @@ export default function AnalyticsPage() {
 
   return (
     <div className="flex min-h-screen bg-slate-950 text-slate-100">
-      {/* Sidebar */}
-      <aside className="fixed left-0 top-0 flex h-screen w-64 flex-col border-r border-white/10 bg-slate-900">
-        <div className="border-b border-white/10 px-5 py-6">
-          <p className="text-2xl font-black">🛡️ GigArmor</p>
-          <p className="mt-1 text-xs text-slate-400">Control Center</p>
-        </div>
-        <nav className="flex-1 space-y-1 p-3">
-          {navItems.map((item) => (
-            <a
-              key={item.label}
-              href={item.href}
-              className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all ${
-                item.active
-                  ? "border-l-4 border-cyan-400 bg-cyan-400/10 text-cyan-300"
-                  : "text-slate-400 hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              <span>{item.icon}</span>
-              <span>{item.label}</span>
-            </a>
-          ))}
-        </nav>
-        <div className="border-t border-white/10 p-4">
-          <div className="mb-3 flex items-center gap-2 text-sm">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400"></span>
-            <span className="text-emerald-300 font-semibold">Live</span>
-          </div>
-          <a href="/" className="text-sm text-slate-400 hover:text-white transition-colors">
-            ← Back to Home
-          </a>
-        </div>
-      </aside>
+      <AdminSidebar />
 
       {/* Main */}
-      <main className="ml-64 flex-1 px-8 py-8">
+      <main className="ml-60 flex-1 px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <a href="/dashboard" className="mb-2 inline-flex items-center gap-1 text-sm text-slate-400 hover:text-white transition-colors">
@@ -127,13 +87,13 @@ export default function AnalyticsPage() {
 
         {/* Top Metrics */}
         <div className="mb-8 grid grid-cols-2 gap-5 xl:grid-cols-4">
-          {topMetrics.map((m) => (
-            <div key={m.label} className={`rounded-2xl border-l-4 bg-gradient-to-br p-5 shadow-lg shadow-black/20 ${m.color}`}>
+          {topMetrics.map((m, i) => (
+            <motion.div key={m.label} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.08 }} whileHover={{ y: -2 }} className={`rounded-2xl border-l-4 bg-gradient-to-br p-5 shadow-lg shadow-black/20 ${m.color}`}>
               <div className="mb-2 text-2xl">{m.icon}</div>
               <div className="text-2xl font-black text-white">{m.value}</div>
               <div className="mt-1 text-sm font-semibold text-slate-200">{m.label}</div>
               <div className="mt-1 text-xs text-slate-400">{m.sub}</div>
-            </div>
+            </motion.div>
           ))}
         </div>
 

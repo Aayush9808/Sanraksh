@@ -1,8 +1,8 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { API_BASE } from "../../../lib/config";
+import { motion, AnimatePresence } from "framer-motion";
+import WorkerSidebar from "../../../components/WorkerSidebar";
 
 const DISRUPTION_TYPES = [
   { id: "heavy_rain",  label: "Heavy Rain / Storm",     icon: "🌧️", desc: "Rain > 50mm in your zone",        premium_add: 0, payout: 800  },
@@ -73,7 +73,6 @@ export default function MyPolicyPage() {
   const coverage = weekly * 20;
   const riskPct  = Math.round((ZONE_RISK[zone] ?? 0.70) * 100);
 
-  const activeDisruption = DISRUPTION_TYPES.find(d => d.id === "heavy_rain");
   const policyEnd = new Date(); policyEnd.setDate(policyEnd.getDate() + 21);
 
   function startClaim() {
@@ -99,76 +98,47 @@ export default function MyPolicyPage() {
 
   if (!user) return (
     <div className="flex min-h-screen items-center justify-center bg-[#060d1a] text-slate-400">
-      <p className="animate-pulse">Loading your policy…</p>
+      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="animate-pulse">Loading your policy…</motion.p>
     </div>
   );
 
+  const fadeUp = { initial: { opacity: 0, y: 16 }, animate: { opacity: 1, y: 0 } };
+
   return (
     <div className="flex min-h-screen bg-[#060d1a] text-slate-100">
-      {/* Sidebar */}
-      <aside className="fixed left-0 top-0 flex h-screen w-60 flex-col border-r border-white/[0.06] bg-[#060d1a]">
-        <div className="border-b border-white/[0.06] px-5 py-5">
-          <Link href="/" className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-400 to-blue-500 text-sm font-black text-slate-950">G</span>
-            <span className="text-lg font-black tracking-tight text-white">GigArmor</span>
-          </Link>
-          <p className="mt-1 text-[10px] uppercase tracking-widest text-slate-500">Worker Portal</p>
-        </div>
-        <nav className="flex-1 space-y-0.5 px-3 py-4">
-          {[
-            { href: "/dashboard/my-policy", icon: "🛡️", label: "My Policy",   active: true  },
-            { href: "/dashboard/triggers",  icon: "⚡", label: "Live Alerts", active: false },
-            { href: "/dashboard/policy-terms", icon: "📘", label: "Policy Terms", active: false },
-            { href: "/dashboard/profile", icon: "👤", label: "Profile", active: false },
-          ].map(item => (
-            <Link key={item.label} href={item.href}
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all
-                ${item.active ? "bg-cyan-500/10 text-cyan-300 border border-cyan-500/20" : "text-slate-400 hover:bg-white/5 hover:text-white"}`}>
-              <span className="text-base">{item.icon}</span>
-              <span>{item.label}</span>
-            </Link>
-          ))}
-        </nav>
-        <div className="border-t border-white/[0.06] p-4 space-y-2">
-          <div className="flex items-center gap-2 rounded-xl bg-white/[0.03] px-3 py-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-xs font-black text-white">
-              {user.name.charAt(0)}
-            </div>
-            <div>
-              <p className="text-xs font-semibold text-white truncate">{user.name}</p>
-              <p className="text-[10px] text-slate-500">{platform}</p>
-            </div>
-          </div>
-          <button onClick={() => { localStorage.clear(); router.push("/login"); }}
-            className="w-full rounded-xl border border-white/[0.06] px-3 py-2 text-xs text-slate-500 hover:text-red-400 hover:border-red-500/30 transition-colors text-left">
-            Sign out
-          </button>
-        </div>
-      </aside>
+      <WorkerSidebar />
 
       <main className="ml-60 flex-1 px-8 py-8 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <motion.div {...fadeUp} transition={{ duration: 0.4 }} className="flex items-center justify-between">
           <div>
             <p className="mb-1 text-xs text-slate-500 uppercase tracking-widest">GigArmor / My Policy</p>
             <h1 className="text-3xl font-black text-white">Welcome, {user.name.split(" ")[0]} 👋</h1>
-            <p className="mt-1 text-sm text-slate-400">Your income is protected. Here's your coverage dashboard.</p>
+            <p className="mt-1 text-sm text-slate-400">Your income is protected. Here&apos;s your coverage dashboard.</p>
           </div>
-          <div className="flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-2">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-2"
+          >
             <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
             <span className="text-sm font-semibold text-emerald-300">Policy Active</span>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Live Zone Alert */}
-        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-5 py-4 flex items-center gap-4">
+        <motion.div
+          {...fadeUp}
+          transition={{ duration: 0.4, delay: 0.05 }}
+          className="rounded-2xl border border-amber-500/30 bg-amber-500/10 px-5 py-4 flex items-center gap-4"
+        >
           <span className="text-3xl">🌧️</span>
           <div className="flex-1">
             <p className="font-bold text-amber-300">Live Alert — Heavy rain detected in {zone}</p>
             <p className="text-sm text-slate-400 mt-0.5">Rainfall &gt; 60mm/hr. Parametric trigger active. You can file a claim now.</p>
           </div>
           <span className="rounded-full bg-amber-500/20 border border-amber-500/30 px-3 py-1 text-xs font-bold text-amber-300 animate-pulse">LIVE</span>
-        </div>
+        </motion.div>
 
         {/* KPI row */}
         <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
@@ -177,27 +147,41 @@ export default function MyPolicyPage() {
             { label: "Weekly Coverage",  value: `₹${coverage.toFixed(0)}`, icon: "🛡️", sub: "Income protected",      color: "border-emerald-500/20 bg-emerald-500/5" },
             { label: "Policy Valid",     value: policyEnd.toLocaleDateString("en-IN",{day:"numeric",month:"short"}), icon: "📅", sub: "21 days left", color: "border-violet-500/20 bg-violet-500/5" },
             { label: "Total Claimed",    value: `₹${claimHistory.reduce((s,c)=>s+c.amount,0).toLocaleString()}`, icon: "💸", sub: `${claimHistory.length} claims paid`, color: "border-amber-500/20 bg-amber-500/5" },
-          ].map(k => (
-            <div key={k.label} className={`rounded-2xl border p-5 ${k.color}`}>
+          ].map((k, i) => (
+            <motion.div
+              key={k.label}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 + i * 0.05 }}
+              whileHover={{ y: -2, transition: { duration: 0.2 } }}
+              className={`rounded-2xl border p-5 ${k.color}`}
+            >
               <div className="mb-2 text-2xl">{k.icon}</div>
               <div className="text-2xl font-black text-white">{k.value}</div>
               <div className="mt-0.5 text-sm font-medium text-slate-200">{k.label}</div>
               <div className="text-xs text-slate-500">{k.sub}</div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
           {/* ── File a Claim ── */}
-          <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
+          <motion.div
+            {...fadeUp}
+            transition={{ duration: 0.4, delay: 0.2 }}
+            className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6"
+          >
             <h2 className="mb-1 text-lg font-bold text-white">⚡ File a Claim</h2>
             <p className="mb-5 text-xs text-slate-500">Select the disruption type. AI verifies automatically.</p>
 
+            <AnimatePresence mode="wait">
             {claimPhase === "idle" && (
-              <div className="space-y-4">
+              <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
                 <div className="grid grid-cols-2 gap-2">
                   {DISRUPTION_TYPES.map(d => (
-                    <button key={d.id}
+                    <motion.button key={d.id}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       onClick={() => setClaimType(d)}
                       className={`rounded-xl border p-3 text-left transition-all
                         ${claimType.id === d.id
@@ -206,7 +190,7 @@ export default function MyPolicyPage() {
                       <div className="text-xl mb-1">{d.icon}</div>
                       <div className="text-xs font-semibold">{d.label}</div>
                       <div className="text-[10px] text-slate-500 mt-0.5">Payout: ₹{d.payout}</div>
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
                 <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
@@ -218,15 +202,19 @@ export default function MyPolicyPage() {
                     <span className="text-lg font-black text-cyan-300">₹{claimType.payout}</span>
                   </div>
                 </div>
-                <button onClick={startClaim}
-                  className="w-full rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 py-3 font-bold text-white shadow-lg shadow-cyan-500/20 hover:from-cyan-400 hover:to-blue-500 transition-all">
+                <motion.button
+                  onClick={startClaim}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 py-3 font-bold text-white shadow-lg shadow-cyan-500/20 hover:from-cyan-400 hover:to-blue-500 transition-all"
+                >
                   Submit Claim →
-                </button>
-              </div>
+                </motion.button>
+              </motion.div>
             )}
 
             {claimPhase === "detecting" && (
-              <div className="space-y-4 py-4">
+              <motion.div key="detecting" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-4 py-4">
                 <div className="flex flex-col items-center gap-3">
                   <div className="h-14 w-14 rounded-full border-4 border-cyan-500/30 border-t-cyan-400 animate-spin" />
                   <p className="font-semibold text-cyan-300">🛰️ Detecting disruption in {zone}…</p>
@@ -234,18 +222,28 @@ export default function MyPolicyPage() {
                 </div>
                 <div className="rounded-xl bg-white/[0.03] p-4 space-y-2">
                   {["Weather API ✓","Zone boundary check ✓","Rainfall threshold…"].map((s,i) => (
-                    <div key={i} className="flex items-center gap-2 text-xs text-slate-400">
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.3 }}
+                      className="flex items-center gap-2 text-xs text-slate-400"
+                    >
                       <span className={i < 2 ? "text-emerald-400" : "text-amber-400 animate-pulse"}>●</span> {s}
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             )}
 
             {claimPhase === "verifying" && (
-              <div className="space-y-4 py-4">
+              <motion.div key="verifying" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-4 py-4">
                 <div className="flex flex-col items-center gap-3">
-                  <span className="text-5xl animate-bounce">🤖</span>
+                  <motion.span
+                    className="text-5xl"
+                    animate={{ y: [0, -8, 0] }}
+                    transition={{ duration: 0.6, repeat: Infinity }}
+                  >🤖</motion.span>
                   <p className="font-semibold text-violet-300">AI Fraud Check Running…</p>
                 </div>
                 <div className="rounded-xl bg-white/[0.03] p-4 space-y-3">
@@ -255,20 +253,31 @@ export default function MyPolicyPage() {
                     { label: "Duplicate claim check", val: "✅ No duplicates", color: "text-emerald-400" },
                     { label: "Anomaly detection",     val: "✅ Normal pattern", color: "text-emerald-400" },
                     { label: "Fraud risk score",      val: `${(fraudScore * 100).toFixed(0)}% (Low)`, color: "text-emerald-400" },
-                  ].map(r => (
-                    <div key={r.label} className="flex justify-between text-xs">
+                  ].map((r, i) => (
+                    <motion.div
+                      key={r.label}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.2 }}
+                      className="flex justify-between text-xs"
+                    >
                       <span className="text-slate-400">{r.label}</span>
                       <span className={r.color}>{r.val}</span>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             )}
 
             {claimPhase === "approved" && (
-              <div className="space-y-4 py-4">
+              <motion.div key="approved" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="space-y-4 py-4">
                 <div className="flex flex-col items-center gap-3 text-center">
-                  <span className="text-6xl">✅</span>
+                  <motion.span
+                    className="text-6xl"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring" as const, stiffness: 300, damping: 15 }}
+                  >✅</motion.span>
                   <p className="text-xl font-black text-emerald-300">Claim Approved!</p>
                   <p className="text-sm text-slate-400">Initiating UPI transfer to your registered account</p>
                 </div>
@@ -277,13 +286,17 @@ export default function MyPolicyPage() {
                   <p className="text-4xl font-black text-emerald-300 mt-1">₹{claimType.payout}</p>
                   <p className="text-xs text-slate-500 mt-1">Processing via UPI / IMPS</p>
                 </div>
-              </div>
+              </motion.div>
             )}
 
             {claimPhase === "paid" && (
-              <div className="space-y-4">
+              <motion.div key="paid" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                 <div className="rounded-2xl border border-emerald-500/40 bg-gradient-to-br from-emerald-500/20 to-cyan-500/10 p-6 text-center">
-                  <p className="text-5xl mb-3">💸</p>
+                  <motion.p
+                    className="text-5xl mb-3"
+                    animate={{ rotate: [0, 10, -10, 0] }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                  >💸</motion.p>
                   <p className="text-2xl font-black text-emerald-300">₹{claimType.payout} Paid!</p>
                   <p className="text-sm text-slate-300 mt-1">Transferred to your UPI in</p>
                   <p className="text-5xl font-black text-white mt-2">{countdown < 0 ? 0 : countdown}s</p>
@@ -311,12 +324,13 @@ export default function MyPolicyPage() {
                   className="w-full rounded-xl border border-white/[0.08] py-2.5 text-sm text-slate-400 hover:text-white transition-colors">
                   File Another Claim
                 </button>
-              </div>
+              </motion.div>
             )}
-          </div>
+            </AnimatePresence>
+          </motion.div>
 
           {/* ── Right column ── */}
-          <div className="space-y-5">
+          <motion.div {...fadeUp} transition={{ duration: 0.4, delay: 0.25 }} className="space-y-5">
             {/* Policy Details */}
             <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
               <h2 className="mb-4 text-lg font-bold text-white">📋 Policy Details</h2>
@@ -364,7 +378,11 @@ export default function MyPolicyPage() {
               <h2 className="mb-4 text-lg font-bold text-white">📜 Claim History</h2>
               <div className="space-y-3">
                 {claimHistory.map(c => (
-                  <div key={c.id} className="flex items-center justify-between rounded-xl bg-white/[0.02] border border-white/[0.04] px-4 py-3">
+                  <motion.div
+                    key={c.id}
+                    whileHover={{ x: 2, transition: { duration: 0.15 } }}
+                    className="flex items-center justify-between rounded-xl bg-white/[0.02] border border-white/[0.04] px-4 py-3"
+                  >
                     <div>
                       <p className="text-xs font-mono text-cyan-400">{c.id}</p>
                       <p className="text-sm font-semibold text-white">{c.type}</p>
@@ -376,11 +394,11 @@ export default function MyPolicyPage() {
                         {c.status}
                       </span>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </main>
     </div>

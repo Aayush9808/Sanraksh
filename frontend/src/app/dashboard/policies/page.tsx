@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
+import { motion } from 'framer-motion'
+import AdminSidebar from '../../../components/AdminSidebar'
 import { API_BASE } from '../../../lib/config'
 
 interface Policy {
@@ -45,17 +46,6 @@ const PLATFORM_COLORS: Record<string, string> = {
   Zepto: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
   Dunzo: 'bg-pink-500/20 text-pink-300 border-pink-500/30',
 }
-
-const navItems = [
-  { href: '/dashboard',            icon: '▣',  label: 'Overview'   },
-  { href: '/dashboard/control-tower', icon: '🛰️', label: 'Control Tower' },
-  { href: '/dashboard/workers',    icon: '👷', label: 'Workers'    },
-  { href: '/dashboard/policies',   icon: '🛡️', label: 'Policies', active: true },
-  { href: '/dashboard/claims',     icon: '≡',  label: 'Claims'     },
-  { href: '/dashboard/analytics',  icon: '↗',  label: 'Analytics'  },
-  { href: '/dashboard/risk-map',   icon: '🗺️', label: 'Risk Map'   },
-  { href: '/dashboard/market-crash', icon: '🚨', label: 'Market Crash' },
-]
 
 export default function PoliciesPage() {
   const [policies, setPolicies] = useState<Policy[]>(MOCK_POLICIES)
@@ -104,37 +94,12 @@ export default function PoliciesPage() {
 
   return (
     <div className="flex min-h-screen bg-[#060d1a] text-slate-100">
-      {/* Sidebar */}
-      <aside className="fixed left-0 top-0 flex h-screen w-60 flex-col border-r border-white/[0.06] bg-[#060d1a]">
-        <div className="border-b border-white/[0.06] px-5 py-5">
-          <Link href="/" className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-400 to-blue-500 text-sm font-black text-slate-950">G</span>
-            <span className="text-lg font-black tracking-tight text-white">GigArmor</span>
-          </Link>
-          <p className="mt-1 text-[10px] uppercase tracking-widest text-slate-500">Control Center</p>
-        </div>
-        <nav className="flex-1 space-y-0.5 px-3 py-4">
-          {navItems.map(item => (
-            <Link key={item.label} href={item.href}
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${item.active ? 'bg-cyan-500/10 text-cyan-300 border border-cyan-500/20' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}>
-              <span className="text-base">{item.icon}</span>
-              <span>{item.label}</span>
-            </Link>
-          ))}
-        </nav>
-        <div className="border-t border-white/[0.06] p-4">
-          <div className="flex items-center gap-2 text-xs">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
-            <span className="text-emerald-400 font-semibold">Live</span>
-            <span className="text-slate-500">· {total} policies</span>
-          </div>
-        </div>
-      </aside>
+      <AdminSidebar />
 
       {/* Main */}
       <main className="ml-60 flex-1 px-8 py-8">
         {/* Header */}
-        <div className="mb-7 flex items-center justify-between">
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="mb-7 flex items-center justify-between">
           <div>
             <p className="mb-1 text-xs text-slate-500 uppercase tracking-widest">GigArmor / Policies</p>
             <h1 className="text-3xl font-black text-white">Policy Management</h1>
@@ -146,7 +111,7 @@ export default function PoliciesPage() {
               + New Policy
             </button>
           </div>
-        </div>
+        </motion.div>
 
         {/* KPI Cards */}
         <div className="mb-7 grid grid-cols-2 gap-4 xl:grid-cols-4">
@@ -155,13 +120,13 @@ export default function PoliciesPage() {
             { label: 'Active',           value: active.toLocaleString(), icon: '✅', sub: 'Currently covered', color: 'border-emerald-500/20 bg-emerald-500/5' },
             { label: 'Expired',          value: expired.toLocaleString(), icon: '⏰', sub: 'Needs renewal', color: 'border-amber-500/20 bg-amber-500/5' },
             { label: 'Weekly Revenue',   value: `₹${totalRevenue.toFixed(0)}`, icon: '💰', sub: 'Active premiums', color: 'border-violet-500/20 bg-violet-500/5' },
-          ].map(k => (
-            <div key={k.label} className={`rounded-2xl border p-5 ${k.color}`}>
+          ].map((k, i) => (
+            <motion.div key={k.label} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + i * 0.08 }} whileHover={{ y: -2 }} className={`rounded-2xl border p-5 ${k.color}`}>
               <div className="mb-2 text-2xl">{k.icon}</div>
               <div className="text-2xl font-black text-white">{k.value}</div>
               <div className="mt-0.5 text-sm font-medium text-slate-200">{k.label}</div>
               <div className="text-xs text-slate-500">{k.sub}</div>
-            </div>
+            </motion.div>
           ))}
         </div>
 

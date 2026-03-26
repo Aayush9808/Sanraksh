@@ -1,18 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import AdminSidebar from "../../../components/AdminSidebar";
 import { API_BASE } from "../../../lib/config";
-
-const navItems = [
-  { icon: "▣",  label: "Overview",  href: "/dashboard" },
-  { icon: "🛰️", label: "Control Tower", href: "/dashboard/control-tower" },
-  { icon: "👷", label: "Workers",   href: "/dashboard/workers" },
-  { icon: "🛡️", label: "Policies",  href: "/dashboard/policies" },
-  { icon: "≡",  label: "Claims",    href: "/dashboard/claims",   active: true },
-  { icon: "↗",  label: "Analytics", href: "/dashboard/analytics" },
-  { icon: "🗺️", label: "Risk Map",  href: "/dashboard/risk-map" },
-  { icon: "🚨", label: "Market Crash", href: "/dashboard/market-crash" },
-];
 
 type ClaimRow = {
   id: string;
@@ -124,43 +115,12 @@ export default function ClaimsPage() {
 
   return (
     <div className="flex min-h-screen bg-slate-950 text-slate-100">
-      {/* Sidebar */}
-      <aside className="fixed left-0 top-0 flex h-screen w-64 flex-col border-r border-white/10 bg-slate-900">
-        <div className="border-b border-white/10 px-5 py-6">
-          <p className="text-2xl font-black">🛡️ GigArmor</p>
-          <p className="mt-1 text-xs text-slate-400">Control Center</p>
-        </div>
-        <nav className="flex-1 space-y-1 p-3">
-          {navItems.map((item) => (
-            <a
-              key={item.label}
-              href={item.href}
-              className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all ${
-                item.active
-                  ? "border-l-4 border-cyan-400 bg-cyan-400/10 text-cyan-300"
-                  : "text-slate-400 hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              <span>{item.icon}</span>
-              <span>{item.label}</span>
-            </a>
-          ))}
-        </nav>
-        <div className="border-t border-white/10 p-4">
-          <div className="mb-3 flex items-center gap-2 text-sm">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400"></span>
-            <span className="text-emerald-300 font-semibold">Live</span>
-          </div>
-          <a href="/" className="text-sm text-slate-400 hover:text-white transition-colors">
-            ← Back to Home
-          </a>
-        </div>
-      </aside>
+      <AdminSidebar />
 
       {/* Main Content */}
-      <main className="ml-64 flex-1 px-8 py-8">
+      <main className="ml-60 flex-1 px-8 py-8">
         {/* Header */}
-        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <a href="/dashboard" className="mb-2 inline-flex items-center gap-1 text-sm text-slate-400 hover:text-white transition-colors">
               ← Dashboard
@@ -176,10 +136,10 @@ export default function ClaimsPage() {
               Export CSV ↗
             </button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Filter Tabs */}
-        <div className="mb-6 flex flex-wrap gap-2">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="mb-6 flex flex-wrap gap-2">
           {filters.map((f) => (
             <button
               key={f.label}
@@ -194,7 +154,7 @@ export default function ClaimsPage() {
               <span className="ml-1 rounded-full bg-white/10 px-2 py-0.5 text-xs">{f.count}</span>
             </button>
           ))}
-        </div>
+        </motion.div>
 
         {/* Claims Table */}
         <div className="mb-8 overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-lg shadow-black/20">

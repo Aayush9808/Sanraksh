@@ -38,7 +38,7 @@ This README is intentionally structured to satisfy every item from the Phase 1 b
 - ✅ Weekly premium model + parametric triggers + Web choice: [Weekly Premium Model](#-weekly-premium-model-transparent), [Parametric Trigger Matrix](#-parametric-trigger-matrix-loss-of-income-events), [Why Web First](#-why-web-first)
 - ✅ AI/ML integration plan (premium + fraud): [AI/ML Integration Plan](#-aiml-integration-plan)
 - ✅ Tech stack + development plan: [Tech Stack](#-tech-stack), [6-Week Plan Alignment](#-6-week-plan-alignment)
-- ✅ Market Crash anti-spoofing update: [Adversarial Defense & Anti-Spoofing](#-adversarial-defense--anti-spoofing-strategy-market-crash-update)
+- ✅ Threat Defense anti-spoofing update: [Adversarial Defense & Anti-Spoofing](#-adversarial-defense--anti-spoofing-strategy-threat-defense)
 
 ### Mandatory item 2: 2-minute public video
 
@@ -54,7 +54,7 @@ This README is intentionally structured to satisfy every item from the Phase 1 b
 - [Worker Workflow](#-end-to-end-worker-workflow)
 - [Weekly Premium Model](#-weekly-premium-model-transparent)
 - [Parametric Trigger Matrix](#-parametric-trigger-matrix-loss-of-income-events)
-- [Adversarial Defense & Anti-Spoofing](#-adversarial-defense--anti-spoofing-strategy-market-crash-update)
+- [Adversarial Defense & Anti-Spoofing](#-adversarial-defense--anti-spoofing-strategy-threat-defense)
 - [AI/ML Integration Plan](#-aiml-integration-plan)
 - [Product Modules](#️-current-product-modules-implemented)
 - [Local Run](#-local-run-instructions)
@@ -222,9 +222,9 @@ All triggers are modeled as **income interruption events only**.
 
 ---
 
-## 🧱 Adversarial Defense & Anti-Spoofing Strategy (Market Crash Update)
+## 🧱 Adversarial Defense & Anti-Spoofing Strategy (Threat Defense)
 
-To address the **Market Crash** scenario (GPS spoofing + synthetic claim rings), GigArmor uses a defense-in-depth model.
+To address **adversarial threat scenarios** (GPS spoofing + synthetic claim rings), GigArmor uses a defense-in-depth model.
 
 ### 1) Differentiation: genuine worker vs spoofed actor
 
@@ -327,7 +327,7 @@ flowchart TD
 - `/dashboard/claims`
 - `/dashboard/analytics`
 - `/dashboard/risk-map`
-- `/dashboard/market-crash`
+- `/dashboard/threat-defense`
 
 ### Platform
 - FastAPI backend with auth, policies, claims, analytics
