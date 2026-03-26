@@ -14,17 +14,31 @@ const navItems = [
   { icon: "🚨", label: "Market Crash", href: "/dashboard/market-crash" },
 ];
 
-const MOCK_CLAIMS = [
-  { id: "C001", name: "Rajesh Kumar",   initials: "RK", zone: "Andheri West",    type: "Weather",  amount: "₹800",   status: "PAID",       time: "2m ago",  claim_number: "CLM-20241208-00001", fraud_score: 0.04 },
-  { id: "C002", name: "Sunita Kumari",  initials: "SK", zone: "Bandra-Kurla",   type: "Weather",  amount: "₹800",   status: "PAID",       time: "5m ago",  claim_number: "CLM-20241208-00002", fraud_score: 0.07 },
-  { id: "C003", name: "Ajay Patel",     initials: "AP", zone: "Pune Central",   type: "Weather",  amount: "₹800",   status: "PROCESSING", time: "8m ago",  claim_number: "CLM-20241208-00003", fraud_score: 0.32 },
-  { id: "C004", name: "Meera Sharma",   initials: "MS", zone: "Delhi NCR",      type: "Flood",    amount: "₹800",   status: "REVIEW",     time: "12m ago", claim_number: "CLM-20241208-00004", fraud_score: 0.45 },
-  { id: "C005", name: "Deepak Raut",    initials: "DR", zone: "Koramangala",    type: "Weather",  amount: "₹800",   status: "PAID",       time: "15m ago", claim_number: "CLM-20241208-00005", fraud_score: 0.11 },
-  { id: "C006", name: "Priya Singh",    initials: "PS", zone: "Andheri East",   type: "Weather",  amount: "₹800",   status: "PAID",       time: "22m ago", claim_number: "CLM-20241208-00006", fraud_score: 0.05 },
-  { id: "C007", name: "Kiran Naik",     initials: "KN", zone: "Thane West",     type: "Weather",  amount: "₹800",   status: "PROCESSING", time: "31m ago", claim_number: "CLM-20241208-00007", fraud_score: 0.28 },
-  { id: "C008", name: "Rahul Desai",    initials: "RD", zone: "Bandra West",    type: "Weather",  amount: "₹800",   status: "REVIEW",     time: "45m ago", claim_number: "CLM-20241208-00008", fraud_score: 0.41 },
-  { id: "C009", name: "Fatima Sheikh",  initials: "FS", zone: "Jogeshwari",     type: "Weather",  amount: "₹800",   status: "PAID",       time: "1h ago",  claim_number: "CLM-20241208-00009", fraud_score: 0.08 },
-  { id: "C010", name: "Santosh Yadav",  initials: "SY", zone: "Powai",          type: "Weather",  amount: "₹800",   status: "PAID",       time: "1h ago",  claim_number: "CLM-20241208-00010", fraud_score: 0.03 },
+type ClaimRow = {
+  id: string;
+  name: string;
+  initials: string;
+  zone: string;
+  type: string;
+  amount: string;
+  status: string;
+  time: string;
+  claim_number: string;
+  fraud_score: number;
+  decision_reasons: string[];
+};
+
+const MOCK_CLAIMS: ClaimRow[] = [
+  { id: "C001", name: "Rajesh Kumar",   initials: "RK", zone: "Andheri West",    type: "Weather",  amount: "₹800",   status: "PAID",       time: "2m ago",  claim_number: "CLM-20241208-00001", fraud_score: 0.04, decision_reasons: ["ROUTE_AUTO_PAY", "FRAUD_SCORE_LOW"] },
+  { id: "C002", name: "Sunita Kumari",  initials: "SK", zone: "Bandra-Kurla",   type: "Weather",  amount: "₹800",   status: "PAID",       time: "5m ago",  claim_number: "CLM-20241208-00002", fraud_score: 0.07, decision_reasons: ["ROUTE_AUTO_PAY", "LOCATION_MATCH"] },
+  { id: "C003", name: "Ajay Patel",     initials: "AP", zone: "Pune Central",   type: "Weather",  amount: "₹800",   status: "PROCESSING", time: "8m ago",  claim_number: "CLM-20241208-00003", fraud_score: 0.32, decision_reasons: ["ROUTE_MANUAL_REVIEW", "FRAUD_SCORE_MEDIUM"] },
+  { id: "C004", name: "Meera Sharma",   initials: "MS", zone: "Delhi NCR",      type: "Flood",    amount: "₹800",   status: "REVIEW",     time: "12m ago", claim_number: "CLM-20241208-00004", fraud_score: 0.45, decision_reasons: ["ROUTE_MANUAL_REVIEW", "WEAK_PEER_CORROBORATION"] },
+  { id: "C005", name: "Deepak Raut",    initials: "DR", zone: "Koramangala",    type: "Weather",  amount: "₹800",   status: "PAID",       time: "15m ago", claim_number: "CLM-20241208-00005", fraud_score: 0.11, decision_reasons: ["ROUTE_AUTO_PAY", "FRAUD_SCORE_LOW"] },
+  { id: "C006", name: "Priya Singh",    initials: "PS", zone: "Andheri East",   type: "Weather",  amount: "₹800",   status: "PAID",       time: "22m ago", claim_number: "CLM-20241208-00006", fraud_score: 0.05, decision_reasons: ["ROUTE_AUTO_PAY", "PEER_CORROBORATION_OK"] },
+  { id: "C007", name: "Kiran Naik",     initials: "KN", zone: "Thane West",     type: "Weather",  amount: "₹800",   status: "PROCESSING", time: "31m ago", claim_number: "CLM-20241208-00007", fraud_score: 0.28, decision_reasons: ["ROUTE_MANUAL_REVIEW", "MODERATE_30D_CLAIM_FREQUENCY"] },
+  { id: "C008", name: "Rahul Desai",    initials: "RD", zone: "Bandra West",    type: "Weather",  amount: "₹800",   status: "REVIEW",     time: "45m ago", claim_number: "CLM-20241208-00008", fraud_score: 0.41, decision_reasons: ["ROUTE_MANUAL_REVIEW", "FRAUD_SCORE_MEDIUM"] },
+  { id: "C009", name: "Fatima Sheikh",  initials: "FS", zone: "Jogeshwari",     type: "Weather",  amount: "₹800",   status: "PAID",       time: "1h ago",  claim_number: "CLM-20241208-00009", fraud_score: 0.08, decision_reasons: ["ROUTE_AUTO_PAY", "HIGH_EVENT_CONFIDENCE"] },
+  { id: "C010", name: "Santosh Yadav",  initials: "SY", zone: "Powai",          type: "Weather",  amount: "₹800",   status: "PAID",       time: "1h ago",  claim_number: "CLM-20241208-00010", fraud_score: 0.03, decision_reasons: ["ROUTE_AUTO_PAY", "FRAUD_SCORE_LOW"] },
 ];
 
 const avatarColors: Record<string, string> = {
@@ -48,7 +62,7 @@ function StatusBadge({ status }: { status: string }) {
 
 export default function ClaimsPage() {
   const [activeFilter, setActiveFilter] = useState("All");
-  const [allClaims, setAllClaims] = useState(MOCK_CLAIMS);
+  const [allClaims, setAllClaims] = useState<ClaimRow[]>(MOCK_CLAIMS);
   const [loading, setLoading] = useState(false);
   const [approvingId, setApprovingId] = useState<string | null>(null);
 
@@ -65,6 +79,7 @@ export default function ClaimsPage() {
               zone: c.zone || "—", type: "Weather", amount: `₹${c.amount || 800}`,
               status: c.status?.toUpperCase() || "PAID", time: c.created_at ? new Date(c.created_at).toLocaleDateString() : "—",
               claim_number: c.claim_number, fraud_score: c.fraud_score || 0,
+              decision_reasons: c.decision_reasons || [],
             })));
           }
         }
@@ -192,7 +207,7 @@ export default function ClaimsPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-white/10">
-                  {["ID", "Worker", "Zone", "Type", "Amount", "Status", "Time", "Action"].map((h) => (
+                  {["ID", "Worker", "Zone", "Type", "Amount", "Status", "Audit", "Time", "Action"].map((h) => (
                     <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">
                       {h}
                     </th>
@@ -217,14 +232,30 @@ export default function ClaimsPage() {
                     <td className="px-4 py-4">
                       <StatusBadge status={claim.status} />
                     </td>
+                    <td className="px-4 py-4">
+                      <div className="flex max-w-[220px] flex-wrap gap-1">
+                        {claim.decision_reasons.slice(0, 2).map((reason) => (
+                          <span key={reason} className="rounded-full border border-white/20 bg-white/5 px-2 py-0.5 text-[10px] text-slate-300">
+                            {reason.replaceAll("_", " ")}
+                          </span>
+                        ))}
+                        {claim.decision_reasons.length > 2 && (
+                          <span className="rounded-full border border-white/20 bg-white/5 px-2 py-0.5 text-[10px] text-slate-400">
+                            +{claim.decision_reasons.length - 2}
+                          </span>
+                        )}
+                      </div>
+                    </td>
                     <td className="px-4 py-4 text-sm text-slate-400">{claim.time}</td>
                     <td className="px-4 py-4">
                       {claim.status === "REVIEW" ? (
                         <div className="flex gap-2">
-                          <button className="rounded-lg bg-emerald-400/20 px-3 py-1 text-xs font-bold text-emerald-300 border border-emerald-300/30 hover:bg-emerald-400/30 transition-colors">
+                          <button onClick={() => handleApprove(claim.id)} disabled={approvingId === claim.id}
+                            className="rounded-lg border border-emerald-300/30 bg-emerald-400/20 px-3 py-1 text-xs font-bold text-emerald-300 transition-colors hover:bg-emerald-400/30 disabled:opacity-60">
                             Approve
                           </button>
-                          <button className="rounded-lg bg-red-400/20 px-3 py-1 text-xs font-bold text-red-300 border border-red-300/30 hover:bg-red-400/30 transition-colors">
+                          <button onClick={() => handleReject(claim.id)} disabled={approvingId === claim.id}
+                            className="rounded-lg border border-red-300/30 bg-red-400/20 px-3 py-1 text-xs font-bold text-red-300 transition-colors hover:bg-red-400/30 disabled:opacity-60">
                             Reject
                           </button>
                         </div>

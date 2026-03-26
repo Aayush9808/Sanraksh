@@ -18,6 +18,34 @@ from app.config import settings
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+
+def _decision_trace(claim: Claim) -> list[str]:
+    if claim.rejection_reason and "TRACE:" in claim.rejection_reason:
+        raw = claim.rejection_reason.split("TRACE:", 1)[1]
+        return [part for part in raw.replace(")", "").split("|") if part]
+
+    reasons: list[str] = []
+    if claim.status == ClaimStatus.PAID:
+        reasons.append("ROUTE_AUTO_PAY" if claim.approval_type == ApprovalType.AUTO else "ROUTE_MANUAL_PAY")
+    elif claim.status == ClaimStatus.PENDING:
+        reasons.append("ROUTE_MANUAL_REVIEW")
+    elif claim.status == ClaimStatus.REJECTED:
+        reasons.append("ROUTE_REJECT")
+
+    fraud = float(claim.fraud_score or 0)
+    if fraud >= 0.75:
+        reasons.append("FRAUD_SCORE_HIGH")
+    elif fraud >= 0.40:
+        reasons.append("FRAUD_SCORE_MEDIUM")
+    else:
+        reasons.append("FRAUD_SCORE_LOW")
+
+    reasons.append("LOCATION_MATCH" if claim.location_verified else "LOCATION_MISMATCH")
+    if float(claim.peer_validation_count or 0) <= 1:
+        reasons.append("WEAK_PEER_CORROBORATION")
+    return reasons
+
+
 def generate_claim_number():
     fmt = datetime.utcnow().strftime("%Y%m%d")
     return f"CLM-{fmt}-{str(uuid.uuid4())[:6].upper()}"
@@ -87,6 +115,8 @@ async def get_all_claims(skip: int = 0, limit: int = 50, status: str = None, db:
             "zone": user.work_zone if user else "",
             "amount": c.claim_amount, "status": c.status,
             "approval_type": c.approval_type, "fraud_score": c.fraud_score,
+            "decision_reasons": _decision_trace(c),
+            "decision_notes": c.rejection_reason,
             "claim_date": str(c.claim_date), "created_at": c.created_at.isoformat() if c.created_at else None,
         })
     return {"total": total, "claims": result}
@@ -108,7 +138,13 @@ async def get_claim_status(claim_id: str, db: Session = Depends(get_db)):
     claim = db.query(Claim).filter(Claim.id == claim_id).first()
     if not claim:
         raise HTTPException(status_code=404, detail="Claim not found")
-    return {"claim_id": claim_id, "claim_number": claim.claim_number, "status": claim.status, "amount": claim.claim_amount}
+    return {
+        "claim_id": claim_id,
+        "claim_number": claim.claim_number,
+        "status": claim.status,
+        "amount": claim.claim_amount,
+        "decision_reasons": _decision_trace(claim),
+    }
 
 @router.put("/{claim_id}/approve")
 async def approve_claim(claim_id: str, db: Session = Depends(get_db)):

@@ -18,6 +18,7 @@ from app.models.disruption import Disruption, DisruptionType, EventType, Severit
 from app.models.policy import Policy, PolicyStatus
 from app.models.user import User
 from app.services.fraud_detection import fraud_detection_service
+from app.services.signal_ingestion import signal_ingestion_service
 
 
 PAYOUT_MULTIPLIER = {
@@ -56,13 +57,15 @@ class SimulationSummary:
     skipped_existing_count: int
     total_payout: float
     avg_fraud_score: float
+    signal_confidence: float
+    decision_trace_samples: List[Dict]
     estimated_settlement_seconds: int
 
 
 class AutomationEngine:
     """Production-style orchestration for Phase 2 simulations."""
 
-    def run_disruption_simulation(
+    async def run_disruption_simulation(
         self,
         db: Session,
         city: str,
@@ -75,6 +78,13 @@ class AutomationEngine:
         limit_workers: int = 500,
     ) -> Dict:
         now = datetime.utcnow()
+        signal_profile = await signal_ingestion_service.collect_signals(
+            city=city,
+            zone=zone,
+            event_type=event_type,
+            severity=severity,
+        )
+        signal_confidence = float(signal_profile["aggregate_confidence"])
 
         disruption = Disruption(
             id=uuid.uuid4(),
@@ -87,7 +97,11 @@ class AutomationEngine:
             start_time=now,
             is_active=True,
             source=source,
-            event_metadata={"strict_mode": strict_mode, "phase": "phase2"},
+            event_metadata={
+                "strict_mode": strict_mode,
+                "phase": "phase2",
+                "signal_profile": signal_profile,
+            },
         )
         db.add(disruption)
         db.flush()
@@ -114,9 +128,11 @@ class AutomationEngine:
         skipped_existing_count = 0
         total_payout = 0.0
         fraud_scores: List[float] = []
+        decision_trace_samples: List[Dict] = []
 
         peers_in_zone = max(targeted_workers, 1)
-        likely_affected_ratio = 0.8 if severity in {Severity.HIGH, Severity.EXTREME} else 0.55
+        base_affected_ratio = 0.8 if severity in {Severity.HIGH, Severity.EXTREME} else 0.55
+        likely_affected_ratio = max(0.35, min(0.95, base_affected_ratio * (0.8 + signal_confidence * 0.5)))
 
         for policy, user in worker_rows:
             duplicate_same_event = (
@@ -197,6 +213,18 @@ class AutomationEngine:
                 rejection_reason = "High fraud probability during disruption automation"
                 rejected_count += 1
 
+            reason_codes = self._build_reason_codes(
+                action=fraud_result["action"],
+                fraud_score=fraud_score,
+                location_match=location_match,
+                recent_claims=recent_claims,
+                signal_confidence=signal_confidence,
+                peer_match_ratio=(peers_affected / max(peers_in_zone, 1)),
+            )
+
+            decision_note = "TRACE:" + "|".join(reason_codes)
+            rejection_reason = f"{rejection_reason} ({decision_note})" if rejection_reason else decision_note
+
             claim = Claim(
                 id=uuid.uuid4(),
                 claim_number=_claim_number(),
@@ -217,6 +245,16 @@ class AutomationEngine:
             db.add(claim)
             created_claims += 1
 
+            if len(decision_trace_samples) < 10:
+                decision_trace_samples.append(
+                    {
+                        "claim_number": claim.claim_number,
+                        "status": status.value,
+                        "fraud_score": round(fraud_score, 3),
+                        "reasons": reason_codes,
+                    }
+                )
+
         db.commit()
 
         avg_fraud_score = round(sum(fraud_scores) / max(len(fraud_scores), 1), 3)
@@ -236,9 +274,55 @@ class AutomationEngine:
             skipped_existing_count=skipped_existing_count,
             total_payout=round(total_payout, 2),
             avg_fraud_score=avg_fraud_score,
+            signal_confidence=round(signal_confidence, 3),
+            decision_trace_samples=decision_trace_samples,
             estimated_settlement_seconds=estimated_settlement_seconds,
         )
         return summary.__dict__
+
+    def _build_reason_codes(
+        self,
+        action: str,
+        fraud_score: float,
+        location_match: bool,
+        recent_claims: int,
+        signal_confidence: float,
+        peer_match_ratio: float,
+    ) -> List[str]:
+        reasons: List[str] = []
+
+        if action == "approve":
+            reasons.append("ROUTE_AUTO_PAY")
+        elif action == "manual_review":
+            reasons.append("ROUTE_MANUAL_REVIEW")
+        else:
+            reasons.append("ROUTE_REJECT")
+
+        if fraud_score >= 0.75:
+            reasons.append("FRAUD_SCORE_HIGH")
+        elif fraud_score >= 0.4:
+            reasons.append("FRAUD_SCORE_MEDIUM")
+        else:
+            reasons.append("FRAUD_SCORE_LOW")
+
+        reasons.append("LOCATION_MATCH" if location_match else "LOCATION_MISMATCH")
+
+        if recent_claims >= 8:
+            reasons.append("HIGH_30D_CLAIM_FREQUENCY")
+        elif recent_claims >= 4:
+            reasons.append("MODERATE_30D_CLAIM_FREQUENCY")
+
+        if signal_confidence < 0.55:
+            reasons.append("LOW_EVENT_CONFIDENCE")
+        elif signal_confidence >= 0.75:
+            reasons.append("HIGH_EVENT_CONFIDENCE")
+
+        if peer_match_ratio < 0.35:
+            reasons.append("WEAK_PEER_CORROBORATION")
+        else:
+            reasons.append("PEER_CORROBORATION_OK")
+
+        return reasons
 
 
 automation_engine = AutomationEngine()

@@ -28,7 +28,7 @@ class DisruptionSimulationRequest(BaseModel):
 @router.post("/simulate-disruption")
 async def simulate_disruption(data: DisruptionSimulationRequest, db: Session = Depends(get_db)):
     """End-to-end disruption automation: create event -> generate claims -> route payouts/review."""
-    result = automation_engine.run_disruption_simulation(
+    result = await automation_engine.run_disruption_simulation(
         db=db,
         city=data.city,
         zone=data.zone,

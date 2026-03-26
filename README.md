@@ -336,10 +336,15 @@ flowchart TD
 ### Phase 2 Automation Engine (New)
 - `POST /api/v1/phase2/simulate-disruption`
 	- Creates disruption events and auto-routes claims into paid/review/rejected buckets
+	- Ingests multi-source confidence signals (weather, pollution, traffic, platform, civic)
 - `GET /api/v1/phase2/control-tower`
 	- Returns live 24-hour automation metrics (claims, payout, auto-approval rate, fraud trends)
 - `POST /api/v1/phase2/review-queue/approve`
 	- Batch-settles review queue for fast operations demos
+
+### Claims Decision Audit Trail (New)
+- Claim APIs now expose decision reason-codes for each claim route
+- Admin claims dashboard displays these reason-codes for transparent review
 
 Roadmap: [docs/PHASE2_EXECUTION_ROADMAP.md](docs/PHASE2_EXECUTION_ROADMAP.md)
 
