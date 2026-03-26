@@ -10,7 +10,7 @@ import logging
 
 from app.config import settings
 from app.database import engine, Base
-from app.routers import auth, users, policies, claims, disruptions, risk_zones, analytics
+from app.routers import auth, users, policies, claims, disruptions, risk_zones, analytics, phase2
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -45,6 +45,7 @@ app.include_router(claims.router, prefix="/api/v1/claims", tags=["Claims"])
 app.include_router(disruptions.router, prefix="/api/v1/disruptions", tags=["Disruptions"])
 app.include_router(risk_zones.router, prefix="/api/v1/risk-zones", tags=["Risk Zones"])
 app.include_router(analytics.router, prefix="/api/v1/analytics", tags=["Analytics"])
+app.include_router(phase2.router, prefix="/api/v1/phase2", tags=["Phase 2 Automation"])
 
 
 @app.get("/")

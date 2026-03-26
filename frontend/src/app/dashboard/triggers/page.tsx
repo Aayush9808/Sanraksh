@@ -2,9 +2,12 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 const DISRUPTIONS = [
   {
     id: "heavy_rain", icon: "🌧️", label: "Heavy Rainfall", severity: "HIGH",
+    city: "Mumbai",
     desc: "Rainfall > 60mm/hr detected via IMD API. Delivery halted across zone.",
     affected: 142, zones: ["Andheri West", "Bandra-Kurla", "Jogeshwari"],
     trigger: "Rain > 50mm/hr for 2 consecutive hours", payout: 800,
@@ -12,6 +15,7 @@ const DISRUPTIONS = [
   },
   {
     id: "flood", icon: "🌊", label: "Zone Flooding", severity: "CRITICAL",
+    city: "Mumbai",
     desc: "IMD Flood alert for low-lying delivery zones. Roads impassable.",
     affected: 89, zones: ["Powai", "Thane West", "Kurla"],
     trigger: "Flood warning issued by municipal corp", payout: 1200,
@@ -19,6 +23,7 @@ const DISRUPTIONS = [
   },
   {
     id: "pollution", icon: "😷", label: "AQI Shutdown (GRAP-4)", severity: "HIGH",
+    city: "Delhi",
     desc: "AQI > 400 in Delhi NCR. GRAP-4 restrictions halting outdoor delivery.",
     affected: 203, zones: ["Delhi NCR", "Noida", "Gurugram"],
     trigger: "AQI > 400 sustained for 4 hours", payout: 600,
@@ -26,6 +31,7 @@ const DISRUPTIONS = [
   },
   {
     id: "curfew", icon: "🚫", label: "Curfew / Strike", severity: "MEDIUM",
+    city: "Pune",
     desc: "Section 144 imposed in zone. Delivery activity suspended.",
     affected: 67, zones: ["Pune Central", "Shivaji Nagar"],
     trigger: "Govt curfew order issued (API + news NLP)", payout: 900,
@@ -33,6 +39,7 @@ const DISRUPTIONS = [
   },
   {
     id: "app_outage", icon: "⚡", label: "Platform App Outage", severity: "MEDIUM",
+    city: "Mumbai",
     desc: "Swiggy platform down > 3 hours. Workers unable to receive orders.",
     affected: 311, zones: ["All Zones"],
     trigger: "Platform API returns 503 for > 3 hours", payout: 500,
@@ -47,6 +54,16 @@ const SEVERITY_COLOR: Record<string, string> = {
 };
 
 type TriggerState = "idle" | "scanning" | "triggered" | "processing" | "paid";
+type EngineSource = "backend" | "simulation";
+
+type BackendRunSummary = {
+  disruption_id: string;
+  created_claims: number;
+  auto_paid_count: number;
+  review_count: number;
+  rejected_count: number;
+  total_payout: number;
+};
 
 export default function TriggersPage() {
   const [activeDisruption, setActiveDisruption] = useState(DISRUPTIONS[0]);
@@ -54,6 +71,10 @@ export default function TriggersPage() {
   const [countdown, setCountdown] = useState(60);
   const [claimsProcessed, setClaimsProcessed] = useState(0);
   const [totalPayout, setTotalPayout] = useState(0);
+  const [targetClaims, setTargetClaims] = useState(DISRUPTIONS[0].affected);
+  const [expectedPayout, setExpectedPayout] = useState(DISRUPTIONS[0].affected * DISRUPTIONS[0].payout);
+  const [engineSource, setEngineSource] = useState<EngineSource>("simulation");
+  const [backendSummary, setBackendSummary] = useState<BackendRunSummary | null>(null);
   const [log, setLog] = useState<string[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const logRef = useRef<HTMLDivElement>(null);
@@ -66,12 +87,89 @@ export default function TriggersPage() {
     if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight;
   }, [log]);
 
-  function runSimulation() {
-    setTriggerState("scanning");
+  async function runSimulation() {
     setLog([]);
     setClaimsProcessed(0);
     setTotalPayout(0);
     setCountdown(60);
+    setBackendSummary(null);
+    if (timerRef.current) clearInterval(timerRef.current);
+
+    setTriggerState("scanning");
+    setEngineSource("backend");
+    addLog("Connecting to Phase 2 automation engine...");
+
+    try {
+      const payload = {
+        city: activeDisruption.city,
+        zone: activeDisruption.zones[0],
+        event_type:
+          activeDisruption.id === "pollution"
+            ? "severe_pollution"
+            : activeDisruption.id === "app_outage"
+              ? "market_closure"
+              : activeDisruption.id,
+        severity: activeDisruption.severity === "CRITICAL" ? "extreme" : activeDisruption.severity.toLowerCase(),
+        strict_mode: true,
+        affected_radius_km: 2,
+        limit_workers: 400,
+      };
+
+      const res = await fetch(`${API_BASE}/api/v1/phase2/simulate-disruption`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(7000),
+      });
+      if (!res.ok) throw new Error("phase2-api-unavailable");
+
+      const data = await res.json();
+      const claimsCount = Number(data.created_claims ?? 0);
+      const payout = Number(data.total_payout ?? 0);
+
+      setBackendSummary({
+        disruption_id: String(data.disruption_id ?? ""),
+        created_claims: claimsCount,
+        auto_paid_count: Number(data.auto_paid_count ?? 0),
+        review_count: Number(data.review_count ?? 0),
+        rejected_count: Number(data.rejected_count ?? 0),
+        total_payout: payout,
+      });
+
+      setTargetClaims(Math.max(claimsCount, 1));
+      setExpectedPayout(Math.max(payout, 1));
+
+      addLog(`Disruption created: ${String(data.disruption_id).slice(0, 8)}...`);
+      addLog(`Claims created: ${claimsCount}`);
+      addLog(`Auto paid: ${data.auto_paid_count} | Review: ${data.review_count} | Rejected: ${data.rejected_count}`);
+      addLog(`Total payout committed: ₹${payout.toLocaleString()}`);
+
+      setTriggerState("processing");
+      setClaimsProcessed(claimsCount);
+      setTotalPayout(payout);
+      setCountdown(Number(data.estimated_settlement_seconds ?? 45));
+
+      setTimeout(() => {
+        setTriggerState("paid");
+        addLog("✅ Phase 2 automation run completed");
+      }, 1200);
+      return;
+    } catch {
+      addLog("Backend unavailable. Switching to local simulation fallback.");
+      runLocalSimulation();
+    }
+  }
+
+  function runLocalSimulation() {
+    setTriggerState("scanning");
+    setEngineSource("simulation");
+    setBackendSummary(null);
+    setLog([]);
+    setClaimsProcessed(0);
+    setTotalPayout(0);
+    setCountdown(60);
+    setTargetClaims(activeDisruption.affected);
+    setExpectedPayout(activeDisruption.affected * activeDisruption.payout);
 
     addLog(`Scanning zone: ${activeDisruption.zones[0]}`);
 
@@ -122,10 +220,14 @@ export default function TriggersPage() {
     setClaimsProcessed(0);
     setTotalPayout(0);
     setCountdown(60);
+    setTargetClaims(activeDisruption.affected);
+    setExpectedPayout(activeDisruption.affected * activeDisruption.payout);
+    setEngineSource("simulation");
+    setBackendSummary(null);
     if (timerRef.current) clearInterval(timerRef.current);
   }
 
-  const totalExpected = activeDisruption.affected * activeDisruption.payout;
+  const totalExpected = expectedPayout;
   const progressPct = totalExpected > 0 ? Math.min((totalPayout / totalExpected) * 100, 100) : 0;
 
   return (
@@ -166,6 +268,10 @@ export default function TriggersPage() {
         <div>
           <p className="mb-1 text-xs text-slate-500 uppercase tracking-widest">GigArmor / Parametric Engine</p>
           <h1 className="text-3xl font-black text-white">⚡ Live Disruption Triggers</h1>
+          <div className="mt-2 inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3 py-1 text-xs text-cyan-300">
+            <span className="h-1.5 w-1.5 rounded-full bg-cyan-300" />
+            Engine source: {engineSource === "backend" ? "Phase 2 API" : "Local fallback"}
+          </div>
           <p className="mt-1 text-sm text-slate-400">Real-time parametric insurance engine. Disruption detected → claims auto-fired → instant payout.</p>
         </div>
 
@@ -184,7 +290,19 @@ export default function TriggersPage() {
           <div className="lg:col-span-1 space-y-3">
             <h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider">Select Disruption to Simulate</h2>
             {DISRUPTIONS.map(d => (
-              <button key={d.id} onClick={() => { setActiveDisruption(d); reset(); }}
+              <button key={d.id} onClick={() => {
+                setActiveDisruption(d);
+                setTriggerState("idle");
+                setLog([]);
+                setClaimsProcessed(0);
+                setTotalPayout(0);
+                setCountdown(60);
+                setTargetClaims(d.affected);
+                setExpectedPayout(d.affected * d.payout);
+                setEngineSource("simulation");
+                setBackendSummary(null);
+                if (timerRef.current) clearInterval(timerRef.current);
+              }}
                 className={`w-full rounded-2xl border p-4 text-left transition-all
                   ${activeDisruption.id === d.id ? d.color + " ring-1 ring-white/20" : "border-white/[0.06] bg-white/[0.01] hover:bg-white/[0.04]"}`}>
                 <div className="flex items-start justify-between mb-2">
@@ -264,7 +382,7 @@ export default function TriggersPage() {
                 {/* Progress bar */}
                 <div>
                   <div className="flex justify-between text-xs text-slate-500 mb-2">
-                    <span>{claimsProcessed} / {activeDisruption.affected} claims processed</span>
+                    <span>{claimsProcessed} / {targetClaims} claims processed</span>
                     <span>{progressPct.toFixed(0)}%</span>
                   </div>
                   <div className="h-2 w-full rounded-full bg-white/[0.06]">
@@ -284,6 +402,14 @@ export default function TriggersPage() {
                       <p className="text-3xl font-black text-cyan-300">{triggerState === "paid" ? "✓" : countdown + "s"}</p>
                       <p className="text-xs text-slate-500">{triggerState === "paid" ? "Completed" : "Avg payout time"}</p>
                     </div>
+                  </div>
+                )}
+
+                {backendSummary && (
+                  <div className="grid grid-cols-3 gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 text-xs">
+                    <div className="rounded-lg bg-emerald-500/10 px-3 py-2 text-emerald-300">Auto Paid: {backendSummary.auto_paid_count}</div>
+                    <div className="rounded-lg bg-amber-500/10 px-3 py-2 text-amber-300">Review: {backendSummary.review_count}</div>
+                    <div className="rounded-lg bg-red-500/10 px-3 py-2 text-red-300">Rejected: {backendSummary.rejected_count}</div>
                   </div>
                 )}
 

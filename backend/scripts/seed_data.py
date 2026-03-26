@@ -208,7 +208,7 @@ print(f"  Demo OTP: 123456 | Phone: +917000000001 or +917000000002")
 
 # ─── POLICIES ─────────────────────────────────────────────────────────────────
 print("📋 Seeding policies...")
-COVERAGE_TYPES = ["income_loss_only", "accident", "job_loss", "income_loss_only", "income_loss_only"]
+COVERAGE_TYPES = ["heavy_rain", "flood", "pollution", "curfew", "app_outage", "job_loss"]
 CITY_RISK_MAP = {"Mumbai": 0.72, "Delhi": 0.68, "Bengaluru": 0.60, "Pune": 0.54, "Hyderabad": 0.50, "Chennai": 0.52}
 policies = []
 policy_users = random.sample(users, min(450, len(users)))

@@ -326,11 +326,22 @@ flowchart TD
 - `/dashboard/claims`
 - `/dashboard/analytics`
 - `/dashboard/risk-map`
+- `/dashboard/market-crash`
 
 ### Platform
 - FastAPI backend with auth, policies, claims, analytics
 - PostgreSQL + Redis
 - Dockerized local stack
+
+### Phase 2 Automation Engine (New)
+- `POST /api/v1/phase2/simulate-disruption`
+	- Creates disruption events and auto-routes claims into paid/review/rejected buckets
+- `GET /api/v1/phase2/control-tower`
+	- Returns live 24-hour automation metrics (claims, payout, auto-approval rate, fraud trends)
+- `POST /api/v1/phase2/review-queue/approve`
+	- Batch-settles review queue for fast operations demos
+
+Roadmap: [docs/PHASE2_EXECUTION_ROADMAP.md](docs/PHASE2_EXECUTION_ROADMAP.md)
 
 ---
 

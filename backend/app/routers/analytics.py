@@ -68,10 +68,30 @@ async def get_policy_mix(db: Session = Depends(get_db)):
     rows = db.query(Policy.coverage_type, func.count(Policy.id)).filter(
         Policy.status == PolicyStatus.ACTIVE
     ).group_by(Policy.coverage_type).all()
-    colors = {"income_loss_only": "#22d3ee", "accident": "#a78bfa", "job_loss": "#34d399", "health": "#f59e0b"}
-    names = {"income_loss_only": "Weather", "accident": "Accident", "job_loss": "Job Loss", "health": "Health"}
+    colors = {
+        "income_loss_only": "#22d3ee",
+        "heavy_rain": "#38bdf8",
+        "flood": "#0ea5e9",
+        "pollution": "#f59e0b",
+        "curfew": "#f97316",
+        "app_outage": "#a78bfa",
+        "job_loss": "#34d399",
+    }
+    names = {
+        "income_loss_only": "Income Loss",
+        "heavy_rain": "Heavy Rain",
+        "flood": "Flood",
+        "pollution": "Pollution",
+        "curfew": "Curfew",
+        "app_outage": "App Outage",
+        "job_loss": "Job Loss",
+    }
     return [
-        {"name": names.get(r[0], r[0]), "value": r[1], "color": colors.get(r[0], "#6b7280")}
+        {
+            "name": names.get(r[0], str(r[0]).replace("_", " ").title()),
+            "value": r[1],
+            "color": colors.get(r[0], "#6b7280"),
+        }
         for r in rows
     ]
 
