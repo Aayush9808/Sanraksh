@@ -2,8 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+import { API_BASE } from "../../../lib/config";
 
 const DISRUPTION_TYPES = [
   { id: "heavy_rain",  label: "Heavy Rain / Storm",     icon: "🌧️", desc: "Rain > 50mm in your zone",        premium_add: 0, payout: 800  },

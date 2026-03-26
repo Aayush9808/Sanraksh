@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+import { API_BASE } from "../../../lib/config";
 
 const navItems = [
   { icon: "▣",  label: "Overview",  href: "/dashboard" },
+  { icon: "🛰️", label: "Control Tower", href: "/dashboard/control-tower" },
   { icon: "👷", label: "Workers",   href: "/dashboard/workers" },
   { icon: "🛡️", label: "Policies",  href: "/dashboard/policies" },
   { icon: "≡",  label: "Claims",    href: "/dashboard/claims" },

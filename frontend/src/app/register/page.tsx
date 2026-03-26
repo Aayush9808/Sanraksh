@@ -2,8 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+import { API_BASE } from "../../lib/config";
 const PLATFORMS = ["zomato", "swiggy", "amazon", "zepto", "blinkit", "other"];
 const CITIES = ["Mumbai", "Delhi", "Bengaluru", "Pune", "Hyderabad", "Chennai"];
 const CITY_ZONES: Record<string, string[]> = {

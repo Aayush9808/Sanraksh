@@ -2,8 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+import { API_BASE } from "../../lib/config";
 
 const DEMO_USERS: Record<string, { name: string; role: string; platform: string; city: string }> = {
   "+917000000001": { name: "Raj Demo Worker", role: "worker", platform: "Zomato", city: "Mumbai" },

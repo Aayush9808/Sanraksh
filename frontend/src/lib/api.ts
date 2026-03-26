@@ -2,11 +2,10 @@
 // Axios instance with auth interceptors
 
 import axios from 'axios';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+import { API_V1_BASE } from './config';
 
 const apiClient = axios.create({
-  baseURL: `${API_URL}/api/v1`,
+  baseURL: API_V1_BASE,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

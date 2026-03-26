@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+import { API_BASE } from '../../../lib/config'
 
 interface Policy {
   id: string
@@ -49,6 +48,7 @@ const PLATFORM_COLORS: Record<string, string> = {
 
 const navItems = [
   { href: '/dashboard',            icon: '▣',  label: 'Overview'   },
+  { href: '/dashboard/control-tower', icon: '🛰️', label: 'Control Tower' },
   { href: '/dashboard/workers',    icon: '👷', label: 'Workers'    },
   { href: '/dashboard/policies',   icon: '🛡️', label: 'Policies', active: true },
   { href: '/dashboard/claims',     icon: '≡',  label: 'Claims'     },

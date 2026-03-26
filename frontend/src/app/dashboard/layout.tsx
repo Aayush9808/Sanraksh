@@ -7,6 +7,7 @@ type Role = "admin" | "worker";
 
 const ADMIN_ROUTES = [
   "/dashboard",
+  "/dashboard/control-tower",
   "/dashboard/workers",
   "/dashboard/policies",
   "/dashboard/claims",

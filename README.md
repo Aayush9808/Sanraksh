@@ -321,6 +321,7 @@ flowchart TD
 
 ### Admin Experience
 - `/dashboard` overview
+- `/dashboard/control-tower` (Phase 2 command center)
 - `/dashboard/workers`
 - `/dashboard/policies`
 - `/dashboard/claims`
@@ -341,6 +342,14 @@ flowchart TD
 	- Returns live 24-hour automation metrics (claims, payout, auto-approval rate, fraud trends)
 - `POST /api/v1/phase2/review-queue/approve`
 	- Batch-settles review queue for fast operations demos
+- `GET /api/v1/phase2/review-queue`
+	- Returns pending queue with SLA age, fraud score, and decision reason-codes
+- `GET /api/v1/phase2/queue-health`
+	- Queue SLA telemetry (warning/breach counts, average age, projected clear time)
+- `GET /api/v1/phase2/run-history`
+	- Persistent disruption run history with route outcomes and signal confidence
+- `GET /api/v1/phase2/run-impact/{disruption_id}`
+	- Drilldown timeline and top reason-code breakdown for a specific run
 
 ### Claims Decision Audit Trail (New)
 - Claim APIs now expose decision reason-codes for each claim route

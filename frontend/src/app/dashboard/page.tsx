@@ -5,11 +5,11 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, PieChart, Pie, Cell,
 } from "recharts";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+import { API_BASE } from "../../lib/config";
 
 const navItems = [
   { href: "/dashboard",            icon: "▣",  label: "Overview",    active: true  },
+  { href: "/dashboard/control-tower", icon: "🛰️", label: "Control Tower", active: false },
   { href: "/dashboard/workers",    icon: "👷", label: "Workers",     active: false },
   { href: "/dashboard/policies",   icon: "🛡️", label: "Policies",   active: false },
   { href: "/dashboard/claims",     icon: "≡",  label: "Claims",      active: false },

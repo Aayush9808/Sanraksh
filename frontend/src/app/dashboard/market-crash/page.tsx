@@ -26,6 +26,7 @@ const BASE_CLAIMS: Claim[] = [
 
 const navItems = [
   { href: "/dashboard",           icon: "▣",  label: "Overview" },
+  { href: "/dashboard/control-tower", icon: "🛰️", label: "Control Tower" },
   { href: "/dashboard/workers",   icon: "👷", label: "Workers" },
   { href: "/dashboard/policies",  icon: "🛡️", label: "Policies" },
   { href: "/dashboard/claims",    icon: "≡",  label: "Claims" },
