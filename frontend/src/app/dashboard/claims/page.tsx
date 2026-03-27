@@ -1,185 +1,192 @@
 "use client";
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { API_BASE } from "../../../lib/config";
+import { motion, AnimatePresence } from "framer-motion";
+import { API_BASE } from "@/lib/config";
 
-type ClaimRow = {
-  id: string; name: string; initials: string; zone: string; type: string;
-  amount: string; status: string; time: string; claim_number: string;
-  fraud_score: number; decision_reasons: string[];
-};
-
-const MOCK: ClaimRow[] = [
-  { id:"C001", name:"Rajesh Kumar", initials:"RK", zone:"Andheri West", type:"Weather", amount:"₹800", status:"PAID", time:"2m ago", claim_number:"CLM-20241208-00001", fraud_score:0.04, decision_reasons:["ROUTE_AUTO_PAY","FRAUD_SCORE_LOW"] },
-  { id:"C002", name:"Sunita Kumari", initials:"SK", zone:"Bandra-Kurla", type:"Weather", amount:"₹800", status:"PAID", time:"5m ago", claim_number:"CLM-20241208-00002", fraud_score:0.07, decision_reasons:["ROUTE_AUTO_PAY","LOCATION_MATCH"] },
-  { id:"C003", name:"Ajay Patel", initials:"AP", zone:"Pune Central", type:"Weather", amount:"₹800", status:"PROCESSING", time:"8m ago", claim_number:"CLM-20241208-00003", fraud_score:0.32, decision_reasons:["ROUTE_MANUAL_REVIEW","FRAUD_SCORE_MEDIUM"] },
-  { id:"C004", name:"Meera Sharma", initials:"MS", zone:"Delhi NCR", type:"Flood", amount:"₹800", status:"REVIEW", time:"12m ago", claim_number:"CLM-20241208-00004", fraud_score:0.45, decision_reasons:["ROUTE_MANUAL_REVIEW","WEAK_PEER_CORROBORATION"] },
-  { id:"C005", name:"Deepak Raut", initials:"DR", zone:"Koramangala", type:"Weather", amount:"₹800", status:"PAID", time:"15m ago", claim_number:"CLM-20241208-00005", fraud_score:0.11, decision_reasons:["ROUTE_AUTO_PAY","FRAUD_SCORE_LOW"] },
-  { id:"C006", name:"Priya Singh", initials:"PS", zone:"Andheri East", type:"Weather", amount:"₹800", status:"PAID", time:"22m ago", claim_number:"CLM-20241208-00006", fraud_score:0.05, decision_reasons:["ROUTE_AUTO_PAY","PEER_CORROBORATION_OK"] },
-  { id:"C007", name:"Kiran Naik", initials:"KN", zone:"Thane West", type:"Weather", amount:"₹800", status:"PROCESSING", time:"31m ago", claim_number:"CLM-20241208-00007", fraud_score:0.28, decision_reasons:["ROUTE_MANUAL_REVIEW","MODERATE_30D_CLAIM_FREQUENCY"] },
-  { id:"C008", name:"Rahul Desai", initials:"RD", zone:"Bandra West", type:"Weather", amount:"₹800", status:"REVIEW", time:"45m ago", claim_number:"CLM-20241208-00008", fraud_score:0.41, decision_reasons:["ROUTE_MANUAL_REVIEW","FRAUD_SCORE_MEDIUM"] },
-  { id:"C009", name:"Fatima Sheikh", initials:"FS", zone:"Jogeshwari", type:"Weather", amount:"₹800", status:"PAID", time:"1h ago", claim_number:"CLM-20241208-00009", fraud_score:0.08, decision_reasons:["ROUTE_AUTO_PAY","HIGH_EVENT_CONFIDENCE"] },
-  { id:"C010", name:"Santosh Yadav", initials:"SY", zone:"Powai", type:"Weather", amount:"₹800", status:"PAID", time:"1h ago", claim_number:"CLM-20241208-00010", fraud_score:0.03, decision_reasons:["ROUTE_AUTO_PAY","FRAUD_SCORE_LOW"] },
-];
-
-const AVATAR: Record<string,string> = {
-  RK:"bg-accent-amber/20 text-accent-amber", SK:"bg-accent-violet/20 text-accent-violet",
-  AP:"bg-state-success/20 text-state-success", MS:"bg-state-danger/20 text-state-danger",
-  DR:"bg-accent-ember/20 text-accent-ember", PS:"bg-accent-lavender/20 text-accent-lavender",
-  KN:"bg-state-info/20 text-state-info", RD:"bg-accent-gold/20 text-accent-gold",
-  FS:"bg-state-warning/20 text-state-warning", SY:"bg-accent-violet/20 text-accent-violet",
-};
-
-function Badge({ status }: { status: string }) {
-  const m: Record<string,string> = {
-    PAID:"bg-state-success/15 text-state-success border-state-success/25",
-    PROCESSING:"bg-state-warning/15 text-state-warning border-state-warning/25",
-    PENDING:"bg-state-warning/15 text-state-warning border-state-warning/25",
-    REVIEW:"bg-state-danger/15 text-state-danger border-state-danger/25",
-    REJECTED:"bg-state-danger/15 text-state-danger border-state-danger/25",
-  };
-  return <span className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${m[status]??""}`}>{status}</span>;
+interface Claim {
+  id: string;
+  worker_name?: string;
+  platform?: string;
+  trigger_type?: string;
+  zone?: string;
+  amount?: number;
+  status?: string;
+  created_at?: string;
+  fraud_score?: number;
+  audit_code?: string;
 }
 
+const DEMO_CLAIMS: Claim[] = [
+  { id: "CLM-8821", worker_name: "Ravi Kumar", platform: "Zomato", trigger_type: "Heavy Rain", zone: "Andheri West", amount: 800, status: "approved", created_at: "2026-03-27 14:22", fraud_score: 0.06, audit_code: "AUD-7AF2" },
+  { id: "CLM-8820", worker_name: "Priya Singh", platform: "Swiggy", trigger_type: "Flood Alert", zone: "Kurla", amount: 1200, status: "approved", created_at: "2026-03-27 14:08", fraud_score: 0.03, audit_code: "AUD-5BC1" },
+  { id: "CLM-8819", worker_name: "Amit Rao", platform: "Blinkit", trigger_type: "App Outage", zone: "Bandra", amount: 500, status: "review", created_at: "2026-03-27 13:55", fraud_score: 0.31, audit_code: "AUD-2DE8" },
+  { id: "CLM-8818", worker_name: "Neha Patel", platform: "Zepto", trigger_type: "AQI Alert", zone: "Dadar", amount: 600, status: "approved", created_at: "2026-03-27 13:40", fraud_score: 0.09, audit_code: "AUD-4FG3" },
+  { id: "CLM-8817", worker_name: "Suresh M.", platform: "Zomato", trigger_type: "Heavy Rain", zone: "Powai", amount: 800, status: "rejected", created_at: "2026-03-27 13:31", fraud_score: 0.78, audit_code: "AUD-9HK6" },
+  { id: "CLM-8816", worker_name: "Kavya L.", platform: "Swiggy", trigger_type: "Curfew", zone: "Goregaon", amount: 900, status: "approved", created_at: "2026-03-27 13:18", fraud_score: 0.04, audit_code: "AUD-1MN7" },
+  { id: "CLM-8815", worker_name: "Rohit D.", platform: "Zomato", trigger_type: "Heavy Rain", zone: "Malad", amount: 800, status: "review", created_at: "2026-03-27 13:05", fraud_score: 0.24, audit_code: "AUD-3PQ2" },
+  { id: "CLM-8814", worker_name: "Arjun B.", platform: "Amazon", trigger_type: "Flood Alert", zone: "Lower Parel", amount: 1200, status: "approved", created_at: "2026-03-27 12:50", fraud_score: 0.07, audit_code: "AUD-6RS9" },
+];
+
+const STATUS_MAP = {
+  approved: { label: "APPROVED", cls: "text-[#00FF87]" },
+  rejected: { label: "REJECTED", cls: "text-[#ff4444]" },
+  review: { label: "REVIEW", cls: "text-[#ffaa00]" },
+  pending: { label: "PENDING", cls: "text-[#777]" },
+} as const;
+
 export default function ClaimsPage() {
-  const [filter, setFilter] = useState("All");
-  const [claims, setClaims] = useState<ClaimRow[]>(MOCK);
-  const [actingId, setActingId] = useState<string|null>(null);
+  const [claims, setClaims] = useState<Claim[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<"all" | "review" | "approved" | "rejected">("all");
+  const [selected, setSelected] = useState<Claim | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const r = await fetch(`${API_BASE}/api/v1/claims/all?limit=50`);
-        if (r.ok) {
-          const d = await r.json();
-          if (d.claims?.length) setClaims(d.claims.map((c:any) => ({
-            id:c.id, name:c.worker_name||"Worker",
-            initials:(c.worker_name||"W").split(" ").map((s:string)=>s[0]).join("").toUpperCase().slice(0,2),
-            zone:c.zone||"—", type:"Weather", amount:`₹${c.amount||800}`,
-            status:c.status?.toUpperCase()||"PAID", time:c.created_at?new Date(c.created_at).toLocaleDateString():"—",
-            claim_number:c.claim_number, fraud_score:c.fraud_score||0, decision_reasons:c.decision_reasons||[],
-          })));
-        }
-      } catch{}
-    })();
+    const token = localStorage.getItem("gigarmor_token");
+    fetch(`${API_BASE}/api/v1/claims/all`, {
+      headers: { Authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(4000),
+    })
+      .then(r => r.json())
+      .then(d => setClaims(Array.isArray(d) ? d : DEMO_CLAIMS))
+      .catch(() => setClaims(DEMO_CLAIMS))
+      .finally(() => setLoading(false));
   }, []);
 
-  async function act(id:string, action:"approve"|"reject") {
-    setActingId(id);
+  async function handleAction(claimId: string, action: "approve" | "reject") {
+    setActionLoading(true);
+    const token = localStorage.getItem("gigarmor_token");
     try {
-      const r = await fetch(`${API_BASE}/api/v1/claims/${id}/${action}`, { method:"PUT" });
-      if (r.ok) setClaims(p => p.map(c => c.id===id ? {...c, status: action==="approve"?"PAID":"REJECTED"} : c));
-    } catch{}
-    setActingId(null);
+      await fetch(`${API_BASE}/api/v1/claims/${claimId}/${action}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        signal: AbortSignal.timeout(4000),
+      });
+    } catch {}
+    setClaims(prev => prev.map(c => c.id === claimId ? { ...c, status: action === "approve" ? "approved" : "rejected" } : c));
+    setSelected(prev => prev ? { ...prev, status: action === "approve" ? "approved" : "rejected" } : null);
+    setActionLoading(false);
   }
 
-  const tabs = [
-    { l:"All", n:claims.length },
-    { l:"PAID", n:claims.filter(c=>c.status==="PAID").length },
-    { l:"PENDING", n:claims.filter(c=>c.status==="PENDING"||c.status==="PROCESSING").length },
-    { l:"REVIEW", n:claims.filter(c=>c.status==="REVIEW").length },
-  ];
-  const list = filter==="All" ? claims
-    : filter==="PENDING" ? claims.filter(c=>c.status==="PENDING"||c.status==="PROCESSING")
-    : claims.filter(c=>c.status===filter);
-
-  const card = "rounded-2xl bg-surface-1 border border-white/[0.04]";
-  const b = (d:number) => ({ initial:{opacity:0,y:12}, animate:{opacity:1,y:0}, transition:{delay:d*0.06} } as const);
+  const filtered = filter === "all" ? claims : claims.filter(c => c.status === filter);
+  const pendingReview = claims.filter(c => c.status === "review").length;
 
   return (
-    <motion.div className="p-6 space-y-5 max-w-[1400px] mx-auto" initial={{opacity:0}} animate={{opacity:1}}>
-      {/* header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-text-primary">Claims Management</h1>
-          <p className="text-sm text-text-secondary mt-0.5">Review, approve, and track all worker claims</p>
+    <div className="p-6 xl:p-8 flex gap-6 max-w-[1600px]">
+      <div className="flex-1 min-w-0">
+        <div className="border-b border-[#1a1a1a] pb-5 mb-6 flex items-end justify-between">
+          <div>
+            <p className="mono-label mb-1.5">Claim management</p>
+            <h1 className="text-2xl font-black text-white tracking-tight">Claims</h1>
+          </div>
+          {pendingReview > 0 && (
+            <div className="flex items-center gap-2">
+              <span className="dot-warn" />
+              <span className="font-mono text-[10px] tracking-widest uppercase text-[#ffaa00]">{pendingReview} pending review</span>
+            </div>
+          )}
         </div>
-        <div className="flex items-center gap-3">
-          <span className="rounded-xl bg-state-success/10 border border-state-success/20 px-4 py-2 text-sm font-semibold text-state-success">Today: ₹18,400</span>
-          <button className="rounded-xl border border-white/[0.08] px-4 py-2 text-sm font-medium text-text-secondary hover:bg-white/5 transition">Export CSV ↗</button>
-        </div>
-      </div>
 
-      {/* filter tabs */}
-      <motion.div {...b(1)} className="flex flex-wrap gap-2">
-        {tabs.map(t => (
-          <button key={t.l} onClick={() => setFilter(t.l)}
-            className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${filter===t.l ? "bg-accent-amber/15 text-accent-amber border border-accent-amber/25" : "text-text-muted hover:bg-white/5"}`}>
-            {t.l} <span className="ml-1 text-xs opacity-60">{t.n}</span>
-          </button>
-        ))}
-      </motion.div>
-
-      {/* table */}
-      <motion.div {...b(2)} className={`${card} overflow-hidden`}>
-        <div className="border-b border-white/[0.04] px-5 py-3">
-          <span className="text-sm font-semibold text-text-primary">{list.length} claim{list.length!==1?"s":""}</span>
+        {/* Filter tabs */}
+        <div className="flex gap-0 border border-[#1a1a1a] mb-6 w-fit">
+          {(["all", "review", "approved", "rejected"] as const).map(f => (
+            <button key={f} onClick={() => setFilter(f)}
+              className={`px-4 py-2 font-mono text-[10px] tracking-widest uppercase border-r border-[#1a1a1a] last:border-r-0 transition-colors ${
+                filter === f ? "bg-[#1a1a1a] text-white" : "text-[#444] hover:text-[#777]"
+              }`}>
+              {f} {f === "all" ? `(${claims.length})` : `(${claims.filter(c => c.status === f).length})`}
+            </button>
+          ))}
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[960px]">
-            <thead>
-              <tr className="border-b border-white/[0.04]">
-                {["ID","Worker","Zone","Type","Amount","Status","Audit","Time","Action"].map(h=>(
-                  <th key={h} className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-wider text-text-muted">{h}</th>
-                ))}
-              </tr>
-            </thead>
+
+        {loading ? (
+          <div className="py-20 text-center"><p className="mono-label animate-pulse">Loading claims...</p></div>
+        ) : (
+          <table className="data-table">
+            <thead><tr><th>ID</th><th>Worker</th><th>Platform</th><th>Trigger</th><th>Zone</th><th className="text-right">Amount</th><th className="text-right">Fraud Score</th><th className="text-right">Status</th></tr></thead>
             <tbody>
-              {list.map(c => (
-                <tr key={c.id} className="border-b border-white/[0.03] hover:bg-white/[0.02] transition">
-                  <td className="px-4 py-3.5 font-mono text-xs text-accent-amber">#{c.id}</td>
-                  <td className="px-4 py-3.5">
-                    <div className="flex items-center gap-2.5">
-                      <span className={`flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold ${AVATAR[c.initials]||"bg-surface-2 text-text-muted"}`}>{c.initials}</span>
-                      <span className="text-sm font-medium text-text-primary">{c.name}</span>
-                    </div>
+              {filtered.map((c, i) => (
+                <motion.tr key={c.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.03 }}
+                  className="cursor-pointer" onClick={() => setSelected(c)}>
+                  <td className="font-mono text-[11px] text-[#555]">{c.id}</td>
+                  <td className="text-white text-[13px] font-medium">{c.worker_name}</td>
+                  <td className="font-mono text-[11px] text-[#555]">{c.platform}</td>
+                  <td className="font-mono text-[11px] text-[#555]">{c.trigger_type}</td>
+                  <td className="font-mono text-[11px] text-[#555]">{c.zone}</td>
+                  <td className="font-mono text-[12px] font-bold text-right tabular-nums text-white">&#8377;{c.amount?.toLocaleString()}</td>
+                  <td className="text-right">
+                    <span className={`font-mono text-[11px] tabular-nums ${
+                      (c.fraud_score || 0) > 0.5 ? "text-[#ff4444]" : (c.fraud_score || 0) > 0.2 ? "text-[#ffaa00]" : "text-[#00FF87]"
+                    }`}>{((c.fraud_score || 0) * 100).toFixed(0)}%</span>
                   </td>
-                  <td className="px-4 py-3.5 text-sm text-text-secondary">{c.zone}</td>
-                  <td className="px-4 py-3.5 text-sm text-text-secondary">{c.type}</td>
-                  <td className="px-4 py-3.5 text-sm font-semibold text-text-primary">{c.amount}</td>
-                  <td className="px-4 py-3.5"><Badge status={c.status}/></td>
-                  <td className="px-4 py-3.5">
-                    <div className="flex max-w-[200px] flex-wrap gap-1">
-                      {c.decision_reasons.slice(0,2).map(r=>(
-                        <span key={r} className="rounded-full border border-white/[0.06] bg-surface-2 px-2 py-0.5 text-[9px] text-text-muted">{r.replaceAll("_"," ")}</span>
-                      ))}
-                      {c.decision_reasons.length>2 && <span className="text-[9px] text-text-muted">+{c.decision_reasons.length-2}</span>}
-                    </div>
+                  <td className="text-right">
+                    <span className={`font-mono text-[9px] tracking-widest ${STATUS_MAP[c.status as keyof typeof STATUS_MAP]?.cls || "text-[#777]"}`}>
+                      {STATUS_MAP[c.status as keyof typeof STATUS_MAP]?.label || (c.status || "").toUpperCase()}
+                    </span>
                   </td>
-                  <td className="px-4 py-3.5 text-xs text-text-muted">{c.time}</td>
-                  <td className="px-4 py-3.5">
-                    {c.status==="REVIEW" ? (
-                      <div className="flex gap-1.5">
-                        <button onClick={()=>act(c.id,"approve")} disabled={actingId===c.id}
-                          className="rounded-lg bg-state-success/15 border border-state-success/25 px-2.5 py-1 text-[10px] font-bold text-state-success hover:bg-state-success/25 disabled:opacity-50 transition">Approve</button>
-                        <button onClick={()=>act(c.id,"reject")} disabled={actingId===c.id}
-                          className="rounded-lg bg-state-danger/15 border border-state-danger/25 px-2.5 py-1 text-[10px] font-bold text-state-danger hover:bg-state-danger/25 disabled:opacity-50 transition">Reject</button>
-                      </div>
-                    ) : (
-                      <button className="rounded-lg border border-white/[0.06] px-2.5 py-1 text-[10px] font-medium text-text-muted hover:bg-white/5 transition">View</button>
-                    )}
-                  </td>
-                </tr>
+                </motion.tr>
               ))}
             </tbody>
           </table>
-        </div>
-      </motion.div>
+        )}
+      </div>
 
-      {/* summary cards */}
-      <motion.div {...b(3)} className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        {[
-          { l:"Total Claims", v:"23", c:"text-text-primary" },
-          { l:"Paid", v:"18", c:"text-state-success" },
-          { l:"Processing", v:"3", c:"text-state-warning" },
-          { l:"Under Review", v:"2", c:"text-state-danger" },
-        ].map(s=>(
-          <div key={s.l} className={`${card} p-5 text-center`}>
-            <div className={`text-3xl font-black ${s.c}`}>{s.v}</div>
-            <div className="mt-1 text-xs text-text-muted">{s.l}</div>
-          </div>
-        ))}
-      </motion.div>
-    </motion.div>
+      {/* Detail panel */}
+      <AnimatePresence>
+        {selected && (
+          <motion.aside initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}
+            className="w-[320px] shrink-0 border-l border-[#1a1a1a] pl-6 space-y-6">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="mono-label mb-1">Claim detail</p>
+                <div className="font-mono text-sm font-black text-white">{selected.id}</div>
+              </div>
+              <button onClick={() => setSelected(null)} className="font-mono text-[10px] text-[#444] hover:text-white transition-colors uppercase tracking-widest">Close</button>
+            </div>
+
+            <div className="space-y-4 border-t border-[#1a1a1a] pt-5">
+              {[
+                { label: "Worker", value: selected.worker_name },
+                { label: "Platform", value: selected.platform },
+                { label: "Trigger", value: selected.trigger_type },
+                { label: "Zone", value: selected.zone },
+                { label: "Amount", value: "&#8377;" + selected.amount?.toLocaleString() },
+                { label: "Filed at", value: selected.created_at },
+                { label: "Audit code", value: selected.audit_code },
+              ].map(item => (
+                <div key={item.label}>
+                  <p className="mono-label mb-1">{item.label}</p>
+                  <p className="text-sm text-white font-medium" dangerouslySetInnerHTML={{ __html: item.value || "-" }} />
+                </div>
+              ))}
+
+              <div>
+                <p className="mono-label mb-2">Fraud score</p>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-1 bg-[#1a1a1a]">
+                    <div className={`h-1 transition-all ${(selected.fraud_score || 0) > 0.5 ? "bg-[#ff4444]" : (selected.fraud_score || 0) > 0.2 ? "bg-[#ffaa00]" : "bg-[#00FF87]"}`}
+                      style={{ width: `${(selected.fraud_score || 0) * 100}%` }} />
+                  </div>
+                  <span className="font-mono text-xs text-white">{((selected.fraud_score || 0) * 100).toFixed(0)}%</span>
+                </div>
+              </div>
+            </div>
+
+            {selected.status === "review" && (
+              <div className="border-t border-[#1a1a1a] pt-5 flex gap-3">
+                <button onClick={() => handleAction(selected.id, "approve")} disabled={actionLoading}
+                  className="flex-1 bg-[#00FF87] text-black font-mono text-[10px] font-bold tracking-widest uppercase py-3 hover:bg-white transition-colors disabled:opacity-40">
+                  APPROVE
+                </button>
+                <button onClick={() => handleAction(selected.id, "reject")} disabled={actionLoading}
+                  className="flex-1 border border-[#ff4444] text-[#ff4444] font-mono text-[10px] font-bold tracking-widest uppercase py-3 hover:bg-[#ff4444] hover:text-black transition-all disabled:opacity-40">
+                  REJECT
+                </button>
+              </div>
+            )}
+          </motion.aside>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

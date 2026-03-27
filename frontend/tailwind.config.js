@@ -8,62 +8,63 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        surface: {
-          0: '#06080f',
-          1: '#0c1019',
-          2: '#121724',
-          3: '#1a2035',
-          4: '#232a42',
+        ink: {
+          0: '#000000',
+          1: '#080808',
+          2: '#111111',
+          3: '#1a1a1a',
+          4: '#242424',
+          5: '#2e2e2e',
+          6: '#383838',
         },
-        accent: {
-          amber: '#f59e0b',
-          gold: '#fbbf24',
-          violet: '#8b5cf6',
-          lavender: '#a78bfa',
-          ember: '#f97316',
+        wire: '#00FF87',
+        dim: {
+          1: '#aaaaaa',
+          2: '#777777',
+          3: '#444444',
+          4: '#2a2a2a',
+          5: '#1e1e1e',
         },
-        state: {
-          success: '#34d399',
-          warning: '#fbbf24',
-          danger: '#f87171',
-          info: '#60a5fa',
-        },
-        text: {
-          primary: '#f1f5f9',
-          secondary: '#94a3b8',
-          muted: '#475569',
-        },
+        neg: '#ff4444',
+        pos: '#00FF87',
+        warn: '#ffaa00',
+        info: '#4d9eff',
       },
       fontFamily: {
-        display: ['Inter', 'system-ui', 'sans-serif'],
-        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+        sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
+        mono: ['var(--font-mono)', 'Fira Code', 'monospace'],
+        display: ['var(--font-display)', 'var(--font-sans)', 'system-ui'],
       },
-      borderRadius: {
-        '2xl': '1rem',
-        '3xl': '1.5rem',
-        '4xl': '2rem',
-      },
-      backdropBlur: {
-        xs: '2px',
+      fontSize: {
+        'display': ['clamp(3.5rem, 9vw, 8rem)', { lineHeight: '0.88', letterSpacing: '-0.05em', fontWeight: '900' }],
+        'headline': ['clamp(2rem, 5vw, 4rem)', { lineHeight: '0.95', letterSpacing: '-0.04em', fontWeight: '800' }],
+        'title': ['1.125rem', { lineHeight: '1.25', letterSpacing: '-0.02em', fontWeight: '700' }],
+        'label': ['0.6875rem', { lineHeight: '1.4', letterSpacing: '0.1em', fontWeight: '500' }],
+        'micro': ['0.5625rem', { lineHeight: '1.4', letterSpacing: '0.1em', fontWeight: '600' }],
       },
       animation: {
-        'float': 'float 6s ease-in-out infinite',
-        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'glow': 'glow 2s ease-in-out infinite alternate',
-        'orbit': 'orbit 20s linear infinite',
+        'ticker': 'ticker 40s linear infinite',
+        'blink': 'blink 1s step-end infinite',
+        'pulse-dim': 'pulse-dim 2s ease-in-out infinite',
+        'count': 'count 1.5s ease-out forwards',
+        'slide-up': 'slide-up 0.4s ease-out forwards',
       },
       keyframes: {
-        float: {
-          '0%, 100%': { transform: 'translateY(0px)' },
-          '50%': { transform: 'translateY(-20px)' },
+        ticker: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
         },
-        glow: {
-          '0%': { opacity: '0.4' },
-          '100%': { opacity: '1' },
+        blink: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0' },
         },
-        orbit: {
-          '0%': { transform: 'rotate(0deg) translateX(120px) rotate(0deg)' },
-          '100%': { transform: 'rotate(360deg) translateX(120px) rotate(-360deg)' },
+        'pulse-dim': {
+          '0%, 100%': { opacity: '1', boxShadow: '0 0 0 0 rgba(0, 255, 135, 0.4)' },
+          '50%': { opacity: '0.7', boxShadow: '0 0 0 6px rgba(0, 255, 135, 0)' },
+        },
+        'slide-up': {
+          '0%': { opacity: '0', transform: 'translateY(12px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
         },
       },
     },

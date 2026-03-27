@@ -1,135 +1,106 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { API_BASE } from "@/lib/config";
 
-type Claim = {
-  id:string; worker:string; zone:string; gpsJumpKm:number;
-  deviceReuseCount:number; routeFeasible:boolean; peerMatch:number;
-  riskScore:number; decision:"AUTO_PAY"|"REVIEW"|"BLOCK";
-};
+interface Threat {
+  id: string;
+  type: string;
+  worker_id?: string;
+  worker_name?: string;
+  score: number;
+  flags: string[];
+  status: string;
+  detected_at: string;
+}
 
-const BASE:Claim[] = [
-  { id:"CLM-MC-001", worker:"Rahul Kumar", zone:"Andheri West", gpsJumpKm:0.6, deviceReuseCount:1, routeFeasible:true, peerMatch:9, riskScore:0.12, decision:"AUTO_PAY" },
-  { id:"CLM-MC-002", worker:"Priya Sharma", zone:"Dadar", gpsJumpKm:52, deviceReuseCount:7, routeFeasible:false, peerMatch:1, riskScore:0.89, decision:"BLOCK" },
-  { id:"CLM-MC-003", worker:"Amit Singh", zone:"Bandra-Kurla", gpsJumpKm:1.2, deviceReuseCount:1, routeFeasible:true, peerMatch:7, riskScore:0.21, decision:"AUTO_PAY" },
-  { id:"CLM-MC-004", worker:"Meera Joshi", zone:"Andheri West", gpsJumpKm:31, deviceReuseCount:5, routeFeasible:false, peerMatch:0, riskScore:0.84, decision:"BLOCK" },
-  { id:"CLM-MC-005", worker:"Vikram Nair", zone:"Delhi NCR", gpsJumpKm:3.1, deviceReuseCount:2, routeFeasible:true, peerMatch:3, riskScore:0.48, decision:"REVIEW" },
-  { id:"CLM-MC-006", worker:"Sunita Devi", zone:"Koramangala", gpsJumpKm:0.5, deviceReuseCount:1, routeFeasible:true, peerMatch:8, riskScore:0.17, decision:"AUTO_PAY" },
+const DEMO_THREATS: Threat[] = [
+  { id: "THR-0021", type: "GPS Spoofing", worker_id: "W-5512", worker_name: "Unknown", score: 0.91, flags: ["GPS mismatch", "Route infeasible"], status: "blocked", detected_at: "2026-03-27 15:12" },
+  { id: "THR-0020", type: "Frequency Abuse", worker_id: "W-3341", worker_name: "Aryan K.", score: 0.76, flags: ["Claims/week > 3x average", "Multiple zones"], status: "flagged", detected_at: "2026-03-27 14:02" },
+  { id: "THR-0019", type: "Device Ring", worker_id: "W-7821", worker_name: "Demo User", score: 0.83, flags: ["Shared device fingerprint", "Coordinated timing"], status: "blocked", detected_at: "2026-03-27 11:45" },
+  { id: "THR-0018", type: "Collusion Cluster", worker_id: "GRP-001", worker_name: "3-worker cluster", score: 0.69, flags: ["Simultaneous claims", "Same zone", "Peer overlap"], status: "review", detected_at: "2026-03-26 20:30" },
 ];
 
+const STATUS = { blocked: "text-[#ff4444]", flagged: "text-[#ffaa00]", review: "text-[#4d9eff]" } as const;
+
 export default function ThreatDefensePage() {
-  const [strict, setStrict] = useState(true);
-  const [ring, setRing] = useState(4);
+  const [threats, setThreats] = useState<Threat[]>(DEMO_THREATS);
+  const [loading, setLoading] = useState(false);
 
-  const claims = useMemo(() => BASE.map(c => {
-    const sig = (c.gpsJumpKm>10?1:0)+(c.deviceReuseCount>=ring?1:0)+(!c.routeFeasible?1:0)+(c.peerMatch<=1?1:0);
-    const adj = strict ? Math.min(0.99, c.riskScore+sig*0.06) : Math.max(0, c.riskScore-0.1);
-    let dec:Claim["decision"] = "AUTO_PAY";
-    if (adj>=0.75) dec="BLOCK"; else if (adj>=0.40) dec="REVIEW";
-    return { ...c, riskScore:Number(adj.toFixed(2)), decision:dec };
-  }), [strict, ring]);
-
-  const st = useMemo(() => {
-    const t=claims.length, bl=claims.filter(c=>c.decision==="BLOCK").length, rv=claims.filter(c=>c.decision==="REVIEW").length, au=claims.filter(c=>c.decision==="AUTO_PAY").length;
-    return { t, bl, rv, au, fr:Math.round((bl/Math.max(t,1))*100) };
-  }, [claims]);
-
-  const card = "rounded-2xl bg-surface-1 border border-white/[0.04] p-5";
-  const b = (d:number) => ({ initial:{opacity:0,y:12}, animate:{opacity:1,y:0}, transition:{delay:d*0.06} } as const);
+  const highRisk = threats.filter(t => t.score >= 0.75).length;
 
   return (
-    <motion.div className="p-6 space-y-5 max-w-[1400px] mx-auto" initial={{opacity:0}} animate={{opacity:1}}>
-      {/* Alert banner */}
-      <motion.div {...b(0)} className="rounded-2xl border border-state-danger/30 bg-state-danger/10 p-5">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-state-danger">Adversarial Event Mode</p>
-        <h1 className="mt-1 text-2xl font-bold text-text-primary">Threat Defense Console</h1>
-        <p className="mt-1 text-sm text-text-secondary">Anti-spoofing response against GPS manipulation rings while preserving fast payout for genuine workers.</p>
-      </motion.div>
+    <div className="p-6 xl:p-8 max-w-[1400px]">
+      <div className="border-b border-[#1a1a1a] pb-5 mb-8 flex items-end justify-between">
+        <div>
+          <p className="mono-label mb-1.5">Fraud prevention</p>
+          <h1 className="text-2xl font-black text-white tracking-tight">Threat Defense</h1>
+        </div>
+        {highRisk > 0 && (
+          <div className="flex items-center gap-2">
+            <span className="dot-neg" />
+            <span className="font-mono text-[10px] tracking-widest uppercase text-[#ff4444]">{highRisk} high-risk threats</span>
+          </div>
+        )}
+      </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-2 gap-3 xl:grid-cols-5">
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-0 border-t border-l border-[#1a1a1a] mb-8">
         {[
-          ["Claims Inflow",st.t,"📥","border-accent-amber/30 bg-accent-amber/[0.04]"],
-          ["Auto Payout",st.au,"✅","border-state-success/30 bg-state-success/[0.04]"],
-          ["Review Queue",st.rv,"🕵️","border-state-warning/30 bg-state-warning/[0.04]"],
-          ["Blocked",st.bl,"⛔","border-state-danger/30 bg-state-danger/[0.04]"],
-          ["Fraud Ring Rate",`${st.fr}%`,"🧠","border-accent-violet/30 bg-accent-violet/[0.04]"],
-        ].map(([l,v,ico,cls],i) => (
-          <motion.div key={String(l)} {...b(i+1)} className={`rounded-xl border p-3.5 ${cls}`}>
-            <div className="flex items-center justify-between"><span className="text-lg">{ico}</span><span className="text-xl font-black text-text-primary">{v}</span></div>
-            <p className="mt-0.5 text-[10px] text-text-muted">{l}</p>
-          </motion.div>
+          { label: "Total threats", value: threats.length, accent: false },
+          { label: "Blocked today", value: threats.filter(t => t.status === "blocked").length, accent: false },
+          { label: "High-risk score", value: highRisk, accent: true },
+        ].map((s, i) => (
+          <div key={s.label} className="border-r border-b border-[#1a1a1a] p-5">
+            <div className={`font-mono text-2xl font-black tabular-nums leading-none ${s.accent ? "text-[#ff4444]" : "text-white"}`}>{s.value}</div>
+            <div className="mono-label mt-2">{s.label}</div>
+          </div>
         ))}
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-3">
-        {/* Control Panel */}
-        <motion.div {...b(6)} className={`${card} lg:col-span-1`}>
-          <h2 className="text-xs font-bold uppercase tracking-wider text-text-muted mb-3">Control Panel</h2>
-          <div className="space-y-4">
-            <label className="flex items-center justify-between text-sm">
-              <span className="text-text-secondary">Strict Anti-Spoof Mode</span>
-              <button onClick={()=>setStrict(v=>!v)} className={`rounded-full px-3 py-1 text-[10px] font-bold ${strict?"bg-state-danger/20 text-state-danger":"bg-surface-2 text-text-muted"}`}>{strict?"ON":"OFF"}</button>
-            </label>
-            <div>
-              <p className="mb-1.5 text-[10px] text-text-muted">Device Ring Threshold: {ring}</p>
-              <input type="range" min={2} max={8} value={ring} onChange={e=>setRing(Number(e.target.value))} className="w-full accent-accent-amber" />
-            </div>
-            <ul className="space-y-1.5 text-[11px] text-text-muted">
-              <li>• Teleport jumps &gt; 10 km treated as spoof signals</li>
-              <li>• High device reuse indicates coordinated fraud rings</li>
-              <li>• Low peer-event match reduces trust</li>
-              <li>• Route infeasibility increases risk sharply</li>
-            </ul>
-          </div>
-        </motion.div>
-
-        {/* Decision Matrix */}
-        <motion.div {...b(7)} className={`${card} lg:col-span-2 overflow-x-auto`}>
-          <h2 className="text-xs font-bold uppercase tracking-wider text-text-muted mb-3">Claim Decision Matrix (Live Simulation)</h2>
-          <table className="w-full min-w-[860px]">
-            <thead><tr className="border-b border-white/[0.04] text-[10px] uppercase tracking-wider text-text-muted">
-              {["Claim ID","Worker","Zone","GPS Jump","Device Reuse","Route","Peer Match","Risk","Decision"].map(h=><th key={h} className="px-3 py-2">{h}</th>)}
-            </tr></thead>
-            <tbody>
-              {claims.map(c=>(
-                <tr key={c.id} className="border-b border-white/[0.03] hover:bg-white/[0.02] transition">
-                  <td className="px-3 py-2.5 font-mono text-[10px] text-accent-amber">{c.id}</td>
-                  <td className="px-3 py-2.5 text-sm text-text-primary">{c.worker}</td>
-                  <td className="px-3 py-2.5 text-sm text-text-secondary">{c.zone}</td>
-                  <td className={`px-3 py-2.5 text-sm ${c.gpsJumpKm>10?"text-state-danger":"text-text-secondary"}`}>{c.gpsJumpKm} km</td>
-                  <td className={`px-3 py-2.5 text-sm ${c.deviceReuseCount>=ring?"text-state-danger":"text-text-secondary"}`}>{c.deviceReuseCount}</td>
-                  <td className={`px-3 py-2.5 text-sm ${c.routeFeasible?"text-state-success":"text-state-danger"}`}>{c.routeFeasible?"Feasible":"Impossible"}</td>
-                  <td className={`px-3 py-2.5 text-sm ${c.peerMatch<=1?"text-state-warning":"text-text-secondary"}`}>{c.peerMatch}</td>
-                  <td className="px-3 py-2.5 text-sm font-semibold text-text-primary">{Math.round(c.riskScore*100)}%</td>
-                  <td className="px-3 py-2.5"><span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold ${c.decision==="BLOCK"?"bg-state-danger/15 text-state-danger border-state-danger/25":c.decision==="REVIEW"?"bg-state-warning/15 text-state-warning border-state-warning/25":"bg-state-success/15 text-state-success border-state-success/25"}`}>{c.decision}</span></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </motion.div>
+      {/* Threats table */}
+      <div>
+        <div className="border-b border-[#1a1a1a] pb-3 mb-0">
+          <p className="mono-label">Active threats</p>
+        </div>
+        <div className="border-b border-[#1a1a1a]">
+          {threats.map((t, i) => (
+            <motion.div key={t.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
+              className="border-b border-[#1a1a1a] py-5 grid md:grid-cols-[140px_1fr_200px_120px] gap-4 items-start">
+              <div>
+                <div className="font-mono text-[11px] text-[#555] mb-1">{t.id}</div>
+                <div className="font-mono text-[11px] text-[#333]">{t.detected_at}</div>
+              </div>
+              <div>
+                <div className="text-sm font-bold text-white mb-1">{t.type}</div>
+                <div className="font-mono text-[11px] text-[#555] mb-2">{t.worker_name} ({t.worker_id})</div>
+                <div className="flex flex-wrap gap-1.5">
+                  {t.flags.map(f => (
+                    <span key={f} className="font-mono text-[9px] tracking-wide uppercase border border-[#2a2a2a] text-[#555] px-2 py-0.5">{f}</span>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center gap-3 mb-1">
+                  <div className="flex-1 h-1 bg-[#1a1a1a]">
+                    <div className={`h-1 ${t.score >= 0.75 ? "bg-[#ff4444]" : t.score >= 0.5 ? "bg-[#ffaa00]" : "bg-[#00FF87]"}`}
+                      style={{ width: `${t.score * 100}%` }} />
+                  </div>
+                  <span className={`font-mono text-xs font-bold tabular-nums ${t.score >= 0.75 ? "text-[#ff4444]" : t.score >= 0.5 ? "text-[#ffaa00]" : "text-[#00FF87]"}`}>
+                    {(t.score * 100).toFixed(0)}%
+                  </span>
+                </div>
+                <div className="mono-label">Risk score</div>
+              </div>
+              <div className="text-right md:text-left">
+                <span className={`font-mono text-[9px] tracking-widest font-bold ${STATUS[t.status as keyof typeof STATUS] || "text-[#777]"}`}>
+                  {t.status.toUpperCase()}
+                </span>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
-
-      {/* Risk Tier + Ring Attack */}
-      <div className="grid gap-5 lg:grid-cols-2">
-        <motion.div {...b(8)} className={card}>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-text-muted mb-2">Risk-Tier Routing</h3>
-          <div className="space-y-2 text-sm">
-            <p className="rounded-lg bg-state-success/10 border border-state-success/20 px-3 py-2 text-state-success">Low (0-39%): Instant auto payout</p>
-            <p className="rounded-lg bg-state-warning/10 border border-state-warning/20 px-3 py-2 text-state-warning">Medium (40-74%): Soft-friction review</p>
-            <p className="rounded-lg bg-state-danger/10 border border-state-danger/20 px-3 py-2 text-state-danger">High (75-100%): Block + investigation</p>
-          </div>
-        </motion.div>
-        <motion.div {...b(9)} className={card}>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-text-muted mb-2">Ring Attack Indicators</h3>
-          <ul className="space-y-1.5 text-sm text-text-secondary list-disc list-inside">
-            <li>Same device/network reused across multiple claims</li>
-            <li>Synchronized claim timestamps from weak-history accounts</li>
-            <li>Location movement impossible for route-time window</li>
-            <li>Claims not matching real weather/disruption signals</li>
-          </ul>
-        </motion.div>
-      </div>
-    </motion.div>
+    </div>
   );
 }

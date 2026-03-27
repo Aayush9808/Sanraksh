@@ -3,7 +3,7 @@ import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { API_BASE } from "../../lib/config";
+import { API_BASE } from "@/lib/config";
 
 const PLATFORMS = ["zomato", "swiggy", "amazon", "zepto", "blinkit", "other"];
 const PLATFORM_META: Record<string, { icon: string; color: string }> = {
