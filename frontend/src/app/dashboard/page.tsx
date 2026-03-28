@@ -98,7 +98,7 @@ export default function DashboardPage() {
             className={`panel p-4 ${k.amber?"panel-amber":""}`}
           >
             <div className="lbl mb-2">{k.label}</div>
-            <div className={`font-extrabold text-2xl mb-1 ${k.amber?"text-amber-DEFAULT":"text-[#F5F0E8]"}`}
+            <div className={`font-extrabold text-2xl mb-1 ${k.amber?"text-amber":"text-[#F5F0E8]"}`}
               style={{letterSpacing:"-0.04em",lineHeight:1}}>
               {k.prefix||""}<Counter end={k.val} />{k.suffix}
             </div>
@@ -140,7 +140,7 @@ export default function DashboardPage() {
                     <td><span className="font-mono text-[#F5F0E8] text-xs">{c.id}</span></td>
                     <td><span className="text-[#C8BAA0] font-medium">{c.worker}</span></td>
                     <td>{c.event}</td>
-                    <td><span className="text-amber-DEFAULT font-mono font-bold">₹{c.amount}</span></td>
+                    <td><span className="text-amber font-mono font-bold">₹{c.amount}</span></td>
                     <td><FraudBar score={c.fraud} /></td>
                     <td><StatusTag s={c.status} /></td>
                     <td><span className="lbl">{c.time}</span></td>

@@ -69,8 +69,8 @@ export default function WorkersPage() {
                   <tr key={w.id} onClick={()=>setSel(sel?.id===w.id?null:w)} style={{background:sel?.id===w.id?"rgba(245,158,11,0.04)":""}}>
                     <td>
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full bg-amber-DEFAULT/10 flex items-center justify-center flex-shrink-0">
-                          <span className="text-amber-DEFAULT font-bold text-xs">{w.name.charAt(0)}</span>
+                        <div className="w-8 h-8 rounded-full bg-amber/10 flex items-center justify-center flex-shrink-0">
+                          <span className="text-amber font-bold text-xs">{w.name.charAt(0)}</span>
                         </div>
                         <div>
                           <div className="text-[#C8BAA0] font-medium text-sm">{w.name}</div>
@@ -81,7 +81,7 @@ export default function WorkersPage() {
                     <td>{w.city}</td>
                     <td><div className="flex gap-1 flex-wrap">{w.platforms.map(p=><span key={p} className="tag tag-neutral">{p}</span>)}</div></td>
                     <td><span className="text-[#F5F0E8] font-bold">{w.claims}</span></td>
-                    <td><span className="text-amber-DEFAULT font-mono font-bold">₹{w.total_earned.toLocaleString()}</span></td>
+                    <td><span className="text-amber font-mono font-bold">₹{w.total_earned.toLocaleString()}</span></td>
                     <td><RiskBadge v={w.risk} /></td>
                     <td><KycBadge s={w.kyc} /></td>
                   </tr>
@@ -97,8 +97,8 @@ export default function WorkersPage() {
               className="panel p-5 self-start sticky top-20" style={{maxHeight:"calc(100vh - 120px)",overflowY:"auto"}}
             >
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-12 h-12 rounded-full bg-amber-DEFAULT/10 border border-amber-DEFAULT/20 flex items-center justify-center">
-                  <span className="text-amber-DEFAULT font-bold text-xl">{sel.name.charAt(0)}</span>
+                <div className="w-12 h-12 rounded-full bg-amber/10 border border-amber/20 flex items-center justify-center">
+                  <span className="text-amber font-bold text-xl">{sel.name.charAt(0)}</span>
                 </div>
                 <div>
                   <div className="text-[#F5F0E8] font-bold">{sel.name}</div>
@@ -117,7 +117,7 @@ export default function WorkersPage() {
               </div>
               <div className="grid grid-cols-2 gap-3 mb-5">
                 <div className="panel-inset p-3 text-center">
-                  <div className="text-amber-DEFAULT font-bold text-xl" style={{letterSpacing:"-0.03em"}}>₹{sel.total_earned.toLocaleString()}</div>
+                  <div className="text-amber font-bold text-xl" style={{letterSpacing:"-0.03em"}}>₹{sel.total_earned.toLocaleString()}</div>
                   <div className="lbl mt-1">Total earned</div>
                 </div>
                 <div className="panel-inset p-3 text-center">

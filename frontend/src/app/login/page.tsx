@@ -29,7 +29,7 @@ function PayoutFeed() {
             <div className="lbl mt-0.5">{p.event}</div>
           </div>
           <div className="text-right">
-            <div className="text-amber-DEFAULT font-mono font-bold text-sm">{p.amount}</div>
+            <div className="text-amber font-mono font-bold text-sm">{p.amount}</div>
             <div className="lbl">{p.time}</div>
           </div>
         </motion.div>
@@ -45,22 +45,48 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
 
+  const DEMO: Record<string,{otp:string;role:string;token:string}> = {
+    "9999000000": { otp:"000000", role:"admin",  token:"demo-admin-token"  },
+    "9999000001": { otp:"123456", role:"worker", token:"demo-worker-token" },
+  };
+
+  function demoLogin(role: "admin"|"worker") {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("token", `demo-${role}-token`);
+      localStorage.setItem("role", role);
+    }
+    window.location.href = "/dashboard";
+  }
+
   async function sendOtp(e: React.FormEvent) {
     e.preventDefault();
     setErr(""); setLoading(true);
+    // Demo bypass — works without backend
+    if (DEMO[phone]) { setLoading(false); setStep("otp"); return; }
     try {
-      await fetch(`${API_BASE}/api/v1/auth/send-otp`, {
+      const r = await fetch(`${API_BASE}/api/v1/auth/send-otp`, {
         method:"POST", headers:{"Content-Type":"application/json"},
         body: JSON.stringify({ phone }),
       });
-      setStep("otp");
-    } catch { setErr("Failed to send OTP. Try again."); }
+      if (r.ok) setStep("otp");
+      else setErr("Failed to send OTP. Try again.");
+    } catch { setErr("Backend offline. Use demo credentials below."); }
     finally { setLoading(false); }
   }
 
   async function verifyOtp(e: React.FormEvent) {
     e.preventDefault();
     setErr(""); setLoading(true);
+    // Demo bypass — check hardcoded credentials first
+    const demo = DEMO[phone];
+    if (demo && otp === demo.otp) {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("token", demo.token);
+        localStorage.setItem("role", demo.role);
+      }
+      window.location.href = "/dashboard";
+      return;
+    }
     try {
       const r = await fetch(`${API_BASE}/api/v1/auth/verify-otp`, {
         method:"POST", headers:{"Content-Type":"application/json"},
@@ -90,7 +116,7 @@ export default function LoginPage() {
 
         <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{duration:0.5}}>
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-amber-DEFAULT flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-amber flex items-center justify-center">
               <span className="text-[#0A0806] font-black text-sm">GS</span>
             </div>
             <span className="text-[#F5F0E8] font-bold">GigShield</span>
@@ -110,7 +136,7 @@ export default function LoginPage() {
 
         <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:1}}>
           <div className="panel-amber px-4 py-3 flex gap-3 items-start">
-            <div className="w-1 h-8 rounded-full bg-amber-DEFAULT flex-shrink-0 mt-0.5" />
+            <div className="w-1 h-8 rounded-full bg-amber flex-shrink-0 mt-0.5" />
             <div>
               <div className="text-[#F5F0E8] text-sm font-semibold mb-0.5">Demo credentials</div>
               <div className="lbl">Worker: +91 9999000001 · OTP: 123456</div>
@@ -125,7 +151,7 @@ export default function LoginPage() {
         <div className="w-full max-w-sm">
 
           <Link href="/" className="flex lg:hidden items-center gap-2 mb-10">
-            <div className="w-7 h-7 rounded-lg bg-amber-DEFAULT flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-amber flex items-center justify-center">
               <span className="text-[#0A0806] font-black text-xs">GS</span>
             </div>
             <span className="text-[#F5F0E8] font-bold text-sm">GigShield</span>
@@ -171,9 +197,22 @@ export default function LoginPage() {
               </button>
             )}
 
-            <div className="mt-8 pt-6 border-t border-[#2A2218] text-center">
+            {/* Quick demo access */}
+            <div className="mt-6 pt-5 border-t border-[#2A2218]">
+              <p className="lbl text-center mb-3">Quick demo access</p>
+              <div className="grid grid-cols-2 gap-2">
+                <button type="button" onClick={()=>demoLogin("worker")} className="btn-ghost btn-sm text-center">
+                  Demo Worker
+                </button>
+                <button type="button" onClick={()=>demoLogin("admin")} className="btn-outline-amber btn-sm text-center">
+                  Demo Admin
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-4 text-center">
               <span className="text-[#4A3E2A] text-sm">New worker? </span>
-              <Link href="/register" className="text-amber-DEFAULT text-sm font-semibold hover:text-amber-bright transition-colors">
+              <Link href="/register" className="text-amber text-sm font-semibold hover:text-amber-bright transition-colors">
                 Create account →
               </Link>
             </div>

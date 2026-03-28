@@ -52,7 +52,7 @@ export default function PolicyTermsPage() {
       <div className="panel-amber p-4 mb-6">
         <p className="lbl-amber mb-1">How to read this</p>
         <p className="text-sm text-[#C8BAA0] leading-relaxed">
-          Each condition below defines exactly when a payout triggers. When the <strong className="text-amber-DEFAULT">IF</strong> and <strong className="text-amber-DEFAULT">AND</strong> conditions are both met, the <strong className="text-amber-DEFAULT">THEN</strong> action executes automatically — no form, no call, no wait.
+          Each condition below defines exactly when a payout triggers. When the <strong className="text-amber">IF</strong> and <strong className="text-amber">AND</strong> conditions are both met, the <strong className="text-amber">THEN</strong> action executes automatically — no form, no call, no wait.
         </p>
       </div>
 
@@ -77,7 +77,7 @@ export default function PolicyTermsPage() {
               </div>
               <div className="panel-amber p-3 min-w-[160px]">
                 <p className="lbl-amber mb-2">THEN (auto)</p>
-                <p className="text-amber-DEFAULT font-bold text-base">{c.then}</p>
+                <p className="text-amber font-bold text-base">{c.then}</p>
                 <p className="lbl mt-2">{c.frequency}</p>
               </div>
             </div>

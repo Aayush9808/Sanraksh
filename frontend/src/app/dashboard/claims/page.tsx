@@ -60,8 +60,8 @@ function DetailPanel({ claim, onClose, onAction }: { claim:Claim; onClose:()=>vo
         <div>
           <p className="lbl mb-2">Worker</p>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-amber-DEFAULT/10 border border-amber-DEFAULT/20 flex items-center justify-center">
-              <span className="text-amber-DEFAULT font-bold">{claim.worker.charAt(0)}</span>
+            <div className="w-10 h-10 rounded-full bg-amber/10 border border-amber/20 flex items-center justify-center">
+              <span className="text-amber font-bold">{claim.worker.charAt(0)}</span>
             </div>
             <div>
               <div className="text-[#F5F0E8] font-semibold">{claim.worker}</div>
@@ -83,7 +83,7 @@ function DetailPanel({ claim, onClose, onAction }: { claim:Claim; onClose:()=>vo
           ].map(([k,v])=>(
             <div key={k} className="flex justify-between py-1.5 border-b border-[#2A2218]">
               <span className="text-sm text-[#6B5C44]">{k}</span>
-              <span className={`text-sm font-medium ${k==="Amount"?"text-amber-DEFAULT":"text-[#C8BAA0]"}`}>{v}</span>
+              <span className={`text-sm font-medium ${k==="Amount"?"text-amber":"text-[#C8BAA0]"}`}>{v}</span>
             </div>
           ))}
         </div>
@@ -179,7 +179,7 @@ export default function ClaimsPage() {
         <div className="flex border border-[#2A2218] rounded-lg overflow-hidden">
           {STATUS_TAB.map(t => (
             <button key={t} onClick={()=>setTab(t)}
-              className={`px-4 py-2 text-xs font-semibold font-mono uppercase tracking-wider transition-colors ${tab===t?"bg-amber-DEFAULT/10 text-amber-DEFAULT":"text-[#4A3E2A] hover:text-[#6B5C44]"}`}
+              className={`px-4 py-2 text-xs font-semibold font-mono uppercase tracking-wider transition-colors ${tab===t?"bg-amber/10 text-amber":"text-[#4A3E2A] hover:text-[#6B5C44]"}`}
             >
               {t} {t!=="all"&&<span className="ml-1">({claims.filter(c=>c.status===t).length})</span>}
             </button>
@@ -206,7 +206,7 @@ export default function ClaimsPage() {
                   <td><span className="text-[#C8BAA0] font-medium">{c.worker}</span></td>
                   <td>{c.city}</td>
                   <td>{c.event}</td>
-                  <td><span className="text-amber-DEFAULT font-mono font-bold">₹{c.amount}</span></td>
+                  <td><span className="text-amber font-mono font-bold">₹{c.amount}</span></td>
                   <td><FraudBar s={c.fraud} /></td>
                   <td><StatusTag s={c.status} /></td>
                   <td><span className="lbl">{c.created}</span></td>

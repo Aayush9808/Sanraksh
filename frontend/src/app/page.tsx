@@ -59,9 +59,9 @@ function PayoutOrbit() {
         transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
       >
         <div className="text-center">
-          <div className="text-amber-DEFAULT font-mono text-xs tracking-widest uppercase opacity-70">LIVE</div>
+          <div className="text-amber font-mono text-xs tracking-widest uppercase opacity-70">LIVE</div>
           <div className="text-[#F5F0E8] font-bold text-2xl" style={{ lineHeight: 1 }}>AUTO</div>
-          <div className="text-amber-DEFAULT font-mono text-xs tracking-widest uppercase opacity-70">PAY</div>
+          <div className="text-amber font-mono text-xs tracking-widest uppercase opacity-70">PAY</div>
         </div>
       </motion.div>
 
@@ -124,7 +124,7 @@ function Nav() {
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "border-b border-[#2A2218] bg-[#0A0806]/95 backdrop-blur-sm" : ""}`}>
       <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-md bg-amber-DEFAULT flex items-center justify-center">
+          <div className="w-7 h-7 rounded-md bg-amber flex items-center justify-center">
             <span className="text-[#0A0806] font-black text-xs">GS</span>
           </div>
           <span className="text-[#F5F0E8] font-bold text-sm">GigShield</span>
@@ -169,7 +169,7 @@ export default function LandingPage() {
             style={{ fontSize:"clamp(3.2rem,7vw,6.5rem)", letterSpacing:"-0.04em" }}
           >
             When work stops,<br />
-            <span className="text-amber-DEFAULT">your income</span><br />
+            <span className="text-amber">your income</span><br />
             {"doesn't."}
           </motion.h1>
           <motion.p
@@ -249,7 +249,7 @@ export default function LandingPage() {
                     viewport={{ once:true }} transition={{ delay:i*0.08 }}
                   >
                     <td><span className="text-[#F5F0E8] font-semibold">{c.event}</span></td>
-                    <td><span className="text-amber-DEFAULT font-mono font-bold">{c.payout}</span></td>
+                    <td><span className="text-amber font-mono font-bold">{c.payout}</span></td>
                     <td>{c.trigger}</td>
                     <td><span className="tag-neutral tag">{c.platforms}</span></td>
                   </motion.tr>
@@ -275,7 +275,7 @@ export default function LandingPage() {
                 viewport={{ once:true }} transition={{ delay:i*0.12 }}
                 className="panel p-6"
               >
-                <div className="text-amber-DEFAULT font-mono text-xs tracking-widest mb-4">{s.num}</div>
+                <div className="text-amber font-mono text-xs tracking-widest mb-4">{s.num}</div>
                 <h3 className="text-[#F5F0E8] font-bold text-lg mb-3" style={{ letterSpacing:"-0.02em" }}>{s.title}</h3>
                 <p className="text-[#6B5C44] leading-relaxed text-sm">{s.body}</p>
               </motion.div>
@@ -325,7 +325,7 @@ export default function LandingPage() {
       <footer className="px-8 md:px-14 py-10 border-t border-[#2A2218]">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-amber-DEFAULT flex items-center justify-center">
+            <div className="w-6 h-6 rounded bg-amber flex items-center justify-center">
               <span className="text-[#0A0806] font-black text-xs">GS</span>
             </div>
             <span className="text-[#4A3E2A] text-sm">GigShield © 2026</span>

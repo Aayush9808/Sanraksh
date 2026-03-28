@@ -37,7 +37,7 @@ export default function PoliciesPage() {
             <div className="amber-line mb-3" />
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <div className="text-amber-DEFAULT font-bold text-lg" style={{letterSpacing:"-0.03em"}}>{p.premium}</div>
+                <div className="text-amber font-bold text-lg" style={{letterSpacing:"-0.03em"}}>{p.premium}</div>
                 <div className="lbl">premium</div>
               </div>
               <div>
@@ -45,7 +45,7 @@ export default function PoliciesPage() {
                 <div className="lbl">workers</div>
               </div>
               <div className="col-span-2">
-                <div className="text-amber-DEFAULT font-mono font-bold">₹{p.payouts_ytd.toLocaleString()}</div>
+                <div className="text-amber font-mono font-bold">₹{p.payouts_ytd.toLocaleString()}</div>
                 <div className="lbl">paid YTD</div>
               </div>
             </div>
@@ -66,7 +66,7 @@ export default function PoliciesPage() {
                 <td><span className="font-mono text-xs text-[#4A3E2A]">{r.id}</span></td>
                 <td><span className="text-[#C8BAA0] font-medium">{r.event}</span></td>
                 <td className="text-sm">{r.threshold}</td>
-                <td><span className="text-amber-DEFAULT font-mono font-bold">{r.payout}</span></td>
+                <td><span className="text-amber font-mono font-bold">{r.payout}</span></td>
                 <td className="text-sm">{r.cap}</td>
                 <td>
                   <button onClick={()=>setRules(prev=>prev.map(x=>x.id===r.id?{...x,active:!x.active}:x))}

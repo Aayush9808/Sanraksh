@@ -115,7 +115,7 @@ export default function MyPolicyPage() {
         <div className="panel p-5 flex flex-col gap-4">
           <div>
             <p className="lbl mb-1">Total earned</p>
-            <div className="text-amber-DEFAULT font-extrabold text-3xl" style={{letterSpacing:"-0.04em"}}>₹{policy.total_earned.toLocaleString()}</div>
+            <div className="text-amber font-extrabold text-3xl" style={{letterSpacing:"-0.04em"}}>₹{policy.total_earned.toLocaleString()}</div>
           </div>
           <div className="div-h" />
           <div>
@@ -137,7 +137,7 @@ export default function MyPolicyPage() {
             {COVERAGES.map(c => (
               <tr key={c.event}>
                 <td><span className="text-[#C8BAA0] font-medium">{c.event}</span></td>
-                <td><span className="text-amber-DEFAULT font-mono font-bold">{c.payout}</span></td>
+                <td><span className="text-amber font-mono font-bold">{c.payout}</span></td>
                 <td><LikelihoodBar v={c.likelihood} /></td>
                 <td><span className="tag tag-live">{c.status}</span></td>
               </tr>
@@ -160,7 +160,7 @@ export default function MyPolicyPage() {
                 <td className="font-mono text-xs">{p.date}</td>
                 <td><span className="text-[#C8BAA0] font-medium">{p.event}</span></td>
                 <td className="text-sm">{p.trigger}</td>
-                <td><span className="text-amber-DEFAULT font-mono font-bold">₹{p.amount}</span></td>
+                <td><span className="text-amber font-mono font-bold">₹{p.amount}</span></td>
                 <td><span className="tag tag-live">{p.status}</span></td>
               </tr>
             ))}

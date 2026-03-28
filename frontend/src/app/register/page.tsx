@@ -72,7 +72,7 @@ export default function RegisterPage() {
         style={{ background:"#14100A", borderRight:"1px solid #2A2218" }}
       >
         <Link href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-amber-DEFAULT flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-amber flex items-center justify-center">
             <span className="text-[#0A0806] font-black text-sm">GS</span>
           </div>
           <span className="text-[#F5F0E8] font-bold">GigShield</span>
@@ -88,15 +88,15 @@ export default function RegisterPage() {
           <div className="relative">
             {/* Amber vertical line */}
             <div className="absolute left-[19px] top-5 bottom-5 w-px bg-[#2A2218]" />
-            <div className="absolute left-[19px] top-5 w-px bg-amber-DEFAULT transition-all duration-700"
+            <div className="absolute left-[19px] top-5 w-px bg-amber transition-all duration-700"
               style={{height:`${(Math.min(step,4)-1)/3 * 100}%`}} />
 
             <div className="space-y-6 relative">
               {STEPS.map(s => (
                 <div key={s.num} className="flex items-center gap-4">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-mono text-xs font-bold transition-all duration-300 ${
-                    step > s.num ? "bg-amber-DEFAULT text-[#0A0806]"
-                    : step === s.num ? "bg-amber-DEFAULT/15 text-amber-DEFAULT border border-amber-DEFAULT/40"
+                    step > s.num ? "bg-amber text-[#0A0806]"
+                    : step === s.num ? "bg-amber/15 text-amber border border-amber/40"
                     : "bg-[#2A2218] text-[#4A3E2A]"
                   }`}>
                     {step > s.num ? "✓" : s.icon}
@@ -178,7 +178,7 @@ export default function RegisterPage() {
                       <button key={p.id} type="button" onClick={()=>toggleP(p.id)}
                         className={`py-3 px-4 rounded-lg border font-semibold text-sm transition-all ${
                           form.platforms.includes(p.id)
-                            ? "bg-amber-DEFAULT/10 border-amber-DEFAULT/50 text-amber-DEFAULT"
+                            ? "bg-amber/10 border-amber/50 text-amber"
                             : "border-[#2A2218] text-[#4A3E2A] hover:border-[#36301E] hover:text-[#6B5C44]"
                         }`}
                       >
@@ -221,8 +221,8 @@ export default function RegisterPage() {
               {step === 4 && (
                 <div className="text-center">
                   <motion.div initial={{scale:0}} animate={{scale:1}} transition={{type:"spring",stiffness:200,damping:12}}>
-                    <div className="w-20 h-20 rounded-full bg-amber-DEFAULT/15 border border-amber-DEFAULT/30 flex items-center justify-center mx-auto mb-6">
-                      <span className="text-amber-DEFAULT text-3xl">✓</span>
+                    <div className="w-20 h-20 rounded-full bg-amber/15 border border-amber/30 flex items-center justify-center mx-auto mb-6">
+                      <span className="text-amber text-3xl">✓</span>
                     </div>
                   </motion.div>
                   <h2 className="text-[#F5F0E8] font-bold text-2xl mb-2" style={{letterSpacing:"-0.03em"}}>{"You're protected."}</h2>
@@ -241,7 +241,7 @@ export default function RegisterPage() {
 
           <div className="mt-8 text-center">
             <span className="text-[#4A3E2A] text-sm">Already registered? </span>
-            <Link href="/login" className="text-amber-DEFAULT text-sm font-semibold hover:text-amber-bright transition-colors">Sign in →</Link>
+            <Link href="/login" className="text-amber text-sm font-semibold hover:text-amber-bright transition-colors">Sign in →</Link>
           </div>
         </div>
       </div>

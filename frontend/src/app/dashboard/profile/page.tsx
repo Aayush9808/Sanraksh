@@ -33,8 +33,8 @@ export default function ProfilePage() {
 
       {/* Avatar row */}
       <div className="panel p-5 mb-5 flex items-center gap-5">
-        <div className="w-16 h-16 rounded-full bg-amber-DEFAULT/10 border border-amber-DEFAULT/30 flex items-center justify-center">
-          <span className="text-amber-DEFAULT font-bold text-2xl">{form.name.charAt(0)}</span>
+        <div className="w-16 h-16 rounded-full bg-amber/10 border border-amber/30 flex items-center justify-center">
+          <span className="text-amber font-bold text-2xl">{form.name.charAt(0)}</span>
         </div>
         <div>
           <div className="text-[#F5F0E8] font-bold text-lg">{form.name}</div>
@@ -72,7 +72,7 @@ export default function ProfilePage() {
           {["Payout received","Active trigger in your zone","Policy renewal reminder","New coverage added"].map(n=>(
             <div key={n} className="flex items-center justify-between py-2 border-b border-[#2A2218] last:border-0">
               <span className="text-sm text-[#9A8A72]">{n}</span>
-              <div className="w-10 h-5 rounded-full bg-amber-DEFAULT relative cursor-pointer">
+              <div className="w-10 h-5 rounded-full bg-amber relative cursor-pointer">
                 <div className="w-4 h-4 rounded-full bg-[#0A0806] absolute right-0.5 top-0.5" />
               </div>
             </div>

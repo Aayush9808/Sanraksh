@@ -78,7 +78,7 @@ export default function DashLayout({ children }: { children: React.ReactNode }) 
         style={{ width:64, background:"#0A0806", borderRight:"1px solid #2A2218" }}
       >
         {/* Logo */}
-        <Link href="/dashboard" className="w-10 h-10 rounded-lg bg-amber-DEFAULT flex items-center justify-center mb-4 flex-shrink-0">
+        <Link href="/dashboard" className="w-10 h-10 rounded-lg bg-amber flex items-center justify-center mb-4 flex-shrink-0">
           <span className="text-[#0A0806] font-black text-sm">GS</span>
         </Link>
 
@@ -147,7 +147,7 @@ export default function DashLayout({ children }: { children: React.ReactNode }) 
               localStorage.setItem("role", next);
               setRole(next as "worker"|"admin");
               router.push("/dashboard");
-            }} className="lbl hover:text-amber-DEFAULT cursor-pointer transition-colors">
+            }} className="lbl hover:text-amber cursor-pointer transition-colors">
               [switch view]
             </button>
           </div>

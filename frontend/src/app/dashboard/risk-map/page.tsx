@@ -31,7 +31,7 @@ export default function RiskMapPage() {
         <div><p className="lbl mb-1">Admin portal</p><h1 className="text-[#F5F0E8] font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Risk Map</h1></div>
         <div className="flex gap-3 items-center">
           <div className="flex gap-2 items-center"><div className="w-2 h-2 rounded-full bg-red-500" /><span className="lbl">High</span></div>
-          <div className="flex gap-2 items-center"><div className="w-2 h-2 rounded-full bg-amber-DEFAULT" /><span className="lbl">Med</span></div>
+          <div className="flex gap-2 items-center"><div className="w-2 h-2 rounded-full bg-amber" /><span className="lbl">Med</span></div>
           <div className="flex gap-2 items-center"><div className="w-2 h-2 rounded-full bg-emerald-500" /><span className="lbl">Low</span></div>
         </div>
       </div>

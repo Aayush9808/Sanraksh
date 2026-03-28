@@ -49,7 +49,7 @@ export default function ControlTowerPage() {
     if(logRef.current) logRef.current.scrollTop=logRef.current.scrollHeight;
   },[logs]);
 
-  const sc = (s:string) => ({running:"text-emerald-400",degraded:"text-amber-DEFAULT",stopped:"text-red-400"}[s]||"text-gray-400");
+  const sc = (s:string) => ({running:"text-emerald-400",degraded:"text-amber",stopped:"text-red-400"}[s]||"text-gray-400");
 
   return (
     <div className="max-w-[1400px]">
@@ -70,7 +70,7 @@ export default function ControlTowerPage() {
           <div className="divide-y divide-[#2A2218]">
             {ENGINE_STATUS.map(s=>(
               <div key={s.name} className="flex items-center gap-4 px-5 py-3.5">
-                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${s.status==="running"?"bg-emerald-400":s.status==="degraded"?"bg-amber-DEFAULT":"bg-red-400"}`}
+                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${s.status==="running"?"bg-emerald-400":s.status==="degraded"?"bg-amber":"bg-red-400"}`}
                   style={{boxShadow:s.status==="running"?"0 0 6px #10B981":s.status==="degraded"?"0 0 6px #F59E0B":"none"}} />
                 <div className="flex-1">
                   <div className="text-[#C8BAA0] text-sm font-medium">{s.name}</div>

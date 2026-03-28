@@ -74,7 +74,7 @@ export default function TriggersPage() {
                   <div className="text-sm text-[#6B5C44]">{t.signal}</div>
                 </div>
                 <div className="text-right flex-shrink-0">
-                  <div className="text-amber-DEFAULT font-mono font-bold text-sm">{t.payout}</div>
+                  <div className="text-amber font-mono font-bold text-sm">{t.payout}</div>
                   <div className="lbl">{t.workers} workers</div>
                 </div>
               </div>
@@ -87,7 +87,7 @@ export default function TriggersPage() {
                     <div className="mt-4 pt-4 border-t border-[#2A2218]">
                       <div className="panel-amber p-3 text-sm text-[#C8BAA0] leading-relaxed">
                         <span className="lbl-amber font-bold block mb-1">Trigger condition met</span>
-                        This event meets the parametric conditions in your policy. If it persists, your payout of <strong className="text-amber-DEFAULT">{t.payout}</strong> will be processed automatically within 4 hours.
+                        This event meets the parametric conditions in your policy. If it persists, your payout of <strong className="text-amber">{t.payout}</strong> will be processed automatically within 4 hours.
                       </div>
                     </div>
                   </motion.div>
@@ -105,7 +105,7 @@ export default function TriggersPage() {
               <div>
                 <div className="flex justify-between mb-1">
                   <span className="text-sm text-[#6B5C44]">Max potential payout</span>
-                  <span className="text-amber-DEFAULT font-mono font-bold">₹880</span>
+                  <span className="text-amber font-mono font-bold">₹880</span>
                 </div>
               </div>
               <div>
