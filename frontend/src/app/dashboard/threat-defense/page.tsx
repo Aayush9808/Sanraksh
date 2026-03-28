@@ -1,103 +1,92 @@
 "use client";
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { API_BASE } from "@/lib/config";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
-interface Threat {
-  id: string;
-  type: string;
-  worker_id?: string;
-  worker_name?: string;
-  score: number;
-  flags: string[];
-  status: string;
-  detected_at: string;
-}
-
-const DEMO_THREATS: Threat[] = [
-  { id: "THR-0021", type: "GPS Spoofing", worker_id: "W-5512", worker_name: "Unknown", score: 0.91, flags: ["GPS mismatch", "Route infeasible"], status: "blocked", detected_at: "2026-03-27 15:12" },
-  { id: "THR-0020", type: "Frequency Abuse", worker_id: "W-3341", worker_name: "Aryan K.", score: 0.76, flags: ["Claims/week > 3x average", "Multiple zones"], status: "flagged", detected_at: "2026-03-27 14:02" },
-  { id: "THR-0019", type: "Device Ring", worker_id: "W-7821", worker_name: "Demo User", score: 0.83, flags: ["Shared device fingerprint", "Coordinated timing"], status: "blocked", detected_at: "2026-03-27 11:45" },
-  { id: "THR-0018", type: "Collusion Cluster", worker_id: "GRP-001", worker_name: "3-worker cluster", score: 0.69, flags: ["Simultaneous claims", "Same zone", "Peer overlap"], status: "review", detected_at: "2026-03-26 20:30" },
+const SIGNALS = [
+  { id:"SIG-001", type:"Velocity anomaly",   worker:"WRK-005", score:0.91, detail:"21 claims in 60 days — 9× cohort avg", time:"2h ago",   status:"escalated" },
+  { id:"SIG-002", type:"Location spoofing",  worker:"WRK-012", score:0.78, detail:"GPS coords match but cell tower 28km off", time:"5h ago", status:"reviewing" },
+  { id:"SIG-003", type:"Claim timing",       worker:"WRK-031", score:0.62, detail:"Claims filed within 2min of alert — bot-like", time:"1d ago", status:"reviewing" },
+  { id:"SIG-004", type:"Pattern clustering", worker:"WRK-008", score:0.57, detail:"3 workers, same device fingerprint", time:"1d ago", status:"monitoring" },
+  { id:"SIG-005", type:"Cross-platform dup", worker:"WRK-019", score:0.44, detail:"Claimed Rain on Swiggy + Ola same 4h window", time:"2d ago", status:"resolved" },
 ];
 
-const STATUS = { blocked: "text-[#ff4444]", flagged: "text-[#ffaa00]", review: "text-[#4d9eff]" } as const;
+const scoreColor = (s:number) => s>0.75?"#EF4444":s>0.5?"#F59E0B":"#60A5FA";
+const statusCls  = (s:string) => ({escalated:"tag-neg",reviewing:"tag-warn",monitoring:"tag-info",resolved:"tag-neutral"}[s]||"tag-neutral");
 
 export default function ThreatDefensePage() {
-  const [threats, setThreats] = useState<Threat[]>(DEMO_THREATS);
-  const [loading, setLoading] = useState(false);
-
-  const highRisk = threats.filter(t => t.score >= 0.75).length;
-
+  const [active, setActive] = useState<typeof SIGNALS[0]|null>(null);
   return (
-    <div className="p-6 xl:p-8 max-w-[1400px]">
-      <div className="border-b border-[#1a1a1a] pb-5 mb-8 flex items-end justify-between">
-        <div>
-          <p className="mono-label mb-1.5">Fraud prevention</p>
-          <h1 className="text-2xl font-black text-white tracking-tight">Threat Defense</h1>
+    <div className="max-w-5xl">
+      <div className="section-head">
+        <div><p className="lbl mb-1">Admin portal</p><h1 className="text-[#F5F0E8] font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Threat Defense</h1></div>
+        <div className="flex gap-2">
+          <span className="tag tag-neg">1 escalated</span>
+          <span className="tag tag-warn">2 reviewing</span>
         </div>
-        {highRisk > 0 && (
-          <div className="flex items-center gap-2">
-            <span className="dot-neg" />
-            <span className="font-mono text-[10px] tracking-widest uppercase text-[#ff4444]">{highRisk} high-risk threats</span>
-          </div>
-        )}
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-0 border-t border-l border-[#1a1a1a] mb-8">
+      <div className="grid md:grid-cols-3 gap-4 mb-6">
         {[
-          { label: "Total threats", value: threats.length, accent: false },
-          { label: "Blocked today", value: threats.filter(t => t.status === "blocked").length, accent: false },
-          { label: "High-risk score", value: highRisk, accent: true },
-        ].map((s, i) => (
-          <div key={s.label} className="border-r border-b border-[#1a1a1a] p-5">
-            <div className={`font-mono text-2xl font-black tabular-nums leading-none ${s.accent ? "text-[#ff4444]" : "text-white"}`}>{s.value}</div>
-            <div className="mono-label mt-2">{s.label}</div>
+          {label:"Anomalies detected",  val:"23",    sub:"last 30 days",  accent:"#EF4444"},
+          {label:"Flagged workers",     val:"7",     sub:"under watch",   accent:"#F59E0B"},
+          {label:"Fraud prevented (₹)", val:"28,400",sub:"YTD savings",   accent:"#10B981"},
+        ].map(k=>(
+          <div key={k.label} className="panel p-4">
+            <div className="lbl mb-2">{k.label}</div>
+            <div className="font-extrabold text-2xl mb-1" style={{color:k.accent,letterSpacing:"-0.04em"}}>{k.val}</div>
+            <div className="lbl">{k.sub}</div>
           </div>
         ))}
       </div>
 
-      {/* Threats table */}
-      <div>
-        <div className="border-b border-[#1a1a1a] pb-3 mb-0">
-          <p className="mono-label">Active threats</p>
+      <div className="panel overflow-hidden">
+        <div style={{padding:"1rem 1.25rem",borderBottom:"1px solid #2A2218"}}>
+          <p className="lbl mb-0.5">Real-time signal queue</p>
+          <h2 className="text-[#F5F0E8] font-bold" style={{letterSpacing:"-0.02em"}}>Active fraud signals</h2>
         </div>
-        <div className="border-b border-[#1a1a1a]">
-          {threats.map((t, i) => (
-            <motion.div key={t.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
-              className="border-b border-[#1a1a1a] py-5 grid md:grid-cols-[140px_1fr_200px_120px] gap-4 items-start">
-              <div>
-                <div className="font-mono text-[11px] text-[#555] mb-1">{t.id}</div>
-                <div className="font-mono text-[11px] text-[#333]">{t.detected_at}</div>
-              </div>
-              <div>
-                <div className="text-sm font-bold text-white mb-1">{t.type}</div>
-                <div className="font-mono text-[11px] text-[#555] mb-2">{t.worker_name} ({t.worker_id})</div>
-                <div className="flex flex-wrap gap-1.5">
-                  {t.flags.map(f => (
-                    <span key={f} className="font-mono text-[9px] tracking-wide uppercase border border-[#2a2a2a] text-[#555] px-2 py-0.5">{f}</span>
-                  ))}
+        <div className="divide-y divide-[#2A2218]">
+          {SIGNALS.map(s=>(
+            <div key={s.id}>
+              <div className="flex items-center gap-4 px-5 py-4 cursor-pointer hover:bg-[#180F06] transition-colors"
+                onClick={()=>setActive(active?.id===s.id?null:s)}>
+                {/* Score ring */}
+                <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{border:`2px solid ${scoreColor(s.score)}`,background:`${scoreColor(s.score)}18`}}>
+                  <span className="font-mono font-bold text-sm" style={{color:scoreColor(s.score)}}>{(s.score*100).toFixed(0)}</span>
                 </div>
-              </div>
-              <div>
-                <div className="flex items-center gap-3 mb-1">
-                  <div className="flex-1 h-1 bg-[#1a1a1a]">
-                    <div className={`h-1 ${t.score >= 0.75 ? "bg-[#ff4444]" : t.score >= 0.5 ? "bg-[#ffaa00]" : "bg-[#00FF87]"}`}
-                      style={{ width: `${t.score * 100}%` }} />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-[#C8BAA0] font-medium text-sm">{s.type}</span>
+                    <span className={`tag ${statusCls(s.status)}`}>{s.status}</span>
                   </div>
-                  <span className={`font-mono text-xs font-bold tabular-nums ${t.score >= 0.75 ? "text-[#ff4444]" : t.score >= 0.5 ? "text-[#ffaa00]" : "text-[#00FF87]"}`}>
-                    {(t.score * 100).toFixed(0)}%
-                  </span>
+                  <div className="lbl">{s.worker} · {s.time}</div>
                 </div>
-                <div className="mono-label">Risk score</div>
+                <div className="w-4 h-4 text-[#4A3E2A]" style={{transform:active?.id===s.id?"rotate(90deg)":"none",transition:"transform 0.2s"}}>▶</div>
               </div>
-              <div className="text-right md:text-left">
-                <span className={`font-mono text-[9px] tracking-widest font-bold ${STATUS[t.status as keyof typeof STATUS] || "text-[#777]"}`}>
-                  {t.status.toUpperCase()}
-                </span>
-              </div>
-            </motion.div>
+              <AnimatePresence>
+                {active?.id===s.id && (
+                  <motion.div initial={{height:0,opacity:0}} animate={{height:"auto",opacity:1}} exit={{height:0,opacity:0}}
+                    style={{overflow:"hidden"}}>
+                    <div className="px-5 pb-4 pt-2">
+                      <div className="panel-inset p-4">
+                        <div className="text-sm text-[#9A8A72] mb-3">{s.detail}</div>
+                        <div className="mb-3">
+                          <div className="lbl mb-1.5">Risk index</div>
+                          <div className="prog-track">
+                            <div className="prog-fill" style={{width:`${s.score*100}%`,background:scoreColor(s.score),animation:"none"}} />
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button className="btn-amber btn-sm">Escalate</button>
+                          <button className="btn-ghost btn-sm">Mark resolved</button>
+                          <button className="btn-ghost btn-sm">View worker</button>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           ))}
         </div>
       </div>

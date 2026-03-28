@@ -1,532 +1,250 @@
 "use client";
-import { useState, useRef, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { API_BASE } from "@/lib/config";
 
-const PLATFORMS = ["zomato", "swiggy", "amazon", "zepto", "blinkit", "other"];
-const PLATFORM_META: Record<string, { icon: string; color: string }> = {
-  zomato: { icon: "🔴", color: "border-red-500/50 bg-red-500/10 text-red-400" },
-  swiggy: { icon: "🟠", color: "border-orange-500/50 bg-orange-500/10 text-orange-400" },
-  amazon: { icon: "🔵", color: "border-blue-500/50 bg-blue-500/10 text-blue-400" },
-  zepto: { icon: "🟣", color: "border-purple-500/50 bg-purple-500/10 text-purple-400" },
-  blinkit: { icon: "🟡", color: "border-yellow-500/50 bg-yellow-500/10 text-yellow-400" },
-  other: { icon: "⚪", color: "border-slate-500/50 bg-slate-500/10 text-slate-400" },
-};
-const CITIES = ["Mumbai", "Delhi", "Bengaluru", "Pune", "Hyderabad", "Chennai"];
-const CITY_ZONES: Record<string, string[]> = {
-  Mumbai: ["Andheri West","Bandra","Kurla","Dadar","Lower Parel","Borivali","Malad","Goregaon","Powai","Juhu"],
-  Delhi: ["Connaught Place","Lajpat Nagar","Hauz Khas","Saket","Dwarka","Rohini","Janakpuri","Gurugram"],
-  Bengaluru: ["Koramangala","Indiranagar","HSR Layout","Whitefield","Marathahalli","Jayanagar","BTM Layout"],
-  Pune: ["Kothrud","Viman Nagar","Hadapsar","Wakad","Aundh","Hinjewadi","Baner","Shivajinagar"],
-  Hyderabad: ["Hitech City","Gachibowli","Banjara Hills","Jubilee Hills","Secunderabad","Ameerpet"],
-  Chennai: ["T Nagar","Anna Nagar","Velachery","Tambaram","OMR","Adyar","Mylapore"],
-};
+const PLATFORMS = [
+  {id:"swiggy",   label:"Swiggy"},
+  {id:"zomato",   label:"Zomato"},
+  {id:"uber",     label:"Uber"},
+  {id:"ola",      label:"Ola"},
+  {id:"dunzo",    label:"Dunzo"},
+  {id:"blinkit",  label:"Blinkit"},
+  {id:"porter",   label:"Porter"},
+  {id:"rapido",   label:"Rapido"},
+];
 
-/* ── animated background ── */
-function GlowOrbs() {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <motion.div
-        className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-cyan-500/10 blur-3xl"
-        animate={{ x: [0, -40, 0], y: [0, 30, 0], scale: [1, 1.1, 1] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-purple-500/10 blur-3xl"
-        animate={{ x: [0, 30, 0], y: [0, -40, 0], scale: [1.1, 1, 1.1] }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-      />
-    </div>
-  );
-}
-
-/* ── step indicator dots ── */
-function StepIndicator({ current, total }: { current: number; total: number }) {
-  return (
-    <div className="flex items-center justify-center gap-2 mb-6">
-      {Array.from({ length: total }).map((_, i) => (
-        <motion.div
-          key={i}
-          className={`h-1.5 rounded-full transition-all ${i < current ? "bg-cyan-500" : i === current ? "bg-cyan-400" : "bg-slate-700"}`}
-          animate={{ width: i === current ? 32 : i < current ? 20 : 12 }}
-          transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        />
-      ))}
-    </div>
-  );
-}
-
-/* ── OTP input boxes ── */
-function OTPInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  const refs = useRef<(HTMLInputElement | null)[]>([]);
-  const digits = value.padEnd(6, "").split("").slice(0, 6);
-
-  const handleKey = useCallback((idx: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace" && !digits[idx] && idx > 0) {
-      refs.current[idx - 1]?.focus();
-    }
-  }, [digits]);
-
-  const handleChange = useCallback((idx: number, char: string) => {
-    const d = char.replace(/\D/g, "").slice(0, 1);
-    if (!d) return;
-    const arr = [...digits];
-    arr[idx] = d;
-    onChange(arr.join("").replace(/ /g, ""));
-    if (idx < 5) refs.current[idx + 1]?.focus();
-  }, [digits, onChange]);
-
-  const handlePaste = useCallback((e: React.ClipboardEvent) => {
-    e.preventDefault();
-    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
-    onChange(pasted);
-    refs.current[Math.min(pasted.length, 5)]?.focus();
-  }, [onChange]);
-
-  return (
-    <div className="flex gap-2 justify-center" onPaste={handlePaste}>
-      {[0, 1, 2, 3, 4, 5].map(i => (
-        <motion.input
-          key={i}
-          ref={el => { refs.current[i] = el; }}
-          type="text"
-          inputMode="numeric"
-          maxLength={1}
-          value={digits[i]?.trim() || ""}
-          onChange={e => handleChange(i, e.target.value)}
-          onKeyDown={e => handleKey(i, e)}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: i * 0.05 }}
-          className="w-11 h-14 bg-slate-700/50 border border-slate-600 text-white text-xl font-bold text-center rounded-xl
-            focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 focus:bg-slate-700 transition-all"
-        />
-      ))}
-    </div>
-  );
-}
+const STEPS = [
+  { num:1, label:"Personal info",   icon:"01" },
+  { num:2, label:"Your platforms",  icon:"02" },
+  { num:3, label:"Verification",    icon:"03" },
+  { num:4, label:"You're covered", icon:"04" },
+];
 
 export default function RegisterPage() {
-  const router = useRouter();
-  const [step, setStep] = useState<"form" | "otp">("form");
-  const [form, setForm] = useState({ name: "", phone: "", email: "", delivery_platform: "zomato", work_city: "Mumbai", work_zone: "" });
-  const [otp, setOtp] = useState("");
+  const [step, setStep] = useState(1);
+  const [form, setForm] = useState({ name:"", phone:"", city:"", platforms:[] as string[], otp:"" });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [demoMode, setDemoMode] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [err, setErr] = useState("");
 
-  async function handleRegister(e: React.FormEvent) {
+  const upd = (k: string, v: unknown) => setForm(p => ({ ...p, [k]:v }));
+  const toggleP = (id: string) => upd("platforms",
+    form.platforms.includes(id) ? form.platforms.filter(x=>x!==id) : [...form.platforms, id]
+  );
+
+  async function handleNext(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
-    setError("");
-    const fullPhone = "+91" + form.phone.replace(/\D/g, "");
-    try {
-      const res = await fetch(`${API_BASE}/api/v1/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, phone: fullPhone }),
-        signal: AbortSignal.timeout(4000),
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.detail || "Registration failed");
-      }
-      setDemoMode(false);
-    } catch (err: unknown) {
-      const isNetworkErr = err instanceof TypeError || (err instanceof Error && err.name === "TimeoutError");
-      if (!isNetworkErr) {
-        setError(err instanceof Error ? err.message : "Registration failed");
-        setLoading(false);
-        return;
-      }
-      setDemoMode(true);
-    }
-    setForm(f => ({ ...f, phone: fullPhone }));
-    setStep("otp");
-    setLoading(false);
-  }
-
-  async function handleVerifyOTP(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    if (demoMode) {
-      if (otp !== "123456") {
-        setError("Demo OTP is 123456");
-        setLoading(false);
-        return;
-      }
-      setSuccess(true);
-      localStorage.setItem("gigarmor_token", "demo_token_" + Date.now());
-      localStorage.setItem("gigarmor_user", JSON.stringify({
-        name: form.name, phone: form.phone, email: form.email,
-        platform: form.delivery_platform, city: form.work_city, zone: form.work_zone,
-        role: "worker", id: "demo-new-" + Date.now(),
-      }));
-      setTimeout(() => router.push("/dashboard/my-policy"), 600);
+    setErr("");
+    if (step === 1) { setStep(2); return; }
+    if (step === 2) {
+      if (form.platforms.length === 0) { setErr("Select at least one platform."); return; }
+      setLoading(true);
+      try {
+        await fetch(`${API_BASE}/api/v1/auth/send-otp`, {
+          method:"POST", headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({ phone: form.phone }),
+        });
+        setStep(3);
+      } catch { setErr("Failed to send OTP. Please try again."); }
+      finally { setLoading(false); }
       return;
     }
-
-    try {
-      const res = await fetch(`${API_BASE}/api/v1/auth/verify-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: form.phone, otp }),
-        signal: AbortSignal.timeout(4000),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || "Invalid OTP");
-      setSuccess(true);
-      localStorage.setItem("gigarmor_token", data.access_token);
-      localStorage.setItem("gigarmor_user", JSON.stringify(data.user));
-      setTimeout(() => router.push(data.user?.role === "admin" ? "/dashboard" : "/dashboard/my-policy"), 600);
-    } catch (err: unknown) {
-      const isNetworkErr = err instanceof TypeError || (err instanceof Error && err.name === "TimeoutError");
-      if (isNetworkErr && otp === "123456") {
-        setSuccess(true);
-        localStorage.setItem("gigarmor_token", "demo_token_" + Date.now());
-        localStorage.setItem("gigarmor_user", JSON.stringify({
-          name: form.name, phone: form.phone, platform: form.delivery_platform,
-          city: form.work_city, zone: form.work_zone, role: "worker", id: "demo-" + Date.now(),
-        }));
-        setTimeout(() => router.push("/dashboard/my-policy"), 600);
-      } else {
-        setError(isNetworkErr ? "Backend offline — use OTP 123456" : (err instanceof Error ? err.message : "Invalid OTP"));
-      }
-    } finally {
-      setLoading(false);
+    if (step === 3) {
+      setLoading(true);
+      try {
+        const r = await fetch(`${API_BASE}/api/v1/auth/register`, {
+          method:"POST", headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({ ...form }),
+        });
+        if (!r.ok) throw new Error();
+        setStep(4);
+      } catch { setErr("Registration failed. Please check your OTP."); }
+      finally { setLoading(false); }
     }
   }
 
-  const zones = CITY_ZONES[form.work_city] || [];
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 30, scale: 0.96 },
-    visible: { opacity: 1, y: 0, scale: 1, transition: { type: "spring" as const, stiffness: 260, damping: 24 } },
-    exit: { opacity: 0, y: -20, scale: 0.96, transition: { duration: 0.2 } },
-  };
-
-  const inputClass = "w-full bg-slate-700/40 border border-slate-600/50 text-white placeholder-slate-500 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 focus:bg-slate-700/60 transition-all";
-  const labelClass = "block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider";
-
   return (
-    <div className="min-h-screen bg-[#030712] flex items-center justify-center p-4 relative overflow-hidden">
-      <GlowOrbs />
-      <div className="absolute inset-0 opacity-[0.04]" style={{
-        backgroundImage: "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
-        backgroundSize: "60px 60px",
-      }} />
+    <div className="min-h-screen grid lg:grid-cols-[360px_1fr] bg-[#0A0806]">
 
-      <motion.div
-        className="relative w-full max-w-lg z-10"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+      {/* ── LEFT — Progress rail ─────────────────────────────────────────── */}
+      <div className="hidden lg:flex flex-col justify-between px-10 py-12"
+        style={{ background:"#14100A", borderRight:"1px solid #2A2218" }}
       >
-        {/* logo */}
-        <motion.div
-          className="text-center mb-6"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, duration: 0.4 }}
-        >
-          <Link href="/" className="inline-flex items-center gap-3 group">
-            <motion.div
-              className="w-14 h-14 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-2xl flex items-center justify-center shadow-lg shadow-cyan-500/30"
-              whileHover={{ scale: 1.05, rotate: 3 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-            </motion.div>
-            <div className="text-left">
-              <span className="text-2xl font-bold text-white block leading-tight">GigArmor</span>
-              <span className="text-[11px] text-slate-500 tracking-wider uppercase">Get Protected in 2 Minutes</span>
-            </div>
-          </Link>
-        </motion.div>
+        <Link href="/" className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-amber-DEFAULT flex items-center justify-center">
+            <span className="text-[#0A0806] font-black text-sm">GS</span>
+          </div>
+          <span className="text-[#F5F0E8] font-bold">GigShield</span>
+        </Link>
 
-        {/* main card */}
-        <AnimatePresence mode="wait">
-          {success ? (
-            <motion.div
-              key="success"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="bg-slate-800/60 backdrop-blur-xl border border-green-500/30 rounded-3xl p-10 shadow-2xl text-center"
-            >
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 300, damping: 15, delay: 0.1 }}
-                className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4"
-              >
-                <svg className="w-10 h-10 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <motion.path
-                    strokeLinecap="round" strokeLinejoin="round"
-                    d="M5 13l4 4L19 7"
-                    initial={{ pathLength: 0 }}
-                    animate={{ pathLength: 1 }}
-                    transition={{ duration: 0.4, delay: 0.3 }}
-                  />
-                </svg>
-              </motion.div>
-              <h2 className="text-xl font-bold text-white mb-1">Account Created!</h2>
-              <p className="text-slate-400 text-sm">Setting up your insurance dashboard...</p>
-            </motion.div>
-          ) : step === "form" ? (
-            <motion.div
-              key="form"
-              variants={cardVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              className="bg-slate-800/60 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-8 shadow-2xl shadow-cyan-500/5"
-            >
-              <StepIndicator current={0} total={2} />
-              <div className="mb-5">
-                <h1 className="text-2xl font-bold text-white mb-1">Create your account</h1>
-                <p className="text-slate-400 text-sm">Join 12,000+ gig workers with smart insurance</p>
+        <div>
+          <h2 className="text-[#F5F0E8] font-bold text-2xl mb-2" style={{letterSpacing:"-0.03em"}}>
+            Get protected<br />in 3 minutes.
+          </h2>
+          <p className="text-[#4A3E2A] text-sm mb-10 leading-relaxed">Join 14,200+ gig workers with automatic income protection.</p>
+
+          {/* Step list */}
+          <div className="relative">
+            {/* Amber vertical line */}
+            <div className="absolute left-[19px] top-5 bottom-5 w-px bg-[#2A2218]" />
+            <div className="absolute left-[19px] top-5 w-px bg-amber-DEFAULT transition-all duration-700"
+              style={{height:`${(Math.min(step,4)-1)/3 * 100}%`}} />
+
+            <div className="space-y-6 relative">
+              {STEPS.map(s => (
+                <div key={s.num} className="flex items-center gap-4">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 font-mono text-xs font-bold transition-all duration-300 ${
+                    step > s.num ? "bg-amber-DEFAULT text-[#0A0806]"
+                    : step === s.num ? "bg-amber-DEFAULT/15 text-amber-DEFAULT border border-amber-DEFAULT/40"
+                    : "bg-[#2A2218] text-[#4A3E2A]"
+                  }`}>
+                    {step > s.num ? "✓" : s.icon}
+                  </div>
+                  <div>
+                    <div className={`font-semibold text-sm transition-colors ${step >= s.num ? "text-[#F5F0E8]" : "text-[#4A3E2A]"}`}>{s.label}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="panel-amber px-4 py-3">
+          <div className="lbl-amber mb-1">No upfront cost</div>
+          <div className="text-[#C8BAA0] text-sm">Premium deducted only when your coverage is triggered. You pay nothing to join.</div>
+        </div>
+      </div>
+
+      {/* ── RIGHT — Form ─────────────────────────────────────────────────── */}
+      <div className="flex items-center justify-center px-8 py-16">
+        <div className="w-full max-w-md">
+
+          <AnimatePresence mode="wait">
+            <motion.div key={step} initial={{opacity:0,x:20}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-20}} transition={{duration:0.3}}>
+
+              {/* Progress bar (mobile) */}
+              <div className="lg:hidden mb-6">
+                <div className="flex justify-between mb-2">
+                  <span className="lbl">Step {step} of 4</span>
+                  <span className="lbl">{STEPS[step-1]?.label}</span>
+                </div>
+                <div className="prog-track">
+                  <div className="prog-fill" style={{width:`${step/4*100}%`,animation:"none"}} />
+                </div>
               </div>
 
-              <form onSubmit={handleRegister} className="space-y-4">
-                {/* Name & Email */}
-                <div>
-                  <label className={labelClass}>Full Name</label>
-                  <input
-                    value={form.name}
-                    onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                    required
-                    placeholder="Ravi Kumar"
-                    className={inputClass}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
+              {step === 1 && (
+                <form onSubmit={handleNext} className="space-y-5">
                   <div>
-                    <label className={labelClass}>Phone</label>
-                    <div className="relative">
-                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-semibold border-r border-slate-600 pr-2.5">+91</span>
-                      <input
-                        value={form.phone}
-                        onChange={e => setForm(f => ({ ...f, phone: e.target.value.replace(/\D/g, "").slice(0, 10) }))}
-                        required
-                        placeholder="9876543210"
-                        className={`${inputClass} pl-14`}
-                      />
+                    <p className="lbl mb-2">Step 01</p>
+                    <h2 className="text-[#F5F0E8] font-bold text-2xl mb-1" style={{letterSpacing:"-0.03em"}}>Tell us about yourself.</h2>
+                    <p className="text-[#4A3E2A] text-sm mb-6">Basic info to set up your coverage.</p>
+                  </div>
+                  <div>
+                    <label className="field-label">Full name</label>
+                    <input className="field" placeholder="As per your ID" value={form.name} onChange={e=>upd("name",e.target.value)} required />
+                  </div>
+                  <div>
+                    <label className="field-label">Mobile number</label>
+                    <div className="flex">
+                      <span className="field" style={{width:"auto",borderRadius:"8px 0 0 8px",borderRight:"none",padding:"0.75rem 0.875rem",color:"#6B5C44",flexShrink:0}}>+91</span>
+                      <input className="field" style={{borderRadius:"0 8px 8px 0"}} placeholder="10-digit number"
+                        value={form.phone} onChange={e=>upd("phone",e.target.value.replace(/\D/g,"").slice(0,10))} maxLength={10} required />
                     </div>
                   </div>
                   <div>
-                    <label className={labelClass}>Email <span className="text-slate-600 normal-case">(optional)</span></label>
-                    <input
-                      value={form.email}
-                      onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                      placeholder="ravi@example.com"
-                      className={inputClass}
-                    />
-                  </div>
-                </div>
-
-                {/* Platform selection */}
-                <div>
-                  <label className={labelClass}>Delivery Platform</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {PLATFORMS.map(p => {
-                      const meta = PLATFORM_META[p];
-                      const selected = form.delivery_platform === p;
-                      return (
-                        <motion.button
-                          key={p}
-                          type="button"
-                          onClick={() => setForm(f => ({ ...f, delivery_platform: p }))}
-                          whileHover={{ scale: 1.03 }}
-                          whileTap={{ scale: 0.97 }}
-                          className={`py-2.5 px-3 rounded-xl text-xs font-medium capitalize border transition-all ${
-                            selected ? meta.color : "bg-slate-700/30 border-slate-600/30 text-slate-400 hover:border-slate-500"
-                          }`}
-                        >
-                          <span className="mr-1">{meta.icon}</span> {p === "blinkit" ? "Blinkit" : p.charAt(0).toUpperCase() + p.slice(1)}
-                        </motion.button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* City & Zone */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className={labelClass}>City</label>
-                    <select
-                      value={form.work_city}
-                      onChange={e => setForm(f => ({ ...f, work_city: e.target.value, work_zone: "" }))}
-                      className={inputClass}
-                    >
-                      {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                    <label className="field-label">City</label>
+                    <select className="field" value={form.city} onChange={e=>upd("city",e.target.value)} required>
+                      <option value="">Select your city</option>
+                      {["Mumbai","Delhi","Bengaluru","Hyderabad","Chennai","Pune","Kolkata","Ahmedabad"].map(c=>(
+                        <option key={c} value={c}>{c}</option>
+                      ))}
                     </select>
                   </div>
+                  <button type="submit" className="btn-amber w-full py-3.5">Continue →</button>
+                </form>
+              )}
+
+              {step === 2 && (
+                <form onSubmit={handleNext} className="space-y-5">
                   <div>
-                    <label className={labelClass}>Zone / Area</label>
-                    <select
-                      value={form.work_zone}
-                      onChange={e => setForm(f => ({ ...f, work_zone: e.target.value }))}
-                      className={inputClass}
-                    >
-                      <option value="">Select zone</option>
-                      {zones.map(z => <option key={z} value={z}>{z}</option>)}
-                    </select>
+                    <p className="lbl mb-2">Step 02</p>
+                    <h2 className="text-[#F5F0E8] font-bold text-2xl mb-1" style={{letterSpacing:"-0.03em"}}>Which platforms do you work on?</h2>
+                    <p className="text-[#4A3E2A] text-sm mb-6">Select all that apply. Coverage applies to all selected platforms.</p>
                   </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {PLATFORMS.map(p => (
+                      <button key={p.id} type="button" onClick={()=>toggleP(p.id)}
+                        className={`py-3 px-4 rounded-lg border font-semibold text-sm transition-all ${
+                          form.platforms.includes(p.id)
+                            ? "bg-amber-DEFAULT/10 border-amber-DEFAULT/50 text-amber-DEFAULT"
+                            : "border-[#2A2218] text-[#4A3E2A] hover:border-[#36301E] hover:text-[#6B5C44]"
+                        }`}
+                      >
+                        {form.platforms.includes(p.id) ? "✓ " : ""}{p.label}
+                      </button>
+                    ))}
+                  </div>
+                  {err && <p className="text-signal-neg text-sm">{err}</p>}
+                  <div className="flex gap-3">
+                    <button type="button" onClick={()=>setStep(1)} className="btn-ghost flex-1 py-3.5">← Back</button>
+                    <button type="submit" disabled={loading} className="btn-amber flex-[2] py-3.5">
+                      {loading ? "Sending OTP…" : "Verify phone →"}
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {step === 3 && (
+                <form onSubmit={handleNext} className="space-y-5">
+                  <div>
+                    <p className="lbl mb-2">Step 03</p>
+                    <h2 className="text-[#F5F0E8] font-bold text-2xl mb-1" style={{letterSpacing:"-0.03em"}}>Verify your number.</h2>
+                    <p className="text-[#4A3E2A] text-sm mb-6">OTP sent to +91 {form.phone}</p>
+                  </div>
+                  <div>
+                    <label className="field-label">6-digit OTP</label>
+                    <input className="field text-center text-xl font-mono tracking-widest" placeholder="— — — — — —"
+                      value={form.otp} onChange={e=>upd("otp",e.target.value.replace(/\D/g,"").slice(0,6))} maxLength={6} required />
+                  </div>
+                  {err && <p className="text-signal-neg text-sm">{err}</p>}
+                  <div className="flex gap-3">
+                    <button type="button" onClick={()=>setStep(2)} className="btn-ghost flex-1 py-3.5">← Back</button>
+                    <button type="submit" disabled={loading} className="btn-amber flex-[2] py-3.5">
+                      {loading ? "Verifying…" : "Complete registration →"}
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {step === 4 && (
+                <div className="text-center">
+                  <motion.div initial={{scale:0}} animate={{scale:1}} transition={{type:"spring",stiffness:200,damping:12}}>
+                    <div className="w-20 h-20 rounded-full bg-amber-DEFAULT/15 border border-amber-DEFAULT/30 flex items-center justify-center mx-auto mb-6">
+                      <span className="text-amber-DEFAULT text-3xl">✓</span>
+                    </div>
+                  </motion.div>
+                  <h2 className="text-[#F5F0E8] font-bold text-2xl mb-2" style={{letterSpacing:"-0.03em"}}>{"You're protected."}</h2>
+                  <p className="text-[#6B5C44] text-sm mb-8 leading-relaxed">
+                    Coverage is active for {form.platforms.join(", ")} in {form.city}.<br />
+                    Payouts are automatic — you{"'"}ll receive them before you even notice the disruption.
+                  </p>
+                  <Link href="/dashboard">
+                    <button className="btn-amber w-full py-3.5">Go to my dashboard →</button>
+                  </Link>
                 </div>
+              )}
 
-                <AnimatePresence>
-                  {error && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-2xl px-4 py-3"
-                    >
-                      {error}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                <motion.button
-                  type="submit"
-                  disabled={loading}
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-400 hover:to-cyan-500
-                    disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-4 rounded-2xl
-                    transition-all duration-200 shadow-lg shadow-cyan-500/25 text-sm"
-                >
-                  {loading ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <motion.div
-                        className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
-                      />
-                      Registering...
-                    </span>
-                  ) : (
-                    "Create Account & Verify →"
-                  )}
-                </motion.button>
-              </form>
-
-              <p className="text-center text-slate-500 text-sm mt-5">
-                Already have an account?{" "}
-                <Link href="/login" className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors">Sign in</Link>
-              </p>
             </motion.div>
-          ) : (
-            <motion.div
-              key="otp"
-              variants={cardVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              className="bg-slate-800/60 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-8 shadow-2xl"
-            >
-              <StepIndicator current={1} total={2} />
-              <motion.button
-                onClick={() => { setStep("form"); setError(""); setOtp(""); }}
-                whileHover={{ x: -3 }}
-                className="flex items-center gap-2 text-slate-400 hover:text-white text-sm mb-6 transition-colors"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                Back
-              </motion.button>
+          </AnimatePresence>
 
-              <div className="mb-6">
-                <h1 className="text-2xl font-bold text-white mb-1">Verify your phone</h1>
-                <p className="text-slate-400 text-sm">
-                  OTP sent to <span className="text-white font-medium">{form.phone}</span>
-                </p>
-              </div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className={`rounded-2xl px-4 py-3 mb-6 ${
-                  demoMode ? "bg-amber-500/10 border border-amber-500/20" : "bg-cyan-500/10 border border-cyan-500/20"
-                }`}
-              >
-                <p className={`text-xs font-medium text-center ${demoMode ? "text-amber-400" : "text-cyan-400"}`}>
-                  {demoMode ? "Demo Mode — OTP: " : "Demo OTP: "}
-                  <span className="text-lg font-bold tracking-[0.3em]">123456</span>
-                </p>
-              </motion.div>
-
-              <form onSubmit={handleVerifyOTP} className="space-y-5">
-                <OTPInput value={otp} onChange={setOtp} />
-
-                <AnimatePresence>
-                  {error && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-2xl px-4 py-3"
-                    >
-                      {error}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                <motion.button
-                  type="submit"
-                  disabled={loading || otp.length < 6}
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-400 hover:to-cyan-500
-                    disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-4 rounded-2xl
-                    transition-all duration-200 shadow-lg shadow-cyan-500/25 text-sm"
-                >
-                  {loading ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <motion.div
-                        className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
-                      />
-                      Verifying...
-                    </span>
-                  ) : (
-                    "Verify & Start →"
-                  )}
-                </motion.button>
-              </form>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* trust badges */}
-        <motion.div
-          className="flex items-center justify-center gap-4 mt-5"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-        >
-          {[
-            { icon: "🛡️", text: "AI-powered protection" },
-            { icon: "⚡", text: "< 4 min claims" },
-            { icon: "💰", text: "From ₹35/week" },
-          ].map(b => (
-            <span key={b.text} className="flex items-center gap-1 text-[10px] text-slate-500">
-              <span>{b.icon}</span> {b.text}
-            </span>
-          ))}
-        </motion.div>
-      </motion.div>
+          <div className="mt-8 text-center">
+            <span className="text-[#4A3E2A] text-sm">Already registered? </span>
+            <Link href="/login" className="text-amber-DEFAULT text-sm font-semibold hover:text-amber-bright transition-colors">Sign in →</Link>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

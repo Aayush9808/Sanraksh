@@ -1,116 +1,133 @@
 "use client";
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { API_BASE } from "@/lib/config";
 
-interface Trigger {
-  id: string;
-  type: string;
-  zone: string;
-  triggered_at: string;
-  status: string;
-  payout_amount?: number;
-  details?: string;
-}
-
-const DEMO_TRIGGERS: Trigger[] = [
-  { id: "TRG-0034", type: "Heavy Rain", zone: "Andheri West", triggered_at: "2026-03-26 14:22", status: "paid", payout_amount: 800, details: "Rainfall 58mm/hr — exceeded threshold" },
-  { id: "TRG-0031", type: "App Outage", zone: "Andheri West", triggered_at: "2026-03-20 11:05", status: "paid", payout_amount: 500, details: "Zomato platform down 4.2 hours" },
-  { id: "TRG-0027", type: "Flood Alert", zone: "Kurla", triggered_at: "2026-03-15 09:30", status: "rejected", details: "IMD alert not applicable to registered zone" },
-  { id: "TRG-0022", type: "Heavy Rain", zone: "Andheri West", triggered_at: "2026-03-08 16:45", status: "paid", payout_amount: 800, details: "Rainfall 62mm/hr" },
-  { id: "TRG-0018", type: "Pollution", zone: "Andheri West", triggered_at: "2026-02-28 07:00", status: "review", details: "AQI 412 — under review" },
+const MOCK_TRIGGERS = [
+  { id:"TRG-001", type:"Heavy Rain",    zone:"Andheri West",   severity:0.82, status:"active",   payout:"₹280/day",  started:"2h ago",  signal:"IMD Red Alert issued",       workers:243 },
+  { id:"TRG-002", type:"App Outage",    zone:"Zomato — Mumbai",severity:0.68, status:"active",   payout:"₹200/inc.", started:"45m ago", signal:"Status API: degraded 4h+",   workers:187 },
+  { id:"TRG-003", type:"AQI Alert",     zone:"Delhi NCR",      severity:0.44, status:"watch",    payout:"₹150/day",  started:"30m ago", signal:"CPCB AQI: 395 (borderline)", workers:156 },
+  { id:"TRG-004", type:"Cyclone Watch", zone:"Marina, Chennai", severity:0.91, status:"active",  payout:"₹400/day",  started:"6h ago",  signal:"IMD Cyclone Advisory",       workers:312 },
+  { id:"TRG-005", type:"Heat Wave",     zone:"Hyderabad",      severity:0.35, status:"resolved", payout:"₹200/day",  started:"1d ago",  signal:"Temp below threshold",       workers:98  },
 ];
 
-const STATUS_MAP = {
-  paid: { label: "PAID", cls: "text-[#00FF87]" },
-  rejected: { label: "REJECTED", cls: "text-[#ff4444]" },
-  review: { label: "REVIEW", cls: "text-[#ffaa00]" },
-  pending: { label: "PENDING", cls: "text-[#777]" },
-} as const;
+function SeverityRing({ v, color }: { v:number; color:string }) {
+  const r = 22, c = 2*Math.PI*r;
+  return (
+    <svg width={56} height={56} viewBox="0 0 56 56" className="-rotate-90">
+      <circle cx={28} cy={28} r={r} fill="none" stroke="#2A2218" strokeWidth={4} />
+      <motion.circle cx={28} cy={28} r={r} fill="none" stroke={color} strokeWidth={4}
+        strokeLinecap="round" strokeDasharray={c}
+        initial={{ strokeDashoffset: c }}
+        animate={{ strokeDashoffset: c*(1-v) }}
+        transition={{ duration:1, ease:"easeOut" }}
+      />
+      <text x={28} y={32} textAnchor="middle" style={{rotate:"90deg"}} fill={color} fontSize={11} fontWeight={700} transform="rotate(90,28,28)">
+        {Math.round(v*100)}%
+      </text>
+    </svg>
+  );
+}
 
 export default function TriggersPage() {
-  const [triggers, setTriggers] = useState<Trigger[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [triggers, setTriggers] = useState(MOCK_TRIGGERS);
+  const [sel, setSel] = useState<typeof MOCK_TRIGGERS[0]|null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("gigarmor_token");
-    fetch(`${API_BASE}/api/v1/triggers/my`, {
-      headers: { Authorization: `Bearer ${token}` },
-      signal: AbortSignal.timeout(4000),
-    })
-      .then(r => r.json())
-      .then(d => setTriggers(Array.isArray(d) ? d : DEMO_TRIGGERS))
-      .catch(() => setTriggers(DEMO_TRIGGERS))
-      .finally(() => setLoading(false));
+    fetch(`${API_BASE}/api/v1/triggers/active`, {
+      headers:{Authorization:`Bearer ${typeof window!=="undefined"&&localStorage.getItem("token")||""}`}
+    }).then(r=>r.ok?r.json():null).then(d=>{if(d?.triggers)setTriggers(d.triggers);}).catch(()=>{});
   }, []);
 
-  const totalPaid = triggers.filter(t => t.status === "paid").reduce((s, t) => s + (t.payout_amount || 0), 0);
-  const countPaid = triggers.filter(t => t.status === "paid").length;
+  const COLOR = (s:number) => s>=0.75?"#EF4444":s>=0.45?"#F59E0B":"#10B981";
 
   return (
-    <div className="p-6 xl:p-8 max-w-[1200px]">
-      <div className="border-b border-[#1a1a1a] pb-5 mb-8 flex items-end justify-between">
+    <div className="max-w-5xl">
+      <div className="section-head">
         <div>
-          <p className="mono-label mb-1.5">Claim history</p>
-          <h1 className="text-2xl font-black text-white tracking-tight">My Triggers</h1>
+          <p className="lbl mb-1">Signal monitor</p>
+          <h1 className="text-[#F5F0E8] font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Live Disruption Triggers</h1>
         </div>
-        <div className="text-right hidden md:block">
-          <div className="font-mono text-xl font-black text-[#00FF87] tabular-nums">\u20b9{totalPaid.toLocaleString("en-IN")}</div>
-          <div className="mono-label">total received</div>
+        <div className="flex items-center gap-2">
+          <span className="dot dot-live" />
+          <span className="lbl-live">{triggers.filter(t=>t.status==="active").length} active now</span>
         </div>
       </div>
 
-      {/* Summary */}
-      <div className="grid grid-cols-3 gap-0 border-t border-l border-[#1a1a1a] mb-8">
-        {[
-          { label: "Total triggers", value: triggers.length, accent: false },
-          { label: "Paid claims", value: countPaid, accent: true },
-          { label: "Total received", value: "\u20b9" + totalPaid.toLocaleString("en-IN"), accent: true },
-        ].map((s, i) => (
-          <div key={s.label} className="border-r border-b border-[#1a1a1a] p-5">
-            <div className={`font-mono text-2xl font-black tabular-nums leading-none ${s.accent ? "text-[#00FF87]" : "text-white"}`}>{s.value}</div>
-            <div className="mono-label mt-2">{s.label}</div>
-          </div>
-        ))}
-      </div>
+      <div className="grid xl:grid-cols-[1fr_340px] gap-5">
+        {/* Trigger list */}
+        <div className="space-y-3">
+          {triggers.map((t, i) => (
+            <motion.div key={t.id} initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} transition={{delay:i*0.08}}
+              onClick={()=>setSel(sel?.id===t.id?null:t)}
+              className="panel p-4 cursor-pointer transition-all hover:border-[#36301E]"
+              style={{ borderLeft:`3px solid ${COLOR(t.severity)}` }}
+            >
+              <div className="flex items-center gap-4">
+                <SeverityRing v={t.severity} color={COLOR(t.severity)} />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[#F5F0E8] font-bold">{t.type}</span>
+                    <span className={`tag ${t.status==="active"?"tag-neg":t.status==="watch"?"tag-warn":"tag-neutral"}`}>{t.status}</span>
+                  </div>
+                  <div className="lbl mb-1">{t.zone} · Started {t.started}</div>
+                  <div className="text-sm text-[#6B5C44]">{t.signal}</div>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <div className="text-amber-DEFAULT font-mono font-bold text-sm">{t.payout}</div>
+                  <div className="lbl">{t.workers} workers</div>
+                </div>
+              </div>
 
-      {loading ? (
-        <div className="py-20 text-center"><p className="mono-label animate-pulse">Loading triggers...</p></div>
-      ) : (
-        <div>
-          <div className="border-b border-[#1a1a1a] pb-3 mb-0">
-            <p className="mono-label">Trigger log</p>
-          </div>
-          <table className="data-table">
-            <thead><tr><th>ID</th><th>Type</th><th>Zone</th><th>Date &amp; Time</th><th>Details</th><th className="text-right">Amount</th><th className="text-right">Status</th></tr></thead>
-            <tbody>
-              {triggers.map((t, i) => (
-                <motion.tr key={t.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.04 }}>
-                  <td className="font-mono text-[11px] text-[#555]">{t.id}</td>
-                  <td className="text-white text-[13px] font-medium">{t.type}</td>
-                  <td className="font-mono text-[11px] text-[#555]">{t.zone}</td>
-                  <td className="font-mono text-[11px] text-[#444]">{t.triggered_at}</td>
-                  <td className="font-mono text-[11px] text-[#444] max-w-[200px]">{t.details}</td>
-                  <td className="font-mono text-[12px] font-bold text-right tabular-nums text-white">
-                    {t.payout_amount ? "\u20b9" + t.payout_amount : "\u2014"}
-                  </td>
-                  <td className="text-right">
-                    <span className={`font-mono text-[9px] tracking-widest ${STATUS_MAP[t.status as keyof typeof STATUS_MAP]?.cls || "text-[#777]"}`}>
-                      {STATUS_MAP[t.status as keyof typeof STATUS_MAP]?.label || t.status.toUpperCase()}
-                    </span>
-                  </td>
-                </motion.tr>
-              ))}
-            </tbody>
-          </table>
-          {triggers.length === 0 && (
-            <div className="py-16 text-center border-b border-[#1a1a1a]">
-              <p className="mono-label">No triggers yet</p>
-              <p className="font-mono text-[10px] text-[#2a2a2a] mt-2">Triggers fire automatically when disruptions are detected in your zone</p>
+              <AnimatePresence>
+                {sel?.id === t.id && (
+                  <motion.div initial={{height:0,opacity:0}} animate={{height:"auto",opacity:1}} exit={{height:0,opacity:0}}
+                    className="overflow-hidden"
+                  >
+                    <div className="mt-4 pt-4 border-t border-[#2A2218]">
+                      <div className="panel-amber p-3 text-sm text-[#C8BAA0] leading-relaxed">
+                        <span className="lbl-amber font-bold block mb-1">Trigger condition met</span>
+                        This event meets the parametric conditions in your policy. If it persists, your payout of <strong className="text-amber-DEFAULT">{t.payout}</strong> will be processed automatically within 4 hours.
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Side summary */}
+        <div className="space-y-4">
+          <div className="panel p-5">
+            <p className="lbl mb-3">Your exposure today</p>
+            <div className="space-y-3">
+              <div>
+                <div className="flex justify-between mb-1">
+                  <span className="text-sm text-[#6B5C44]">Max potential payout</span>
+                  <span className="text-amber-DEFAULT font-mono font-bold">₹880</span>
+                </div>
+              </div>
+              <div>
+                <div className="flex justify-between mb-1">
+                  <span className="text-sm text-[#6B5C44]">Active triggers</span>
+                  <span className="text-[#EF4444] font-bold">{triggers.filter(t=>t.status==="active").length}</span>
+                </div>
+              </div>
+              <div>
+                <div className="flex justify-between mb-1">
+                  <span className="text-sm text-[#6B5C44]">Watch alerts</span>
+                  <span className="text-[#F59E0B] font-bold">{triggers.filter(t=>t.status==="watch").length}</span>
+                </div>
+              </div>
             </div>
-          )}
+          </div>
+          <div className="panel-amber p-4">
+            <p className="lbl-amber mb-2">Auto-payout guarantee</p>
+            <p className="text-sm text-[#C8BAA0] leading-relaxed">When any active trigger meets its threshold, your payout is processed without any action needed from you.</p>
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

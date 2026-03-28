@@ -1,151 +1,172 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { API_BASE } from "@/lib/config";
 
-interface Policy {
-  policy_number?: string;
-  status?: string;
-  platform?: string;
-  city?: string;
-  zone?: string;
-  weekly_premium?: number;
-  total_coverage?: number;
-  valid_until?: string;
-  total_claims?: number;
-  total_paid?: number;
-}
+const MOCK_POLICY = {
+  id: "POL-2024-8821",
+  status: "active",
+  plan: "GigShield Standard",
+  platforms: ["Swiggy", "Zomato", "Uber"],
+  city: "Mumbai",
+  coverage_days_left: 287,
+  total_coverage: 365,
+  total_earned: 2840,
+  claims_this_month: 3,
+  next_review: "Apr 1, 2026",
+};
 
-const COVERAGE_ITEMS = [
-  { name: "Heavy Rain Shield", trigger: "> 50mm/hr", payout: "\u20b9800" },
-  { name: "Flood Income Cover", trigger: "IMD flood alert", payout: "\u20b91,200" },
-  { name: "Job Loss Cover", trigger: "Account deactivation", payout: "\u20b92,000" },
-  { name: "Pollution Shutdown", trigger: "AQI > 400", payout: "\u20b9600" },
-  { name: "Curfew / Strike", trigger: "Zone closure order", payout: "\u20b9900" },
-  { name: "App Outage Cover", trigger: "Platform down > 3h", payout: "\u20b9500" },
+const PAYOUTS = [
+  { id:"P-001", date:"Mar 24, 2026", event:"Heavy Rain",   amount:280, status:"paid",    trigger:"IMD Red Alert" },
+  { id:"P-002", date:"Mar 18, 2026", event:"App Outage",   amount:200, status:"paid",    trigger:"Swiggy down 5h" },
+  { id:"P-003", date:"Mar 10, 2026", event:"Curfew",       amount:350, status:"paid",    trigger:"Municipal order" },
+  { id:"P-004", date:"Feb 28, 2026", event:"Heat Wave",    amount:200, status:"paid",    trigger:"Temp > 44°C" },
+  { id:"P-005", date:"Feb 14, 2026", event:"Heavy Rain",   amount:280, status:"paid",    trigger:"IMD Orange Alert" },
 ];
 
+const COVERAGES = [
+  { event:"Heavy rainfall / flooding", payout:"₹280/day",      likelihood:0.72, status:"active" },
+  { event:"Platform app outage",       payout:"₹200/incident", likelihood:0.45, status:"active" },
+  { event:"Curfew / lockdown",         payout:"₹350/day",      likelihood:0.12, status:"active" },
+  { event:"AQI > 400 severe",          payout:"₹150/day",      likelihood:0.28, status:"active" },
+  { event:"Cyclone warning",           payout:"₹400/day",      likelihood:0.08, status:"active" },
+  { event:"Heat wave > 44°C",          payout:"₹200/day",      likelihood:0.35, status:"active" },
+];
+
+function LikelihoodBar({ v }: { v:number }) {
+  const c = v>0.6?"#EF4444":v>0.35?"#F59E0B":"#10B981";
+  return (
+    <div className="flex items-center gap-2">
+      <div className="prog-track" style={{width:80}}>
+        <div className="prog-fill" style={{width:`${v*100}%`,background:c,animation:"none"}} />
+      </div>
+      <span className="font-mono text-xs" style={{color:c}}>{(v*100).toFixed(0)}%</span>
+    </div>
+  );
+}
+
 export default function MyPolicyPage() {
-  const [policy, setPolicy] = useState<Policy | null>(null);
-  const [user, setUser] = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState(true);
+  const [policy, setPolicy] = useState(MOCK_POLICY);
 
   useEffect(() => {
-    const rawUser = localStorage.getItem("gigarmor_user");
-    if (rawUser) setUser(JSON.parse(rawUser));
-    const token = localStorage.getItem("gigarmor_token");
-    fetch(`${API_BASE}/api/v1/policies/my`, {
-      headers: { Authorization: `Bearer ${token}` },
-      signal: AbortSignal.timeout(4000),
-    })
-      .then(r => r.json())
-      .then(d => setPolicy(d))
-      .catch(() => setPolicy({
-        policy_number: "GS-MUM-2024-" + Math.floor(Math.random() * 9000 + 1000),
-        status: "active",
-        platform: user.platform || "Zomato",
-        city: user.city || "Mumbai",
-        zone: user.zone || "Andheri West",
-        weekly_premium: 43,
-        total_coverage: 6000,
-        valid_until: "2026-12-31",
-        total_claims: 3,
-        total_paid: 1575,
-      }))
-      .finally(() => setLoading(false));
+    fetch(`${API_BASE}/api/v1/workers/me/policy`, {
+      headers: { Authorization: `Bearer ${typeof window!=="undefined"&&localStorage.getItem("token")||""}` }
+    }).then(r=>r.ok?r.json():null).then(d=>{ if(d) setPolicy(d); }).catch(()=>{});
   }, []);
 
-  const isActive = policy?.status === "active";
+  const pct = Math.round((policy.coverage_days_left / policy.total_coverage) * 100);
 
   return (
-    <div className="p-6 xl:p-8 max-w-[1200px]">
-      <div className="border-b border-[#1a1a1a] pb-5 mb-8 flex items-end justify-between">
+    <div className="max-w-5xl">
+      <div className="section-head">
         <div>
-          <p className="mono-label mb-1.5">Worker portal</p>
-          <h1 className="text-2xl font-black text-white tracking-tight">My Policy</h1>
+          <p className="lbl mb-1">Worker portal</p>
+          <h1 className="text-[#F5F0E8] font-bold text-xl" style={{letterSpacing:"-0.03em"}}>My Insurance Policy</h1>
         </div>
-        {isActive && (
-          <div className="flex items-center gap-2">
-            <span className="dot-live" />
-            <span className="font-mono text-[10px] tracking-widest uppercase text-[#00FF87]">Active</span>
-          </div>
-        )}
+        <span className="tag tag-live">Active</span>
       </div>
 
-      {loading ? (
-        <div className="py-20 text-center">
-          <p className="mono-label animate-pulse">Loading policy...</p>
+      {/* Top: policy overview + stats */}
+      <div className="grid md:grid-cols-[1fr_1fr_auto] gap-4 mb-6">
+        {/* Policy card */}
+        <div className="panel p-5">
+          <p className="lbl mb-3">Policy details</p>
+          <div className="text-[#F5F0E8] font-bold text-lg mb-1">{policy.plan}</div>
+          <p className="lbl mb-4">{policy.id}</p>
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-[#6B5C44]">City</span>
+              <span className="text-[#C8BAA0] font-medium">{policy.city}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-[#6B5C44]">Platforms</span>
+              <div className="flex gap-1.5">
+                {policy.platforms.map(p=><span key={p} className="tag tag-neutral">{p}</span>)}
+              </div>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-[#6B5C44]">Review date</span>
+              <span className="text-[#C8BAA0]">{policy.next_review}</span>
+            </div>
+          </div>
         </div>
-      ) : (
-        <div className="space-y-8">
-          {/* Policy header */}
-          <div className="grid md:grid-cols-2 gap-0 border border-[#1a1a1a]">
-            <div className="p-6 border-b md:border-b-0 md:border-r border-[#1a1a1a]">
-              <p className="mono-label mb-2">Policy number</p>
-              <div className="font-mono text-xl font-black text-[#00FF87]">{policy?.policy_number}</div>
-            </div>
-            <div className="grid grid-cols-3">
-              {[
-                { label: "Platform", value: policy?.platform || user.platform },
-                { label: "City", value: policy?.city || user.city },
-                { label: "Zone", value: policy?.zone || user.zone },
-              ].map((item, i) => (
-                <div key={item.label} className={`p-4 ${i < 2 ? "border-r border-[#1a1a1a]" : ""}`}>
-                  <p className="mono-label mb-1">{item.label}</p>
-                  <p className="text-sm font-semibold text-white">{item.value}</p>
-                </div>
-              ))}
+
+        {/* Coverage ring */}
+        <div className="panel p-5 flex flex-col items-center justify-center">
+          <p className="lbl mb-4">Coverage remaining</p>
+          <div className="relative w-28 h-28">
+            <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+              <circle cx="50" cy="50" r="40" fill="none" stroke="#2A2218" strokeWidth="8" />
+              <motion.circle cx="50" cy="50" r="40" fill="none" stroke="#F59E0B" strokeWidth="8"
+                strokeLinecap="round" strokeDasharray={`${2*Math.PI*40}`}
+                initial={{ strokeDashoffset: 2*Math.PI*40 }}
+                animate={{ strokeDashoffset: 2*Math.PI*40*(1-pct/100) }}
+                transition={{ duration:1.2, ease:"easeOut" }}
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <div className="text-[#F5F0E8] font-bold text-2xl" style={{letterSpacing:"-0.04em"}}>{pct}%</div>
+              <div className="lbl text-center">{policy.coverage_days_left}d left</div>
             </div>
           </div>
+        </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border-t border-l border-[#1a1a1a]">
-            {[
-              { label: "Weekly premium", value: "\u20b9" + (policy?.weekly_premium || 43), accent: false },
-              { label: "Total coverage", value: "\u20b9" + (policy?.total_coverage || 6000), accent: true },
-              { label: "Claims made", value: policy?.total_claims ?? 0, accent: false },
-              { label: "Total received", value: "\u20b9" + (policy?.total_paid || 0), accent: true },
-            ].map((s, i) => (
-              <motion.div key={s.label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
-                className="border-r border-b border-[#1a1a1a] p-5">
-                <div className={`font-mono text-2xl font-black tabular-nums leading-none ${s.accent ? "text-[#00FF87]" : "text-white"}`}>
-                  {s.value}
-                </div>
-                <div className="mono-label mt-2">{s.label}</div>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Coverage breakdown */}
+        {/* Lifetime stats */}
+        <div className="panel p-5 flex flex-col gap-4">
           <div>
-            <div className="border-b border-[#1a1a1a] pb-3 mb-0">
-              <p className="mono-label">Coverage breakdown</p>
-            </div>
-            <table className="data-table">
-              <thead><tr><th>Coverage type</th><th>Trigger condition</th><th className="text-right">Max payout</th><th className="text-right">Status</th></tr></thead>
-              <tbody>
-                {COVERAGE_ITEMS.map((c, i) => (
-                  <motion.tr key={c.name} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 + i * 0.04 }}>
-                    <td className="text-white text-[13px] font-medium">{c.name}</td>
-                    <td className="font-mono text-[11px] text-[#555]">{c.trigger}</td>
-                    <td className="font-mono text-[12px] text-[#00FF87] font-bold text-right tabular-nums">{c.payout}</td>
-                    <td className="text-right"><span className="font-mono text-[9px] tracking-widest text-[#00FF87]">ACTIVE</span></td>
-                  </motion.tr>
-                ))}
-              </tbody>
-            </table>
+            <p className="lbl mb-1">Total earned</p>
+            <div className="text-amber-DEFAULT font-extrabold text-3xl" style={{letterSpacing:"-0.04em"}}>₹{policy.total_earned.toLocaleString()}</div>
           </div>
-
-          {/* Valid until */}
-          <div className="border border-[#1a1a1a] p-5 flex items-center justify-between">
-            <div>
-              <p className="mono-label mb-1">Policy valid until</p>
-              <p className="text-sm font-bold text-white">{policy?.valid_until || "2026-12-31"}</p>
-            </div>
-            <p className="font-mono text-[10px] tracking-widest uppercase text-[#333]">Auto-renews monthly</p>
+          <div className="div-h" />
+          <div>
+            <p className="lbl mb-1">Claims this month</p>
+            <div className="text-[#F5F0E8] font-bold text-2xl" style={{letterSpacing:"-0.03em"}}>{policy.claims_this_month}</div>
           </div>
         </div>
-      )}
+      </div>
+
+      {/* Coverage matrix */}
+      <div className="panel overflow-hidden mb-6">
+        <div style={{padding:"1rem 1.25rem",borderBottom:"1px solid #2A2218"}}>
+          <p className="lbl mb-1">What triggers your payout</p>
+          <h2 className="text-[#F5F0E8] font-bold" style={{letterSpacing:"-0.02em"}}>Coverage matrix</h2>
+        </div>
+        <table className="tbl">
+          <thead><tr><th>Event</th><th>Your payout</th><th>Trigger likelihood</th><th>Status</th></tr></thead>
+          <tbody>
+            {COVERAGES.map(c => (
+              <tr key={c.event}>
+                <td><span className="text-[#C8BAA0] font-medium">{c.event}</span></td>
+                <td><span className="text-amber-DEFAULT font-mono font-bold">{c.payout}</span></td>
+                <td><LikelihoodBar v={c.likelihood} /></td>
+                <td><span className="tag tag-live">{c.status}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Payout history */}
+      <div className="panel overflow-hidden">
+        <div style={{padding:"1rem 1.25rem",borderBottom:"1px solid #2A2218"}}>
+          <p className="lbl mb-1">Payment history</p>
+          <h2 className="text-[#F5F0E8] font-bold" style={{letterSpacing:"-0.02em"}}>Past payouts</h2>
+        </div>
+        <table className="tbl">
+          <thead><tr><th>Date</th><th>Event</th><th>Trigger</th><th>Amount</th><th>Status</th></tr></thead>
+          <tbody>
+            {PAYOUTS.map(p => (
+              <tr key={p.id}>
+                <td className="font-mono text-xs">{p.date}</td>
+                <td><span className="text-[#C8BAA0] font-medium">{p.event}</span></td>
+                <td className="text-sm">{p.trigger}</td>
+                <td><span className="text-amber-DEFAULT font-mono font-bold">₹{p.amount}</span></td>
+                <td><span className="tag tag-live">{p.status}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

@@ -1,91 +1,84 @@
 "use client";
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { API_BASE } from "@/lib/config";
+import { useState } from "react";
 
-interface Policy {
-  id: string;
-  worker_name?: string;
-  platform?: string;
-  city?: string;
-  zone?: string;
-  weekly_premium?: number;
-  total_coverage?: number;
-  status?: string;
-  valid_until?: string;
-}
-
-const DEMO: Policy[] = [
-  { id: "POL-0091", worker_name: "Ravi Kumar", platform: "Zomato", city: "Mumbai", zone: "Andheri West", weekly_premium: 43, total_coverage: 6000, status: "active", valid_until: "2026-12-31" },
-  { id: "POL-0090", worker_name: "Priya Singh", platform: "Swiggy", city: "Mumbai", zone: "Kurla", weekly_premium: 43, total_coverage: 6000, status: "active", valid_until: "2026-12-31" },
-  { id: "POL-0087", worker_name: "Neha Patel", platform: "Zepto", city: "Delhi", zone: "Saket", weekly_premium: 43, total_coverage: 6000, status: "paused", valid_until: "2026-11-15" },
-  { id: "POL-0085", worker_name: "Suresh M.", platform: "Zomato", city: "Bengaluru", zone: "Koramangala", weekly_premium: 43, total_coverage: 6000, status: "active", valid_until: "2026-12-31" },
+const POLICY_TYPES = [
+  { id:"STD", name:"GigShield Standard", premium:"₹99/mo", workers:11480, payouts_ytd:48200, events:6, status:"active" },
+  { id:"PRO", name:"GigShield Pro",      premium:"₹199/mo",workers:2340,  payouts_ytd:18600, events:9, status:"active" },
+  { id:"LITE",name:"GigShield Lite",     premium:"₹49/mo", workers:380,   payouts_ytd:4800,  events:3, status:"active" },
+];
+const RULES = [
+  { id:"R1", event:"Heavy Rain",   threshold:"IMD Orange/Red Alert",   payout:"₹280/day",  cap:"₹840/72h",  active:true  },
+  { id:"R2", event:"App Outage",   threshold:"Platform down ≥ 4h",     payout:"₹200/inc.", cap:"3/month",   active:true  },
+  { id:"R3", event:"Curfew",       threshold:"Govt order ≥ 6h",        payout:"₹350/day",  cap:"₹1050/72h", active:true  },
+  { id:"R4", event:"AQI Severe",   threshold:"AQI > 400 for 4h",       payout:"₹150/day",  cap:"5 days/mo", active:true  },
+  { id:"R5", event:"Cyclone",      threshold:"IMD warning active",      payout:"₹400/day",  cap:"Unlimited", active:true  },
+  { id:"R6", event:"Heat Wave",    threshold:"Temp > 44°C, 4h window",  payout:"₹200/day",  cap:"5 days/mo", active:false },
 ];
 
-const STATUS = { active: "text-[#00FF87]", paused: "text-[#ffaa00]", expired: "text-[#ff4444]" } as const;
-
 export default function PoliciesPage() {
-  const [policies, setPolicies] = useState<Policy[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const token = localStorage.getItem("gigarmor_token");
-    fetch(`${API_BASE}/api/v1/policies/all`, {
-      headers: { Authorization: `Bearer ${token}` },
-      signal: AbortSignal.timeout(4000),
-    })
-      .then(r => r.json())
-      .then(d => setPolicies(Array.isArray(d) ? d : DEMO))
-      .catch(() => setPolicies(DEMO))
-      .finally(() => setLoading(false));
-  }, []);
-
-  const active = policies.filter(p => p.status === "active").length;
-
+  const [rules, setRules] = useState(RULES);
   return (
-    <div className="p-6 xl:p-8 max-w-[1400px]">
-      <div className="border-b border-[#1a1a1a] pb-5 mb-6 flex items-end justify-between">
-        <div>
-          <p className="mono-label mb-1.5">Policy management</p>
-          <h1 className="text-2xl font-black text-white tracking-tight">Policies</h1>
-        </div>
-        <div className="flex gap-8">
-          <div className="text-right">
-            <div className="font-mono text-xl font-black text-white">{policies.length}</div>
-            <div className="mono-label">total issued</div>
-          </div>
-          <div className="text-right">
-            <div className="font-mono text-xl font-black text-[#00FF87]">{active}</div>
-            <div className="mono-label">active</div>
-          </div>
-        </div>
+    <div className="max-w-5xl">
+      <div className="section-head">
+        <div><p className="lbl mb-1">Admin portal</p><h1 className="text-[#F5F0E8] font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Policy Engine</h1></div>
+        <span className="tag tag-live">{POLICY_TYPES.reduce((a,p)=>a+p.workers,0).toLocaleString()} workers covered</span>
       </div>
 
-      {loading ? (
-        <div className="py-20 text-center"><p className="mono-label animate-pulse">Loading policies...</p></div>
-      ) : (
-        <table className="data-table">
-          <thead><tr><th>Policy ID</th><th>Worker</th><th>Platform</th><th>City / Zone</th><th className="text-right">Premium/wk</th><th className="text-right">Coverage</th><th>Valid until</th><th className="text-right">Status</th></tr></thead>
+      <div className="grid md:grid-cols-3 gap-4 mb-6">
+        {POLICY_TYPES.map(p=>(
+          <div key={p.id} className={`panel p-5 ${p.id==="PRO"?"panel-amber":""}`}>
+            <div className="flex justify-between items-start mb-3">
+              <div>
+                <div className="text-[#F5F0E8] font-bold">{p.name}</div>
+                <div className="lbl mt-0.5">{p.events} events covered</div>
+              </div>
+              <span className="tag tag-live">{p.status}</span>
+            </div>
+            <div className="amber-line mb-3" />
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <div className="text-amber-DEFAULT font-bold text-lg" style={{letterSpacing:"-0.03em"}}>{p.premium}</div>
+                <div className="lbl">premium</div>
+              </div>
+              <div>
+                <div className="text-[#F5F0E8] font-bold text-lg">{p.workers.toLocaleString()}</div>
+                <div className="lbl">workers</div>
+              </div>
+              <div className="col-span-2">
+                <div className="text-amber-DEFAULT font-mono font-bold">₹{p.payouts_ytd.toLocaleString()}</div>
+                <div className="lbl">paid YTD</div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="panel overflow-hidden">
+        <div style={{padding:"1rem 1.25rem",borderBottom:"1px solid #2A2218"}}>
+          <p className="lbl mb-1">Coverage rules engine</p>
+          <h2 className="text-[#F5F0E8] font-bold" style={{letterSpacing:"-0.02em"}}>Parametric conditions</h2>
+        </div>
+        <table className="tbl">
+          <thead><tr><th>Rule</th><th>Event</th><th>Threshold</th><th>Payout</th><th>Cap</th><th>Status</th></tr></thead>
           <tbody>
-            {policies.map((p, i) => (
-              <motion.tr key={p.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.04 }}>
-                <td className="font-mono text-[11px] text-[#555]">{p.id}</td>
-                <td className="text-white text-[13px] font-medium">{p.worker_name}</td>
-                <td className="font-mono text-[11px] text-[#555]">{p.platform}</td>
-                <td className="font-mono text-[11px] text-[#555]">{p.city}{p.zone ? ` / ${p.zone}` : ""}</td>
-                <td className="font-mono text-[12px] text-right tabular-nums text-white">&#8377;{p.weekly_premium}</td>
-                <td className="font-mono text-[12px] font-bold text-right tabular-nums text-[#00FF87]">&#8377;{p.total_coverage?.toLocaleString()}</td>
-                <td className="font-mono text-[11px] text-[#444]">{p.valid_until}</td>
-                <td className="text-right">
-                  <span className={`font-mono text-[9px] tracking-widest ${STATUS[p.status as keyof typeof STATUS] || "text-[#777]"}`}>
-                    {(p.status || "").toUpperCase()}
-                  </span>
+            {rules.map(r=>(
+              <tr key={r.id}>
+                <td><span className="font-mono text-xs text-[#4A3E2A]">{r.id}</span></td>
+                <td><span className="text-[#C8BAA0] font-medium">{r.event}</span></td>
+                <td className="text-sm">{r.threshold}</td>
+                <td><span className="text-amber-DEFAULT font-mono font-bold">{r.payout}</span></td>
+                <td className="text-sm">{r.cap}</td>
+                <td>
+                  <button onClick={()=>setRules(prev=>prev.map(x=>x.id===r.id?{...x,active:!x.active}:x))}
+                    className={`tag ${r.active?"tag-live":"tag-neutral"} cursor-pointer`}>
+                    {r.active?"active":"off"}
+                  </button>
                 </td>
-              </motion.tr>
+              </tr>
             ))}
           </tbody>
         </table>
-      )}
+      </div>
     </div>
   );
 }

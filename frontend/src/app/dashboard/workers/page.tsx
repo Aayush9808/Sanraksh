@@ -1,113 +1,151 @@
 "use client";
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { API_BASE } from "@/lib/config";
 
 interface Worker {
-  id: string;
-  name?: string;
-  phone?: string;
-  platform?: string;
-  city?: string;
-  zone?: string;
-  policy_status?: string;
-  total_claims?: number;
-  joined_at?: string;
+  id:string; name:string; phone:string; city:string;
+  platforms:string[]; status:string; risk:number;
+  claims:number; total_earned:number; kyc:string; joined:string;
 }
-
-const DEMO_WORKERS: Worker[] = [
-  { id: "W001", name: "Ravi Kumar", phone: "+91 98765 43210", platform: "Zomato", city: "Mumbai", zone: "Andheri West", policy_status: "active", total_claims: 3, joined_at: "2025-09-12" },
-  { id: "W002", name: "Priya Singh", phone: "+91 87654 32109", platform: "Swiggy", city: "Mumbai", zone: "Kurla", policy_status: "active", total_claims: 1, joined_at: "2025-10-08" },
-  { id: "W003", name: "Amit Rao", phone: "+91 76543 21098", platform: "Blinkit", city: "Mumbai", zone: "Bandra", policy_status: "active", total_claims: 0, joined_at: "2025-11-15" },
-  { id: "W004", name: "Neha Patel", phone: "+91 65432 10987", platform: "Zepto", city: "Delhi", zone: "Saket", policy_status: "paused", total_claims: 2, joined_at: "2025-08-03" },
-  { id: "W005", name: "Suresh M.", phone: "+91 54321 09876", platform: "Zomato", city: "Bengaluru", zone: "Koramangala", policy_status: "active", total_claims: 5, joined_at: "2025-07-21" },
-  { id: "W006", name: "Kavya L.", phone: "+91 43210 98765", platform: "Swiggy", city: "Pune", zone: "Kothrud", policy_status: "active", total_claims: 2, joined_at: "2025-12-01" },
+const MOCK: Worker[] = [
+  { id:"WRK-001", name:"Rahul Kumar",   phone:"+91 9900001111", city:"Mumbai",    platforms:["Swiggy","Uber"],        status:"active", risk:0.12, claims:8,  total_earned:2240, kyc:"verified", joined:"Jan 2026" },
+  { id:"WRK-002", name:"Priya Mistry",  phone:"+91 9900002222", city:"Bengaluru", platforms:["Zomato"],              status:"active", risk:0.34, claims:3,  total_earned:860,  kyc:"verified", joined:"Feb 2026" },
+  { id:"WRK-003", name:"Arjun Sharma",  phone:"+91 9900003333", city:"Delhi",     platforms:["Uber","Ola"],          status:"active", risk:0.06, claims:12, total_earned:3680, kyc:"verified", joined:"Nov 2025" },
+  { id:"WRK-004", name:"Meena Rajan",   phone:"+91 9900004444", city:"Chennai",   platforms:["Dunzo","Swiggy"],      status:"active", risk:0.11, claims:5,  total_earned:1420, kyc:"verified", joined:"Dec 2025" },
+  { id:"WRK-005", name:"Vikram Patil",  phone:"+91 9900005555", city:"Hyderabad", platforms:["Swiggy"],              status:"flagged",risk:0.82, claims:21, total_earned:5800, kyc:"review",   joined:"Oct 2025" },
+  { id:"WRK-006", name:"Divya Nair",    phone:"+91 9900006666", city:"Pune",      platforms:["Zomato","Blinkit"],    status:"active", risk:0.09, claims:4,  total_earned:1120, kyc:"verified", joined:"Jan 2026" },
+  { id:"WRK-007", name:"Kiran Rao",     phone:"+91 9900007777", city:"Delhi",     platforms:["Uber"],                status:"active", risk:0.45, claims:7,  total_earned:1960, kyc:"pending",  joined:"Mar 2026" },
 ];
 
-const STATUS_MAP = {
-  active: { label: "ACTIVE", cls: "text-[#00FF87]" },
-  paused: { label: "PAUSED", cls: "text-[#ffaa00]" },
-  suspended: { label: "SUSPENDED", cls: "text-[#ff4444]" },
-} as const;
+function RiskBadge({ v }: { v:number }) {
+  if (v>0.6) return <span className="tag tag-neg">High</span>;
+  if (v>0.3) return <span className="tag tag-warn">Med</span>;
+  return <span className="tag tag-live">Low</span>;
+}
+function KycBadge({ s }: { s:string }) {
+  const m: Record<string,string> = { verified:"tag-live", pending:"tag-warn", review:"tag-neg" };
+  return <span className={`tag ${m[s]||"tag-neutral"}`}>{s}</span>;
+}
 
 export default function WorkersPage() {
-  const [workers, setWorkers] = useState<Worker[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [workers, setWorkers] = useState<Worker[]>(MOCK);
+  const [sel, setSel] = useState<Worker|null>(null);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    const token = localStorage.getItem("gigarmor_token");
-    fetch(`${API_BASE}/api/v1/users/all`, {
-      headers: { Authorization: `Bearer ${token}` },
-      signal: AbortSignal.timeout(4000),
-    })
-      .then(r => r.json())
-      .then(d => setWorkers(Array.isArray(d) ? d : DEMO_WORKERS))
-      .catch(() => setWorkers(DEMO_WORKERS))
-      .finally(() => setLoading(false));
+    fetch(`${API_BASE}/api/v1/workers/?limit=50`, {
+      headers:{Authorization:`Bearer ${typeof window!=="undefined"&&localStorage.getItem("token")||""}`}
+    }).then(r=>r.ok?r.json():null).then(d=>{if(d?.workers)setWorkers(d.workers);}).catch(()=>{});
   }, []);
 
   const filtered = workers.filter(w =>
-    !search || [w.name, w.phone, w.platform, w.city, w.zone].some(v => v?.toLowerCase().includes(search.toLowerCase()))
+    w.name.toLowerCase().includes(search.toLowerCase()) ||
+    w.id.includes(search) || w.city.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
-    <div className="p-6 xl:p-8 max-w-[1400px]">
-      <div className="border-b border-[#1a1a1a] pb-5 mb-6 flex items-end justify-between flex-wrap gap-4">
-        <div>
-          <p className="mono-label mb-1.5">Worker registry</p>
-          <h1 className="text-2xl font-black text-white tracking-tight">Workers</h1>
-        </div>
-        <div className="flex items-center gap-6">
-          <div>
-            <div className="font-mono text-xl font-black text-white">{workers.length.toLocaleString("en-IN")}</div>
-            <div className="mono-label">total registered</div>
-          </div>
-          <div>
-            <div className="font-mono text-xl font-black text-[#00FF87]">{workers.filter(w => w.policy_status === "active").length.toLocaleString("en-IN")}</div>
-            <div className="mono-label">active policies</div>
-          </div>
+    <div className="max-w-[1400px]">
+      <div className="section-head">
+        <div><p className="lbl mb-1">Admin portal</p><h1 className="text-[#F5F0E8] font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Worker Directory</h1></div>
+        <div className="flex items-center gap-3">
+          <span className="tag tag-live">{workers.filter(w=>w.status==="active").length} active</span>
+          <span className="tag tag-neg">{workers.filter(w=>w.status==="flagged").length} flagged</span>
         </div>
       </div>
 
-      {/* Search */}
-      <div className="mb-6">
-        <label className="field-label">Search workers</label>
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Name, phone, platform, city..."
-          className="field max-w-[420px]" />
+      <div className="flex gap-3 mb-5">
+        <input className="field max-w-xs" style={{padding:"0.5rem 0.875rem"}} placeholder="Search name, ID, city…"
+          value={search} onChange={e=>setSearch(e.target.value)} />
       </div>
 
-      {loading ? (
-        <div className="py-20 text-center"><p className="mono-label animate-pulse">Loading workers...</p></div>
-      ) : (
-        <table className="data-table">
-          <thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Platform</th><th>City / Zone</th><th className="text-right">Claims</th><th>Joined</th><th className="text-right">Policy</th></tr></thead>
-          <tbody>
-            {filtered.map((w, i) => (
-              <motion.tr key={w.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.03 }}>
-                <td className="font-mono text-[11px] text-[#555]">{w.id}</td>
-                <td className="text-white text-[13px] font-medium">{w.name}</td>
-                <td className="font-mono text-[11px] text-[#555]">{w.phone}</td>
-                <td className="font-mono text-[11px] text-[#555]">{w.platform}</td>
-                <td className="font-mono text-[11px] text-[#555]">{w.city}{w.zone ? ` / ${w.zone}` : ""}</td>
-                <td className="font-mono text-[12px] text-right tabular-nums text-white">{w.total_claims ?? 0}</td>
-                <td className="font-mono text-[11px] text-[#444]">{w.joined_at}</td>
-                <td className="text-right">
-                  <span className={`font-mono text-[9px] tracking-widest ${STATUS_MAP[w.policy_status as keyof typeof STATUS_MAP]?.cls || "text-[#777]"}`}>
-                    {STATUS_MAP[w.policy_status as keyof typeof STATUS_MAP]?.label || (w.policy_status || "").toUpperCase()}
-                  </span>
-                </td>
-              </motion.tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-
-      {filtered.length === 0 && !loading && (
-        <div className="py-12 text-center border-b border-[#1a1a1a]">
-          <p className="mono-label">No workers found matching &quot;{search}&quot;</p>
+      <div className="grid xl:grid-cols-[1fr_360px] gap-5">
+        <div className="panel overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="tbl tbl-click">
+              <thead><tr><th>Worker</th><th>City</th><th>Platforms</th><th>Claims</th><th>Total earned</th><th>Risk</th><th>KYC</th></tr></thead>
+              <tbody>
+                {filtered.map(w => (
+                  <tr key={w.id} onClick={()=>setSel(sel?.id===w.id?null:w)} style={{background:sel?.id===w.id?"rgba(245,158,11,0.04)":""}}>
+                    <td>
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-full bg-amber-DEFAULT/10 flex items-center justify-center flex-shrink-0">
+                          <span className="text-amber-DEFAULT font-bold text-xs">{w.name.charAt(0)}</span>
+                        </div>
+                        <div>
+                          <div className="text-[#C8BAA0] font-medium text-sm">{w.name}</div>
+                          <div className="lbl">{w.id}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>{w.city}</td>
+                    <td><div className="flex gap-1 flex-wrap">{w.platforms.map(p=><span key={p} className="tag tag-neutral">{p}</span>)}</div></td>
+                    <td><span className="text-[#F5F0E8] font-bold">{w.claims}</span></td>
+                    <td><span className="text-amber-DEFAULT font-mono font-bold">₹{w.total_earned.toLocaleString()}</span></td>
+                    <td><RiskBadge v={w.risk} /></td>
+                    <td><KycBadge s={w.kyc} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      )}
+
+        <AnimatePresence>
+          {sel && (
+            <motion.div initial={{opacity:0,x:20}} animate={{opacity:1,x:0}} exit={{opacity:0,x:20}}
+              className="panel p-5 self-start sticky top-20" style={{maxHeight:"calc(100vh - 120px)",overflowY:"auto"}}
+            >
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-12 h-12 rounded-full bg-amber-DEFAULT/10 border border-amber-DEFAULT/20 flex items-center justify-center">
+                  <span className="text-amber-DEFAULT font-bold text-xl">{sel.name.charAt(0)}</span>
+                </div>
+                <div>
+                  <div className="text-[#F5F0E8] font-bold">{sel.name}</div>
+                  <div className="lbl">{sel.phone}</div>
+                </div>
+              </div>
+              <div className="space-y-2 mb-4">
+                {[
+                  ["Worker ID",sel.id],["City",sel.city],["Joined",sel.joined],["KYC",sel.kyc],
+                ].map(([k,v])=>(
+                  <div key={k} className="flex justify-between text-sm py-1.5 border-b border-[#2A2218]">
+                    <span className="text-[#6B5C44]">{k}</span>
+                    <span className="text-[#C8BAA0] font-medium">{v}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="grid grid-cols-2 gap-3 mb-5">
+                <div className="panel-inset p-3 text-center">
+                  <div className="text-amber-DEFAULT font-bold text-xl" style={{letterSpacing:"-0.03em"}}>₹{sel.total_earned.toLocaleString()}</div>
+                  <div className="lbl mt-1">Total earned</div>
+                </div>
+                <div className="panel-inset p-3 text-center">
+                  <div className="text-[#F5F0E8] font-bold text-xl">{sel.claims}</div>
+                  <div className="lbl mt-1">Total claims</div>
+                </div>
+              </div>
+              <div className="panel-inset p-3 mb-4">
+                <div className="flex justify-between mb-2">
+                  <span className="lbl">Risk score</span>
+                  <RiskBadge v={sel.risk} />
+                </div>
+                <div className="prog-track">
+                  <div className="prog-fill" style={{
+                    width:`${sel.risk*100}%`,
+                    background:sel.risk>0.6?"#EF4444":sel.risk>0.3?"#F59E0B":"#10B981",
+                    animation:"none"
+                  }} />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button className="btn-amber flex-1 btn-sm">View history</button>
+                {sel.status==="flagged" && <button className="btn-ghost flex-1 btn-sm text-signal-neg" style={{borderColor:"rgba(239,68,68,0.3)",color:"#EF4444"}}>Review flag</button>}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

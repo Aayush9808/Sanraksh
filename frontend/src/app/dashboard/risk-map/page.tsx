@@ -1,135 +1,72 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import { useState } from "react";
 import dynamic from "next/dynamic";
-import { API_BASE } from "@/lib/config";
+const RiskMapLeaflet = dynamic(()=>import("@/components/RiskMapLeaflet"),{ssr:false,loading:()=>(
+  <div className="flex items-center justify-center h-full text-[#4A3E2A] font-mono text-sm">Loading map…</div>
+)});
 
-const DEMO_ZONES = [
-  { zone: "Andheri West", lat: 19.136, lng: 72.826, risk: 0.82, active_workers: 243, claims_today: 12, type: "Heavy Rain" },
-  { zone: "Bandra-Kurla", lat: 19.065, lng: 72.868, risk: 0.68, active_workers: 187, claims_today: 8, type: "Flooding" },
-  { zone: "Koramangala", lat: 12.935, lng: 77.624, risk: 0.91, active_workers: 312, claims_today: 18, type: "Flooding" },
-  { zone: "Saket, Delhi", lat: 28.524, lng: 77.207, risk: 0.44, active_workers: 156, claims_today: 4, type: "AQI Alert" },
-  { zone: "Hitech City", lat: 17.445, lng: 78.380, risk: 0.35, active_workers: 98, claims_today: 2, type: "App Outage" },
-  { zone: "T Nagar", lat: 13.042, lng: 80.234, risk: 0.25, active_workers: 77, claims_today: 1, type: "Curfew" },
-  { zone: "Kothrud, Pune", lat: 18.508, lng: 73.807, risk: 0.57, active_workers: 134, claims_today: 6, type: "Heavy Rain" },
+const MAP_ZONES = [
+  { zone:"Mumbai Central",  lat:18.94, lng:72.83, risk:0.82, active_workers:2840, claims_today:14, type:"Rain, AQI" },
+  { zone:"Bengaluru South", lat:12.90, lng:77.59, risk:0.61, active_workers:1920, claims_today:8,  type:"Outage"    },
+  { zone:"Delhi NCR",       lat:28.66, lng:77.21, risk:0.74, active_workers:3200, claims_today:21, type:"AQI, Rain" },
+  { zone:"Hyderabad East",  lat:17.39, lng:78.49, risk:0.38, active_workers:1140, claims_today:3,  type:"Heat wave" },
+  { zone:"Chennai North",   lat:13.08, lng:80.27, risk:0.55, active_workers:980,  claims_today:6,  type:"Cyclone"   },
+  { zone:"Pune Metro",      lat:18.52, lng:73.85, risk:0.29, active_workers:740,  claims_today:2,  type:"Rain"      },
 ];
-
-const RISK_COLOR = (r: number) => r >= 0.75 ? "#ff4444" : r >= 0.5 ? "#ffaa00" : "#00FF87";
+const ZONES = [
+  { zone:"Mumbai Central",   city:"Mumbai",    risk:0.82, workers:2840, active_claims:14, events:"Rain, AQI" },
+  { zone:"Bengaluru South",  city:"Bengaluru", risk:0.61, workers:1920, active_claims:8,  events:"Outage"    },
+  { zone:"Delhi NCR",        city:"Delhi",     risk:0.74, workers:3200, active_claims:21, events:"AQI, Rain" },
+  { zone:"Hyderabad East",   city:"Hyderabad", risk:0.38, workers:1140, active_claims:3,  events:"Heat wave" },
+  { zone:"Chennai North",    city:"Chennai",   risk:0.55, workers:980,  active_claims:6,  events:"Cyclone"   },
+  { zone:"Pune Metro",       city:"Pune",      risk:0.29, workers:740,  active_claims:2,  events:"Rain"      },
+];
+const rc = (v:number) => v>0.7?"#EF4444":v>0.5?"#F59E0B":"#10B981";
 
 export default function RiskMapPage() {
-  const [selected, setSelected] = useState<typeof DEMO_ZONES[0] | null>(null);
-  const [MapComponent, setMapComponent] = useState<React.ComponentType<{ zones: typeof DEMO_ZONES; onSelect: (z: typeof DEMO_ZONES[0]) => void }> | null>(null);
-
-  useEffect(() => {
-    import("@/components/RiskMapLeaflet").then(m => setMapComponent(() => m.default)).catch(() => {});
-  }, []);
-
-  const sorted = [...DEMO_ZONES].sort((a, b) => b.risk - a.risk);
-
+  const [selZone, setSelZone] = useState<typeof MAP_ZONES[0]|null>(null);
   return (
-    <div className="p-6 xl:p-8 max-w-[1600px]">
-      <div className="border-b border-[#1a1a1a] pb-5 mb-8 flex items-end justify-between">
-        <div>
-          <p className="mono-label mb-1.5">Geospatial intelligence</p>
-          <h1 className="text-2xl font-black text-white tracking-tight">Risk Map</h1>
-        </div>
-        <div className="flex items-center gap-6">
-          {[["HIGH", "#ff4444"], ["MED", "#ffaa00"], ["LOW", "#00FF87"]].map(([label, color]) => (
-            <div key={label} className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full" style={{ background: color as string }} />
-              <span className="mono-label">{label}</span>
-            </div>
-          ))}
+    <div className="max-w-[1400px] h-full">
+      <div className="section-head">
+        <div><p className="lbl mb-1">Admin portal</p><h1 className="text-[#F5F0E8] font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Risk Map</h1></div>
+        <div className="flex gap-3 items-center">
+          <div className="flex gap-2 items-center"><div className="w-2 h-2 rounded-full bg-red-500" /><span className="lbl">High</span></div>
+          <div className="flex gap-2 items-center"><div className="w-2 h-2 rounded-full bg-amber-DEFAULT" /><span className="lbl">Med</span></div>
+          <div className="flex gap-2 items-center"><div className="w-2 h-2 rounded-full bg-emerald-500" /><span className="lbl">Low</span></div>
         </div>
       </div>
 
-      <div className="grid xl:grid-cols-[1fr_320px] gap-6">
-        {/* Zone list */}
-        <div>
-          <div className="border-b border-[#1a1a1a] pb-3 mb-0">
-            <p className="mono-label">Zone risk matrix — {DEMO_ZONES.length} zones monitored</p>
-          </div>
-          <table className="data-table">
-            <thead><tr><th>Zone</th><th>Trigger type</th><th className="text-right">Workers</th><th className="text-right">Claims today</th><th>Risk score</th></tr></thead>
-            <tbody>
-              {sorted.map((z, i) => (
-                <motion.tr key={z.zone} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.05 }}
-                  className="cursor-pointer" onClick={() => setSelected(z)}>
-                  <td className="text-white font-medium">{z.zone}</td>
-                  <td className="font-mono text-[11px] text-[#555]">{z.type}</td>
-                  <td className="font-mono text-[12px] text-right tabular-nums text-white">{z.active_workers}</td>
-                  <td className="font-mono text-[12px] font-bold text-right tabular-nums" style={{ color: RISK_COLOR(z.risk) }}>{z.claims_today}</td>
-                  <td className="py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1 h-1 bg-[#1a1a1a] max-w-[120px]">
-                        <div className="h-1 transition-all" style={{ width: `${z.risk * 100}%`, background: RISK_COLOR(z.risk) }} />
-                      </div>
-                      <span className="font-mono text-[11px] font-bold tabular-nums" style={{ color: RISK_COLOR(z.risk) }}>
-                        {(z.risk * 100).toFixed(0)}
-                      </span>
-                    </div>
-                  </td>
-                </motion.tr>
-              ))}
-            </tbody>
-          </table>
+      <div className="grid xl:grid-cols-[1fr_360px] gap-5" style={{height:"calc(100vh - 180px)"}}>
+        {/* Map */}
+        <div className="panel overflow-hidden" style={{minHeight:400}}>
+          <RiskMapLeaflet zones={MAP_ZONES} onSelect={setSelZone} />
         </div>
-
-        {/* Detail */}
-        <div className="border-l border-[#1a1a1a] pl-6">
-          {selected ? (
-            <motion.div key={selected.zone} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-              <div className="border-b border-[#1a1a1a] pb-3 mb-6 flex items-start justify-between">
-                <p className="mono-label">Zone detail</p>
-                <button onClick={() => setSelected(null)} className="font-mono text-[10px] text-[#444] hover:text-white transition-colors uppercase tracking-widest">Clear</button>
-              </div>
-              <div className="space-y-5">
-                <div>
-                  <p className="mono-label mb-1">Zone</p>
-                  <p className="text-base font-bold text-white">{selected.zone}</p>
-                </div>
-                <div>
-                  <p className="mono-label mb-1">Active trigger</p>
-                  <p className="text-sm text-white">{selected.type}</p>
-                </div>
-                <div>
-                  <p className="mono-label mb-2">Risk score</p>
-                  <div className="flex items-center gap-3">
-                    <div className="flex-1 h-1.5 bg-[#1a1a1a]">
-                      <div className="h-1.5 transition-all" style={{ width: `${selected.risk * 100}%`, background: RISK_COLOR(selected.risk) }} />
-                    </div>
-                    <span className="font-mono text-lg font-black" style={{ color: RISK_COLOR(selected.risk) }}>
-                      {(selected.risk * 100).toFixed(0)}
-                    </span>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
+        {/* Zone table */}
+        <div className="panel overflow-hidden self-start">
+          <div style={{padding:"1rem 1.25rem",borderBottom:"1px solid #2A2218"}}>
+            <p className="lbl mb-0.5">Active disruption zones</p>
+            <h2 className="text-[#F5F0E8] font-bold" style={{letterSpacing:"-0.02em"}}>6 zones tracked</h2>
+          </div>
+          <div className="divide-y divide-[#2A2218]">
+            {ZONES.map(z=>(
+              <div key={z.zone} className="px-4 py-3.5 hover:bg-[#180F06] transition-colors">
+                <div className="flex justify-between items-start mb-2">
                   <div>
-                    <p className="mono-label mb-1">Active workers</p>
-                    <p className="font-mono text-xl font-black text-white">{selected.active_workers}</p>
+                    <div className="text-[#C8BAA0] font-medium text-sm">{z.zone}</div>
+                    <div className="lbl">{z.events}</div>
                   </div>
-                  <div>
-                    <p className="mono-label mb-1">Claims today</p>
-                    <p className="font-mono text-xl font-black" style={{ color: RISK_COLOR(selected.risk) }}>{selected.claims_today}</p>
-                  </div>
+                  <span className="font-mono font-bold text-sm" style={{color:rc(z.risk)}}>{(z.risk*100).toFixed(0)}%</span>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="mono-label mb-1">Latitude</p>
-                    <p className="font-mono text-sm text-white">{selected.lat.toFixed(3)}\u00b0N</p>
-                  </div>
-                  <div>
-                    <p className="mono-label mb-1">Longitude</p>
-                    <p className="font-mono text-sm text-white">{selected.lng.toFixed(3)}\u00b0E</p>
-                  </div>
+                <div className="prog-track mb-2">
+                  <div className="prog-fill" style={{width:`${z.risk*100}%`,background:rc(z.risk),animation:"none"}} />
+                </div>
+                <div className="flex gap-3">
+                  <span className="lbl">{z.workers.toLocaleString()} workers</span>
+                  <span className="lbl">{z.active_claims} claims</span>
                 </div>
               </div>
-            </motion.div>
-          ) : (
-            <div className="py-16 text-center">
-              <p className="mono-label">Select a zone to view details</p>
-            </div>
-          )}
+            ))}
+          </div>
         </div>
       </div>
     </div>

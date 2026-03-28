@@ -1,111 +1,84 @@
 "use client";
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-
-interface UserProfile {
-  name?: string;
-  phone?: string;
-  email?: string;
-  platform?: string;
-  city?: string;
-  zone?: string;
-  role?: string;
-}
+import { useState } from "react";
+import { API_BASE } from "@/lib/config";
 
 export default function ProfilePage() {
-  const [user, setUser] = useState<UserProfile>({});
-  const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState<UserProfile>({});
+  const [form, setForm] = useState({ name:"Rahul Kumar", phone:"+91 9999000001", city:"Mumbai", email:"rahul@example.com" });
   const [saved, setSaved] = useState(false);
+  const upd = (k:string, v:string) => { setForm(p=>({...p,[k]:v})); setSaved(false); };
 
-  useEffect(() => {
-    const raw = localStorage.getItem("gigarmor_user");
-    if (raw) { const u = JSON.parse(raw); setUser(u); setForm(u); }
-  }, []);
-
-  function handleSave(e: React.FormEvent) {
+  async function save(e:React.FormEvent) {
     e.preventDefault();
-    const updated = { ...user, ...form };
-    setUser(updated);
-    localStorage.setItem("gigarmor_user", JSON.stringify(updated));
-    setEditing(false);
+    try {
+      await fetch(`${API_BASE}/api/v1/workers/me`, {
+        method:"PATCH", headers:{"Content-Type":"application/json", Authorization:`Bearer ${typeof window!=="undefined"&&localStorage.getItem("token")||""}`},
+        body:JSON.stringify(form),
+      });
+    } catch {}
     setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
   }
 
-  const fields: { key: keyof UserProfile; label: string; editable: boolean }[] = [
-    { key: "name", label: "Full name", editable: true },
-    { key: "phone", label: "Phone number", editable: false },
-    { key: "email", label: "Email address", editable: true },
-    { key: "platform", label: "Delivery platform", editable: false },
-    { key: "city", label: "Work city", editable: false },
-    { key: "zone", label: "Work zone", editable: false },
-    { key: "role", label: "Account type", editable: false },
-  ];
-
   return (
-    <div className="p-6 xl:p-8 max-w-[800px]">
-      <div className="border-b border-[#1a1a1a] pb-5 mb-8 flex items-end justify-between">
+    <div className="max-w-2xl">
+      <div className="section-head">
         <div>
-          <p className="mono-label mb-1.5">Account</p>
-          <h1 className="text-2xl font-black text-white tracking-tight">Profile</h1>
+          <p className="lbl mb-1">Account</p>
+          <h1 className="text-[#F5F0E8] font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Profile & Settings</h1>
         </div>
-        {saved && (
-          <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="font-mono text-[10px] tracking-widest uppercase text-[#00FF87]">
-            Changes saved
-          </motion.span>
-        )}
-      </div>
-
-      {/* Avatar + name */}
-      <div className="flex items-center gap-5 mb-10 pb-8 border-b border-[#1a1a1a]">
-        <div className="w-14 h-14 border border-[#2a2a2a] flex items-center justify-center font-mono text-xl font-black text-white">
-          {user.name?.charAt(0).toUpperCase() || "?"}
-        </div>
-        <div>
-          <div className="text-lg font-bold text-white">{user.name || "Unknown"}</div>
-          <div className="mono-label mt-1">{user.platform} \u2014 {user.city}</div>
+        <div className="flex items-center gap-2">
+          <span className="dot" style={{width:8,height:8,background:"#10B981"}} />
+          <span className="lbl-live">KYC Verified</span>
         </div>
       </div>
 
-      {/* Fields */}
-      <form onSubmit={handleSave} className="space-y-0 border-t border-[#1a1a1a]">
-        {fields.map((f, i) => (
-          <motion.div key={f.key} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.04 }}
-            className="grid grid-cols-[180px_1fr] border-b border-[#1a1a1a] py-5">
-            <p className="field-label self-center">{f.label}</p>
-            {editing && f.editable ? (
-              <input
-                value={(form[f.key] as string) || ""}
-                onChange={e => setForm(prev => ({ ...prev, [f.key]: e.target.value }))}
-                className="field max-w-[300px]"
-              />
-            ) : (
-              <p className="text-sm text-white self-center font-medium">
-                {(user[f.key] as string) || <span className="text-[#333]">Not set</span>}
-              </p>
-            )}
-          </motion.div>
-        ))}
+      {/* Avatar row */}
+      <div className="panel p-5 mb-5 flex items-center gap-5">
+        <div className="w-16 h-16 rounded-full bg-amber-DEFAULT/10 border border-amber-DEFAULT/30 flex items-center justify-center">
+          <span className="text-amber-DEFAULT font-bold text-2xl">{form.name.charAt(0)}</span>
+        </div>
+        <div>
+          <div className="text-[#F5F0E8] font-bold text-lg">{form.name}</div>
+          <div className="lbl mt-0.5">{form.phone} · {form.city}</div>
+          <div className="flex gap-2 mt-2">
+            <span className="tag tag-live">Swiggy</span>
+            <span className="tag tag-live">Zomato</span>
+            <span className="tag tag-live">Uber</span>
+          </div>
+        </div>
+      </div>
 
-        <div className="pt-6 flex gap-4">
-          {editing ? (
-            <>
-              <button type="submit" className="btn-wire" style={{ width: "auto", paddingLeft: "2rem", paddingRight: "2rem" }}>
-                SAVE CHANGES
-              </button>
-              <button type="button" onClick={() => setEditing(false)} className="btn-ghost">
-                CANCEL
-              </button>
-            </>
-          ) : (
-            <button type="button" onClick={() => setEditing(true)} className="btn-ghost">
-              EDIT PROFILE
-            </button>
-          )}
+      <form onSubmit={save} className="panel p-5 space-y-4">
+        <p className="lbl mb-2">Personal information</p>
+        <div className="grid md:grid-cols-2 gap-4">
+          <div><label className="field-label">Full name</label><input className="field" value={form.name} onChange={e=>upd("name",e.target.value)} /></div>
+          <div><label className="field-label">Email (optional)</label><input className="field" value={form.email} onChange={e=>upd("email",e.target.value)} /></div>
+          <div><label className="field-label">Mobile</label><input className="field" value={form.phone} disabled style={{opacity:0.5}} /></div>
+          <div>
+            <label className="field-label">City</label>
+            <select className="field" value={form.city} onChange={e=>upd("city",e.target.value)}>
+              {["Mumbai","Delhi","Bengaluru","Hyderabad","Chennai","Pune"].map(c=><option key={c}>{c}</option>)}
+            </select>
+          </div>
+        </div>
+        <div className="pt-2 flex items-center gap-3">
+          <button type="submit" className="btn-amber">Save changes</button>
+          {saved && <span className="lbl-live">Changes saved ✓</span>}
         </div>
       </form>
+
+      <div className="panel p-5 mt-5">
+        <p className="lbl mb-3">Notification preferences</p>
+        <div className="space-y-3">
+          {["Payout received","Active trigger in your zone","Policy renewal reminder","New coverage added"].map(n=>(
+            <div key={n} className="flex items-center justify-between py-2 border-b border-[#2A2218] last:border-0">
+              <span className="text-sm text-[#9A8A72]">{n}</span>
+              <div className="w-10 h-5 rounded-full bg-amber-DEFAULT relative cursor-pointer">
+                <div className="w-4 h-4 rounded-full bg-[#0A0806] absolute right-0.5 top-0.5" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

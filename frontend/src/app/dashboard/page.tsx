@@ -1,177 +1,192 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { API_BASE } from "@/lib/config";
 
-interface DashStats {
-  total_workers?: number;
-  active_policies?: number;
-  claims_today?: number;
-  total_paid_today?: number;
-  pending_review?: number;
-  auto_approved_pct?: number;
-  active_disruptions?: number;
+function Counter({ end, prefix="", suffix="" }: { end:number; prefix?:string; suffix?:string }) {
+  const [v, setV] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const obs = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return;
+      obs.disconnect();
+      let n = 0; const step = end/(1600/16);
+      const t = setInterval(() => {
+        n += step; if(n>=end){setV(end);clearInterval(t);}else setV(n);
+      },16);
+    });
+    if(ref.current) obs.observe(ref.current);
+    return ()=>obs.disconnect();
+  }, [end]);
+  return <div ref={ref}>{prefix}{end>=1000?Math.floor(v).toLocaleString():Math.floor(v)}{suffix}</div>;
 }
 
-const DEMO_STATS: DashStats = {
-  total_workers: 12847,
-  active_policies: 9341,
-  claims_today: 34,
-  total_paid_today: 15600,
-  pending_review: 3,
-  auto_approved_pct: 99.8,
-  active_disruptions: 2,
-};
-
-const DEMO_RECENT = [
-  { id: "CLM-8821", worker: "Ravi Kumar", platform: "Zomato", trigger: "Heavy Rain", zone: "Andheri West", amount: 450, status: "approved", ts: "2 min ago" },
-  { id: "CLM-8820", worker: "Priya Singh", platform: "Swiggy", trigger: "Flood Alert", zone: "Kurla", amount: 1200, status: "approved", ts: "8 min ago" },
-  { id: "CLM-8819", worker: "Amit Rao", platform: "Blinkit", trigger: "App Outage", zone: "Bandra", amount: 500, status: "review", ts: "15 min ago" },
-  { id: "CLM-8818", worker: "Neha Patel", platform: "Zepto", trigger: "AQI Alert", zone: "Dadar", amount: 600, status: "approved", ts: "22 min ago" },
-  { id: "CLM-8817", worker: "Suresh M.", platform: "Zomato", trigger: "Heavy Rain", zone: "Powai", amount: 800, status: "rejected", ts: "31 min ago" },
-  { id: "CLM-8816", worker: "Kavya L.", platform: "Swiggy", trigger: "Curfew", zone: "Goregaon", amount: 900, status: "approved", ts: "45 min ago" },
+const CLAIMS_DEMO = [
+  { id:"CLM-8821", worker:"Rahul Kumar",     event:"Heavy Rain",   amount:280, status:"approved", fraud:0.08, time:"12 min ago" },
+  { id:"CLM-8820", worker:"Priya Mistry",    event:"App Outage",   amount:200, status:"review",   fraud:0.34, time:"28 min ago" },
+  { id:"CLM-8819", worker:"Arjun Sharma",    event:"Curfew",       amount:350, status:"approved", fraud:0.06, time:"41 min ago" },
+  { id:"CLM-8818", worker:"Meena Rajan",     event:"Flood Warning",amount:280, status:"approved", fraud:0.11, time:"1h ago"     },
+  { id:"CLM-8817", worker:"Vikram Patil",    event:"Heat Wave",    amount:200, status:"rejected",  fraud:0.82, time:"1.5h ago"  },
+  { id:"CLM-8816", worker:"Divya Nair",      event:"Heavy Rain",   amount:280, status:"approved", fraud:0.09, time:"2h ago"    },
 ];
 
-const DEMO_DISRUPTIONS = [
-  { zone: "Andheri West, Mumbai", type: "Heavy Rain", severity: "HIGH", active_since: "14:22", workers: 243 },
-  { zone: "Koramangala, Bengaluru", type: "Flooding", severity: "CRT", active_since: "13:55", workers: 87 },
+const DISRUPTIONS_DEMO = [
+  { zone:"Andheri West, Mumbai",  type:"Heavy Rain",    severity:0.82, workers:243, color:"#EF4444" },
+  { zone:"Koramangala, Bengaluru",type:"App Outage",    severity:0.68, workers:187, color:"#F59E0B" },
+  { zone:"Saket, Delhi",          type:"AQI Alert",     severity:0.44, workers:156, color:"#F59E0B" },
+  { zone:"Banjara Hills, Hyd",    type:"Heavy Rain",    severity:0.35, workers:98,  color:"#10B981" },
+  { zone:"T.Nagar, Chennai",      type:"Cyclone Watch", severity:0.91, workers:312, color:"#EF4444" },
 ];
 
-export default function DashboardOverview() {
-  const [stats, setStats] = useState<DashStats>(DEMO_STATS);
-  const [loading, setLoading] = useState(true);
+const KPIS = [
+  { label:"Active claims",        val:127,   suffix:"",    delta:"+12", up:false, amber:false },
+  { label:"Payouts today",        val:89400, prefix:"₹",   delta:"+24%",up:true,  amber:true  },
+  { label:"Workers online",       val:14200, suffix:"+",   delta:"+840",up:true,  amber:false },
+  { label:"Avg. payout time",     val:3,     suffix:"8 hrs",delta:"-0.2",up:true, amber:false },
+  { label:"Fraud detected",       val:4,     suffix:" flags",delta:"",  up:false, amber:false },
+  { label:"Engine runs today",    val:24,    suffix:"",    delta:"100%",up:true,  amber:false },
+];
+
+function StatusTag({ s }: { s:string }) {
+  const m: Record<string,string> = { approved:"tag-live", review:"tag-warn", rejected:"tag-neg", pending:"tag-neutral" };
+  return <span className={`tag ${m[s] || "tag-neutral"}`}>{s}</span>;
+}
+
+function FraudBar({ score }: { score:number }) {
+  const color = score>0.6?"#EF4444":score>0.3?"#F59E0B":"#10B981";
+  return (
+    <div className="flex items-center gap-2">
+      <div className="prog-track flex-1" style={{minWidth:60}}>
+        <div className="prog-fill" style={{ width:`${score*100}%`, background:color, animation:"none" }} />
+      </div>
+      <span className="font-mono text-xs" style={{color}}>{(score*100).toFixed(0)}%</span>
+    </div>
+  );
+}
+
+export default function DashboardPage() {
+  const [claims, setClaims] = useState(CLAIMS_DEMO);
+  const [disruptions] = useState(DISRUPTIONS_DEMO);
 
   useEffect(() => {
-    const token = localStorage.getItem("gigarmor_token");
-    fetch(`${API_BASE}/api/v1/analytics/dashboard`, {
-      headers: { Authorization: `Bearer ${token}` },
-      signal: AbortSignal.timeout(4000),
+    fetch(`${API_BASE}/api/v1/claims/?limit=6`, {
+      headers: { Authorization: `Bearer ${typeof window!=="undefined"&&localStorage.getItem("token")||""}` }
     })
-      .then(r => r.json())
-      .then(d => setStats(d))
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      .then(r=>r.ok?r.json():null)
+      .then(d=>{ if(d?.claims) setClaims(d.claims); })
+      .catch(()=>{});
   }, []);
 
-  const STATUS = {
-    approved: { label: "APPROVED", color: "text-[#00FF87]" },
-    review: { label: "REVIEW", color: "text-[#ffaa00]" },
-    rejected: { label: "REJECTED", color: "text-[#ff4444]" },
-  } as const;
-
-  const SEV = {
-    HIGH: "text-[#ffaa00]",
-    CRT: "text-[#ff4444]",
-    MED: "text-[#777]",
-  } as const;
-
   return (
-    <div className="p-6 xl:p-8 max-w-[1600px]">
-      {/* Header */}
-      <div className="border-b border-[#1a1a1a] pb-5 mb-8 flex items-end justify-between">
+    <div className="max-w-[1500px]">
+      {/* Page header */}
+      <div className="section-head">
         <div>
-          <p className="mono-label mb-1.5">Operations dashboard</p>
-          <h1 className="text-2xl font-black text-white tracking-tight">Overview</h1>
+          <p className="lbl mb-1">Operations center</p>
+          <h1 className="text-[#F5F0E8] font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Command Overview</h1>
         </div>
         <div className="flex items-center gap-2">
-          <span className="dot-live" />
-          <span className="mono-label">Live data</span>
+          <span className="dot dot-live" />
+          <span className="lbl-live">All systems operational</span>
         </div>
       </div>
 
-      {/* Stats grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-0 border-t border-l border-[#1a1a1a] mb-8">
-        {[
-          { label: "Total workers", value: stats.total_workers?.toLocaleString("en-IN"), accent: false },
-          { label: "Active policies", value: stats.active_policies?.toLocaleString("en-IN"), accent: false },
-          { label: "Claims today", value: stats.claims_today, accent: false },
-          { label: "Paid today", value: "\u20b9" + (stats.total_paid_today?.toLocaleString("en-IN") || 0), accent: true },
-          { label: "Pending review", value: stats.pending_review, accent: stats.pending_review ? true : false },
-          { label: "Auto-approved", value: (stats.auto_approved_pct || 0) + "%", accent: true },
-          { label: "Active disruptions", value: stats.active_disruptions, accent: stats.active_disruptions ? true : false },
-        ].map((s, i) => (
-          <motion.div key={s.label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-            className="border-r border-b border-[#1a1a1a] p-5">
-            <div className={`font-mono text-2xl font-black tabular-nums leading-none ${s.accent ? "text-[#00FF87]" : "text-white"}`}>
-              {loading ? <span className="text-[#2a2a2a]">—</span> : s.value}
+      {/* ── KPI GRID ─────────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 mb-6">
+        {KPIS.map((k, i) => (
+          <motion.div key={k.label} initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{delay:i*0.07}}
+            className={`panel p-4 ${k.amber?"panel-amber":""}`}
+          >
+            <div className="lbl mb-2">{k.label}</div>
+            <div className={`font-extrabold text-2xl mb-1 ${k.amber?"text-amber-DEFAULT":"text-[#F5F0E8]"}`}
+              style={{letterSpacing:"-0.04em",lineHeight:1}}>
+              {k.prefix||""}<Counter end={k.val} />{k.suffix}
             </div>
-            <div className="mono-label mt-2">{s.label}</div>
+            {k.delta && (
+              <div className={`font-mono text-xs ${k.up?"text-signal-live":"text-signal-neg"}`}>{k.delta}</div>
+            )}
           </motion.div>
         ))}
       </div>
 
-      <div className="grid xl:grid-cols-[1fr_360px] gap-6">
-        {/* Recent claims */}
-        <div>
-          <div className="border-b border-[#1a1a1a] pb-3 mb-0 flex items-center justify-between">
-            <p className="mono-label">Recent claims</p>
-            <a href="/dashboard/claims" className="font-mono text-[10px] tracking-widest uppercase text-[#00FF87] hover:text-white transition-colors">
-              View all \u2192
-            </a>
+      {/* ── MAIN CONTENT: Claims + Disruptions ───────────────────────────── */}
+      <div className="grid xl:grid-cols-[1fr_340px] gap-5">
+
+        {/* Claims table */}
+        <div className="panel overflow-hidden">
+          <div className="section-head px-5 pt-5" style={{marginBottom:0,borderBottom:"1px solid #2A2218",padding:"1rem 1.25rem"}}>
+            <div>
+              <p className="lbl mb-1">Recent activity</p>
+              <h2 className="text-[#F5F0E8] font-bold" style={{letterSpacing:"-0.02em"}}>Claims feed</h2>
+            </div>
+            <a href="/dashboard/claims" className="btn-ghost btn-sm text-xs">View all →</a>
           </div>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>ID</th><th>Worker</th><th>Platform</th><th>Trigger</th>
-                <th>Zone</th><th className="text-right">Amount</th><th className="text-right">Status</th><th className="text-right">Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              {DEMO_RECENT.map((c, i) => (
-                <motion.tr key={c.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 + i * 0.04 }}>
-                  <td className="font-mono text-[11px] text-[#555]">{c.id}</td>
-                  <td className="text-white text-[13px]">{c.worker}</td>
-                  <td className="font-mono text-[11px] text-[#555]">{c.platform}</td>
-                  <td className="font-mono text-[11px] text-[#555]">{c.trigger}</td>
-                  <td className="font-mono text-[11px] text-[#555]">{c.zone}</td>
-                  <td className="font-mono text-[12px] text-white font-bold text-right tabular-nums">\u20b9{c.amount.toLocaleString()}</td>
-                  <td className="text-right">
-                    <span className={`font-mono text-[9px] tracking-widest ${STATUS[c.status as keyof typeof STATUS].color}`}>
-                      {STATUS[c.status as keyof typeof STATUS].label}
-                    </span>
-                  </td>
-                  <td className="font-mono text-[11px] text-[#333] text-right whitespace-nowrap">{c.ts}</td>
-                </motion.tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto">
+            <table className="tbl tbl-click">
+              <thead>
+                <tr>
+                  <th>Claim ID</th>
+                  <th>Worker</th>
+                  <th>Event</th>
+                  <th>Amount</th>
+                  <th>Fraud score</th>
+                  <th>Status</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+              <tbody>
+                {claims.map((c) => (
+                  <tr key={c.id}>
+                    <td><span className="font-mono text-[#F5F0E8] text-xs">{c.id}</span></td>
+                    <td><span className="text-[#C8BAA0] font-medium">{c.worker}</span></td>
+                    <td>{c.event}</td>
+                    <td><span className="text-amber-DEFAULT font-mono font-bold">₹{c.amount}</span></td>
+                    <td><FraudBar score={c.fraud} /></td>
+                    <td><StatusTag s={c.status} /></td>
+                    <td><span className="lbl">{c.time}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        {/* Active disruptions */}
-        <div>
-          <div className="border-b border-[#1a1a1a] pb-3 mb-0">
-            <p className="mono-label">Active disruptions</p>
+        {/* Live disruptions panel */}
+        <div className="panel overflow-hidden">
+          <div style={{padding:"1rem 1.25rem",borderBottom:"1px solid #2A2218"}}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="lbl mb-1">Signal monitor</p>
+                <h2 className="text-[#F5F0E8] font-bold" style={{letterSpacing:"-0.02em"}}>Active disruptions</h2>
+              </div>
+              <span className="dot dot-live" />
+            </div>
           </div>
-          {DEMO_DISRUPTIONS.length === 0 ? (
-            <div className="py-12 text-center">
-              <p className="font-mono text-[10px] tracking-widest uppercase text-[#333]">No active disruptions</p>
-            </div>
-          ) : (
-            <div className="border-b border-[#1a1a1a]">
-              {DEMO_DISRUPTIONS.map((d, i) => (
-                <motion.div key={i} initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 + i * 0.1 }}
-                  className="py-4 border-b border-[#1a1a1a] last:border-b-0">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <div className="text-sm font-semibold text-white">{d.type}</div>
-                      <div className="font-mono text-[11px] text-[#444] mt-0.5">{d.zone}</div>
-                    </div>
-                    <span className={`font-mono text-[9px] tracking-widest font-bold ${SEV[d.severity as keyof typeof SEV] || "text-[#777]"}`}>
-                      {d.severity}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div>
-                      <div className="font-mono text-[11px] text-[#555]">{d.workers} workers affected</div>
-                    </div>
-                    <div className="ml-auto">
-                      <div className="mono-label">Since {d.active_since}</div>
+          <div className="p-3 space-y-2">
+            {disruptions.map((d, i) => (
+              <motion.div key={d.zone} initial={{opacity:0,x:12}} animate={{opacity:1,x:0}} transition={{delay:0.3+i*0.1}}
+                className="panel-inset p-3"
+                style={{borderLeft:`3px solid ${d.color}`}}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="text-[#F5F0E8] text-sm font-semibold mb-0.5">{d.zone}</div>
+                    <div className="lbl mb-2">{d.type}</div>
+                    <div className="prog-track" style={{width:120}}>
+                      <div className="prog-fill" style={{width:`${d.severity*100}%`,background:d.color,animation:"none"}} />
                     </div>
                   </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
+                  <div className="text-right flex-shrink-0">
+                    <div className="text-[#F5F0E8] font-bold text-sm">{d.workers}</div>
+                    <div className="lbl">workers</div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+            <a href="/dashboard/risk-map">
+              <button className="w-full btn-ghost btn-sm mt-2">View risk map →</button>
+            </a>
+          </div>
         </div>
       </div>
     </div>

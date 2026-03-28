@@ -3,313 +3,336 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 
-/* ─────────────────────────────────────────────── DATA */
-const COVERAGE = [
-  { id: "01", name: "Heavy Rain Shield", trigger: "Rainfall > 50mm/hr in your delivery zone", payout: "\u20b9800", speed: "< 60s" },
-  { id: "02", name: "Flood Income Cover", trigger: "IMD flood alert issued for your zone", payout: "\u20b91,200", speed: "< 60s" },
-  { id: "03", name: "Job Loss Cover", trigger: "Platform account deactivation detected", payout: "\u20b92,000", speed: "< 5min" },
-  { id: "04", name: "Pollution Shutdown", trigger: "AQI > 400, GRAP-4 emergency active", payout: "\u20b9600", speed: "< 60s" },
-  { id: "05", name: "Curfew / Strike Loss", trigger: "Government-ordered zone closure verified", payout: "\u20b9900", speed: "< 60s" },
-  { id: "06", name: "App Outage Cover", trigger: "Platform downtime exceeds 3 hours", payout: "\u20b9500", speed: "< 60s" },
-];
-
-const TICKER_ITEMS = [
-  "Ravi K., Mumbai \u2014 \u20b9450 paid",
-  "Priya S., Pune \u2014 \u20b9320 paid",
-  "Amit J., Delhi \u2014 \u20b9580 paid",
-  "Neha R., Bengaluru \u2014 \u20b9410 paid",
-  "Suresh M., Hyderabad \u2014 \u20b9620 paid",
-  "Kavya P., Chennai \u2014 \u20b9380 paid",
-  "Rohit D., Mumbai \u2014 \u20b9510 paid",
-  "Meera L., Delhi \u2014 \u20b9290 paid",
-  "Arjun B., Bengaluru \u2014 \u20b9750 paid",
-];
-
-const HOW = [
-  { n: "01", title: "Register in 2 min", body: "Sign up on web or WhatsApp. Share your delivery zone and platform. Zero paperwork required." },
-  { n: "02", title: "AI monitors your zone", body: "Our system watches weather, AQI, traffic and platform status across your 2km\u00d72km micro-zone. 24/7, no rest." },
-  { n: "03", title: "Get paid when it hits", body: "Disruption detected \u2192 ML engine verifies \u2192 UPI payout in your account. Under 60 seconds, no calls, no claims." },
-];
-
-const TECH = [
-  { label: "Parametric Triggers", desc: "Real-time weather, AQI, flood and platform APIs auto-fire payouts \u2014 no human approval needed." },
-  { label: "ML Fraud Engine", desc: "5-factor weighted scoring: GPS trace, claim frequency, peer validation, anomaly detection, timing analysis." },
-  { label: "Micro-Zone Mapping", desc: "2km \u00d7 2km grid with composite risk scoring per zone per signal type, updated every 15 minutes." },
-  { label: "Peer Validation", desc: "Community-corroborated claims with built-in collusion detection across delivery networks." },
-  { label: "Audit Trail", desc: "Every claim carries trace codes and decision logs for full regulatory transparency." },
-  { label: "Anti-Spoofing", desc: "GPS spoof detection, device ring checks, and route feasibility scoring on every claim." },
-];
-
-/* ─────────────────────────────────────────────── COMPONENTS */
-function CountUp({ target, prefix = "", suffix = "" }: { target: number; prefix?: string; suffix?: string }) {
+// ── Counter ────────────────────────────────────────────────────────────────
+function Counter({ end, prefix = "", suffix = "", decimals = 0 }: {
+  end: number; prefix?: string; suffix?: string; decimals?: number;
+}) {
   const [val, setVal] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true });
+  const inView = useInView(ref, { once: true, margin: "-80px" });
   useEffect(() => {
     if (!inView) return;
-    let frame = 0;
-    const total = 60;
-    const step = () => {
-      frame++;
-      setVal(Math.round((frame / total) * target));
-      if (frame < total) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  }, [inView, target]);
-  return <span ref={ref}>{prefix}{val.toLocaleString("en-IN")}{suffix}</span>;
+    let start = 0;
+    const dur = 1800, step = end / (dur / 16);
+    const t = setInterval(() => {
+      start += step;
+      if (start >= end) { setVal(end); clearInterval(t); } else setVal(start);
+    }, 16);
+    return () => clearInterval(t);
+  }, [inView, end]);
+  return <span ref={ref}>{prefix}{decimals > 0 ? val.toFixed(decimals) : Math.floor(val).toLocaleString()}{suffix}</span>;
 }
 
-function Ticker() {
-  const items = [...TICKER_ITEMS, ...TICKER_ITEMS];
+// ── Payout Orbit Visualization ─────────────────────────────────────────────
+const PAYOUTS = [
+  { id:1, amount:"₹280", name:"Rahul K.", platform:"Swiggy",  event:"Rain",    delay:0   },
+  { id:2, amount:"₹350", name:"Priya M.", platform:"Zomato",  event:"Curfew",  delay:0.6 },
+  { id:3, amount:"₹200", name:"Arjun S.", platform:"Uber",    event:"Outage",  delay:1.2 },
+  { id:4, amount:"₹180", name:"Meena R.", platform:"Dunzo",   event:"Flood",   delay:1.8 },
+  { id:5, amount:"₹320", name:"Vikram P.",platform:"Swiggy",  event:"Heat",    delay:2.4 },
+];
+
+function PayoutOrbit() {
+  const [active, setActive] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setActive(p => (p + 1) % PAYOUTS.length), 2200);
+    return () => clearInterval(t);
+  }, []);
+
   return (
-    <div className="ticker-wrap">
-      <div className="ticker-track">
-        {items.map((item, i) => (
-          <span key={i} className="font-mono text-[10px] tracking-widest uppercase text-[#444] px-8 shrink-0">
-            <span className="dot-live mr-3 align-middle" />{item}
-          </span>
-        ))}
-      </div>
+    <div className="relative w-full h-full flex items-center justify-center select-none">
+      {/* Outer rings */}
+      {[240, 190, 140, 90].map((r, i) => (
+        <motion.div key={i}
+          className="absolute rounded-full"
+          style={{ width: r * 2, height: r * 2, border: `1px solid rgba(245,158,11,${0.06 + i * 0.04})` }}
+          animate={{ rotate: i % 2 === 0 ? 360 : -360 }}
+          transition={{ duration: 30 + i * 8, repeat: Infinity, ease: "linear" }}
+        />
+      ))}
+
+      {/* Center amber core */}
+      <motion.div
+        className="absolute w-28 h-28 rounded-full flex items-center justify-center"
+        style={{ background: "radial-gradient(circle, rgba(245,158,11,0.2) 0%, rgba(245,158,11,0.05) 60%, transparent 100%)" }}
+        animate={{ scale: [1, 1.06, 1] }}
+        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <div className="text-center">
+          <div className="text-amber-DEFAULT font-mono text-xs tracking-widest uppercase opacity-70">LIVE</div>
+          <div className="text-[#F5F0E8] font-bold text-2xl" style={{ lineHeight: 1 }}>AUTO</div>
+          <div className="text-amber-DEFAULT font-mono text-xs tracking-widest uppercase opacity-70">PAY</div>
+        </div>
+      </motion.div>
+
+      {/* Orbiting payout cards */}
+      {PAYOUTS.map((p, i) => {
+        const angle = (i / PAYOUTS.length) * 2 * Math.PI - Math.PI / 2;
+        const rx = 200, ry = 160;
+        return (
+          <motion.div key={p.id}
+            className="absolute"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: p.delay, duration: 0.5 }}
+          >
+            <motion.div
+              animate={{ opacity: active === i ? 1 : 0.35, scale: active === i ? 1 : 0.88 }}
+              transition={{ duration: 0.4 }}
+              className="panel-amber px-3 py-2 text-left cursor-default"
+              style={{ position: "absolute", left: Math.cos(angle) * rx, top: Math.sin(angle) * ry, transform: "translate(-50%,-50%)", minWidth: 120 }}
+            >
+              <div className="flex items-center gap-1.5 mb-1">
+                <span className="dot dot-live" />
+                <span className="lbl-amber">{p.platform}</span>
+              </div>
+              <div className="text-[#F5F0E8] font-bold text-base" style={{ letterSpacing: "-0.02em" }}>{p.amount}</div>
+              <div className="lbl mt-0.5">{p.event} trigger</div>
+            </motion.div>
+          </motion.div>
+        );
+      })}
     </div>
   );
 }
 
-/* ─────────────────────────────────────────────── NAV */
+// ── Coverage rows ──────────────────────────────────────────────────────────
+const COVERAGES = [
+  { event: "Heavy Rain / Flooding",    payout: "₹280/day",      trigger: "IMD Rainfall Warning",    platforms: "All platforms" },
+  { event: "App Platform Outage",      payout: "₹200/incident", trigger: "Platform Status API",     platforms: "Swiggy, Zomato, Uber" },
+  { event: "Curfew / Section 144",     payout: "₹350/day",      trigger: "Govt. Notification Feed", platforms: "All platforms" },
+  { event: "AQI > 400 (Severe)",       payout: "₹150/day",      trigger: "CPCB AQI Feed",           platforms: "All platforms" },
+  { event: "Cyclone Warning",          payout: "₹400/day",      trigger: "IMD Cyclone Alert",       platforms: "Coastal regions" },
+  { event: "Heat Wave > 44°C",         payout: "₹200/day",      trigger: "Temperature Sensor",      platforms: "All platforms" },
+];
+
+const STEPS = [
+  { num: "01", title: "Link your platforms", body: "Connect Swiggy, Zomato, Uber, or Dunzo. We verify your active status automatically." },
+  { num: "02", title: "Disruption is detected", body: "Our signal network monitors 14 real-time data feeds. When an event hits your zone, we know." },
+  { num: "03", title: "You get paid — instantly", body: "No app, no claim form, no call center. Money reaches your account within 4 hours of trigger." },
+];
+
+// ── Nav ────────────────────────────────────────────────────────────────────
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", h, { passive: true });
+    const h = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", h);
     return () => window.removeEventListener("scroll", h);
   }, []);
-
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-200 ${scrolled ? "bg-black border-b border-[#1a1a1a]" : "bg-transparent"}`}>
-      <div className="max-w-[1400px] mx-auto px-6 h-12 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-3">
-          <div className="w-6 h-6 border border-[#00FF87] flex items-center justify-center">
-            <span className="font-mono text-[8px] text-[#00FF87] font-bold">GS</span>
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "border-b border-[#2A2218] bg-[#0A0806]/95 backdrop-blur-sm" : ""}`}>
+      <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-md bg-amber-DEFAULT flex items-center justify-center">
+            <span className="text-[#0A0806] font-black text-xs">GS</span>
           </div>
-          <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-white">GigShield</span>
-        </Link>
-
-        <nav className="hidden md:flex items-center gap-8">
-          {["Coverage", "How it works", "Technology"].map(item => (
-            <a key={item} href={`#${item.toLowerCase().replace(/ /g, "-")}`}
-              className="font-mono text-[10px] tracking-widest uppercase text-[#444] hover:text-white transition-colors">
-              {item}
-            </a>
+          <span className="text-[#F5F0E8] font-bold text-sm">GigShield</span>
+        </div>
+        <div className="hidden md:flex items-center gap-7">
+          {["Coverage", "How it works", "Platforms", "For partners"].map(t => (
+            <span key={t} className="text-sm text-[#6B5C44] hover:text-[#9A8A72] cursor-pointer transition-colors">{t}</span>
           ))}
-        </nav>
-
-        <div className="flex items-center gap-4">
-          <Link href="/login" className="font-mono text-[10px] tracking-widest uppercase text-[#444] hover:text-white transition-colors">
-            Sign in
+        </div>
+        <div className="flex items-center gap-3">
+          <Link href="/login">
+            <button className="btn-ghost btn-sm text-sm">Sign in</button>
           </Link>
-          <Link href="/register" className="bg-[#00FF87] text-black font-mono text-[10px] font-bold tracking-widest uppercase px-4 py-2 hover:bg-white transition-colors">
-            Get protected
+          <Link href="/register">
+            <button className="btn-amber btn-sm text-sm">Get protected</button>
           </Link>
         </div>
       </div>
-    </header>
+    </nav>
   );
 }
 
-/* ─────────────────────────────────────────────── PAGE */
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-black">
+    <div className="bg-[#0A0806] min-h-screen">
       <Nav />
 
-      {/* ── HERO ──────────────────────────────────────────── */}
-      <section className="min-h-screen flex flex-col justify-between pt-12">
-        <div className="max-w-[1400px] mx-auto px-6 flex-1 flex flex-col justify-center py-24">
-          <div className="max-w-[900px]">
-            <motion.p
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-              className="mono-label mb-8"
-            >
-              Parametric insurance for India&apos;s gig economy
-            </motion.p>
-
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-[clamp(3.5rem,9vw,8rem)] font-black text-white leading-[0.88] tracking-[-0.04em] mb-12"
-            >
-              Workers<br />deserve<br />enterprise-<br />grade<br />protection.
-            </motion.h1>
-
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.25 }}
-              className="flex flex-wrap gap-x-12 gap-y-6 mb-12 border-t border-[#1a1a1a] pt-8"
-            >
-              {[
-                { value: 12847, label: "Workers active", suffix: "", prefix: "" },
-                { value: 4200000, label: "Rupees paid out", suffix: "", prefix: "\u20b9" },
-                { value: 60, label: "Seconds avg payout", suffix: "s", prefix: "" },
-                { value: 99, label: "Auto-approved", suffix: ".8%", prefix: "" },
-              ].map((stat) => (
-                <div key={stat.label}>
-                  <div className="font-mono text-3xl font-black text-white tabular-nums">
-                    <CountUp target={stat.value} prefix={stat.prefix} suffix={stat.suffix} />
-                  </div>
-                  <div className="mono-label mt-1.5">{stat.label}</div>
+      {/* ── HERO ─────────────────────────────────────────────────────────── */}
+      <section className="min-h-screen pt-14 grid lg:grid-cols-[1fr_1fr] overflow-hidden">
+        {/* Left: Editorial */}
+        <div className="flex flex-col justify-center px-8 md:px-14 lg:px-16 py-20">
+          <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.6 }}>
+            <div className="flex items-center gap-2 mb-8">
+              <span className="dot dot-live" />
+              <span className="lbl-live">Live coverage active</span>
+              <span className="lbl ml-2">· 14,200+ workers protected</span>
+            </div>
+          </motion.div>
+          <motion.h1
+            initial={{ opacity:0, y:30 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.7, delay:0.1 }}
+            className="text-[#F5F0E8] font-extrabold leading-none tracking-tight mb-6"
+            style={{ fontSize:"clamp(3.2rem,7vw,6.5rem)", letterSpacing:"-0.04em" }}
+          >
+            When work stops,<br />
+            <span className="text-amber-DEFAULT">your income</span><br />
+            {"doesn't."}
+          </motion.h1>
+          <motion.p
+            initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ duration:0.6, delay:0.3 }}
+            className="text-[#9A8A72] text-lg max-w-md mb-10 leading-relaxed"
+          >
+            Parametric insurance for gig workers. Instant automatic payouts when rain, outages, or curfews disrupt your work — zero paperwork.
+          </motion.p>
+          <motion.div
+            initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.5, delay:0.45 }}
+            className="flex flex-wrap gap-3 mb-14"
+          >
+            <Link href="/register">
+              <button className="btn-amber text-base px-7 py-3.5">Start free — ₹0 upfront</button>
+            </Link>
+            <button className="btn-ghost text-base px-7 py-3.5">See how it works →</button>
+          </motion.div>
+          {/* Mini stats */}
+          <motion.div
+            initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.7 }}
+            className="grid grid-cols-3 gap-0 border border-[#2A2218] rounded-xl overflow-hidden max-w-md"
+          >
+            {[
+              { label:"Avg. payout time", val:"3.8", suffix:"hrs" },
+              { label:"Workers covered",  val:"14200", suffix:"+" },
+              { label:"Claim approval",   val:"99.2", suffix:"%" },
+            ].map((s, i) => (
+              <div key={s.label} className={`p-4 ${i < 2 ? "border-r border-[#2A2218]" : ""}`}>
+                <div className="text-[#F5F0E8] font-bold text-xl" style={{ letterSpacing:"-0.03em" }}>
+                  <Counter end={parseFloat(s.val)} suffix={s.suffix} decimals={s.val.includes(".") ? 1 : 0} />
                 </div>
-              ))}
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.35 }}
-              className="flex flex-wrap items-center gap-4"
-            >
-              <Link href="/register" className="bg-[#00FF87] text-black font-mono text-[11px] font-bold tracking-[0.15em] uppercase px-8 py-4 hover:bg-white transition-colors">
-                Get protected \u2192
-              </Link>
-              <Link href="/login" className="border border-[#2a2a2a] text-[#777] font-mono text-[11px] tracking-[0.12em] uppercase px-8 py-4 hover:border-[#555] hover:text-white transition-colors">
-                Sign in
-              </Link>
-              <span className="font-mono text-[10px] text-[#333] tracking-widest uppercase">from \u20b940/week</span>
-            </motion.div>
-          </div>
-        </div>
-
-        <Ticker />
-      </section>
-
-      {/* ── COVERAGE ─────────────────────────────────────── */}
-      <section id="coverage" className="py-24 max-w-[1400px] mx-auto px-6">
-        <div className="border-b border-[#1a1a1a] pb-4 mb-12 flex items-end justify-between">
-          <div>
-            <p className="mono-label mb-2">What we cover</p>
-            <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-black text-white tracking-tight leading-tight">Coverage plans</h2>
-          </div>
-          <p className="font-mono text-[10px] text-[#333] tracking-widest uppercase hidden md:block">Disruption \u2192 Trigger \u2192 Payout</p>
-        </div>
-
-        <div className="border-t border-[#1a1a1a]">
-          {COVERAGE.map((c, i) => (
-            <motion.div
-              key={c.id}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.3, delay: i * 0.05 }}
-              className="flex items-start md:items-center gap-6 md:gap-0 py-5 border-b border-[#1a1a1a] group hover:bg-[#0a0a0a] transition-colors px-2"
-            >
-              <span className="font-mono text-[10px] text-[#2a2a2a] w-8 shrink-0 pt-0.5">{c.id}</span>
-              <div className="flex-1 md:grid md:grid-cols-[2fr_3fr_auto_auto] md:items-center md:gap-6">
-                <h3 className="text-sm font-semibold text-white group-hover:text-[#00FF87] transition-colors">{c.name}</h3>
-                <p className="font-mono text-[11px] text-[#444] mt-1 md:mt-0">{c.trigger}</p>
-                <div className="mt-2 md:mt-0 text-right">
-                  <div className="font-mono text-sm font-black text-white tabular-nums">{c.payout}</div>
-                  <div className="mono-label">payout</div>
-                </div>
-                <div className="mt-1 md:mt-0 text-right ml-6">
-                  <div className="font-mono text-xs text-[#00FF87] font-bold">{c.speed}</div>
-                  <div className="mono-label">speed</div>
-                </div>
+                <div className="lbl mt-1">{s.label}</div>
               </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── HOW IT WORKS ─────────────────────────────────── */}
-      <section id="how-it-works" className="py-24 border-t border-[#1a1a1a]">
-        <div className="max-w-[1400px] mx-auto px-6">
-          <div className="border-b border-[#1a1a1a] pb-4 mb-16">
-            <p className="mono-label mb-2">The process</p>
-            <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-black text-white tracking-tight leading-tight">How it works</h2>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-0 border-l border-[#1a1a1a]">
-            {HOW.map((step, i) => (
-              <motion.div
-                key={step.n}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.1 }}
-                className="border-r border-[#1a1a1a] p-8 md:p-10"
-              >
-                <div className="font-mono text-[3rem] font-black text-[#1a1a1a] leading-none mb-6">{step.n}</div>
-                <h3 className="text-base font-bold text-white mb-3">{step.title}</h3>
-                <p className="font-mono text-[11px] text-[#444] leading-relaxed">{step.body}</p>
-              </motion.div>
             ))}
+          </motion.div>
+        </div>
+
+        {/* Right: Orbit visualization */}
+        <div className="hidden lg:flex items-center justify-center relative overflow-hidden"
+          style={{ background:"radial-gradient(ellipse at center, rgba(245,158,11,0.04) 0%, transparent 70%)" }}
+        >
+          <div className="w-full h-[600px] relative">
+            <PayoutOrbit />
           </div>
         </div>
       </section>
 
-      {/* ── TECHNOLOGY ────────────────────────────────────── */}
-      <section id="technology" className="py-24 border-t border-[#1a1a1a]">
-        <div className="max-w-[1400px] mx-auto px-6">
-          <div className="border-b border-[#1a1a1a] pb-4 mb-16">
-            <p className="mono-label mb-2">Under the hood</p>
-            <h2 className="text-[clamp(1.8rem,4vw,3rem)] font-black text-white tracking-tight leading-tight">Technology stack</h2>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-0 border-t border-l border-[#1a1a1a]">
-            {TECH.map((t, i) => (
-              <motion.div
-                key={t.label}
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.3, delay: i * 0.05 }}
-                className="border-r border-b border-[#1a1a1a] p-6 group hover:bg-[#0a0a0a] transition-colors"
-              >
-                <h3 className="text-sm font-bold text-white mb-2 group-hover:text-[#00FF87] transition-colors">{t.label}</h3>
-                <p className="font-mono text-[11px] text-[#444] leading-relaxed">{t.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── CTA BAND ──────────────────────────────────────── */}
-      <section className="border-t border-[#1a1a1a] py-24">
-        <div className="max-w-[1400px] mx-auto px-6">
-          <div className="border border-[#1a1a1a] p-12 md:p-20 flex flex-col md:flex-row items-start md:items-end justify-between gap-10">
+      {/* ── COVERAGE TABLE ────────────────────────────────────────────────── */}
+      <section className="px-8 md:px-14 lg:px-20 py-20 border-t border-[#2A2218]">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex items-end justify-between mb-10">
             <div>
-              <p className="mono-label mb-6">Join 12,847 protected workers</p>
-              <h2 className="text-[clamp(2rem,5vw,4.5rem)] font-black text-white leading-[0.9] tracking-tight">
-                Start earning<br />with a safety net.
+              <p className="lbl mb-3">What triggers a payout</p>
+              <h2 className="text-[#F5F0E8] font-bold" style={{ fontSize:"clamp(1.8rem,4vw,3rem)", letterSpacing:"-0.03em", lineHeight:1 }}>
+                Coverage that actually<br />works in the real world.
               </h2>
             </div>
-            <div className="flex flex-col items-start md:items-end gap-4 shrink-0">
-              <Link href="/register" className="bg-[#00FF87] text-black font-mono text-[11px] font-bold tracking-[0.15em] uppercase px-10 py-4 hover:bg-white transition-colors whitespace-nowrap">
-                Register now \u2192
-              </Link>
-              <p className="font-mono text-[10px] text-[#333] tracking-widest uppercase">From \u20b940/week \u2014 cancel anytime</p>
-            </div>
+            <Link href="/register">
+              <button className="btn-outline-amber hidden md:flex">See full policy →</button>
+            </Link>
+          </div>
+
+          <div className="panel overflow-hidden">
+            <table className="tbl">
+              <thead>
+                <tr>
+                  <th>Disruption event</th>
+                  <th>Your payout</th>
+                  <th>Trigger signal</th>
+                  <th>Platforms</th>
+                </tr>
+              </thead>
+              <tbody>
+                {COVERAGES.map((c, i) => (
+                  <motion.tr key={c.event}
+                    initial={{ opacity:0, y:8 }} whileInView={{ opacity:1, y:0 }}
+                    viewport={{ once:true }} transition={{ delay:i*0.08 }}
+                  >
+                    <td><span className="text-[#F5F0E8] font-semibold">{c.event}</span></td>
+                    <td><span className="text-amber-DEFAULT font-mono font-bold">{c.payout}</span></td>
+                    <td>{c.trigger}</td>
+                    <td><span className="tag-neutral tag">{c.platforms}</span></td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="lbl mt-4 text-center">Payouts are automatic — no claim required · Conditions verified against independent data sources</p>
+        </div>
+      </section>
+
+      {/* ── HOW IT WORKS ─────────────────────────────────────────────────── */}
+      <section className="px-8 md:px-14 lg:px-20 py-20 border-t border-[#2A2218]">
+        <div className="max-w-5xl mx-auto">
+          <p className="lbl mb-3">Process</p>
+          <h2 className="text-[#F5F0E8] font-bold mb-14" style={{ fontSize:"clamp(1.8rem,4vw,3rem)", letterSpacing:"-0.03em", lineHeight:1 }}>
+            Three steps. Then it runs<br />on its own — forever.
+          </h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            {STEPS.map((s, i) => (
+              <motion.div key={s.num}
+                initial={{ opacity:0, y:20 }} whileInView={{ opacity:1, y:0 }}
+                viewport={{ once:true }} transition={{ delay:i*0.12 }}
+                className="panel p-6"
+              >
+                <div className="text-amber-DEFAULT font-mono text-xs tracking-widest mb-4">{s.num}</div>
+                <h3 className="text-[#F5F0E8] font-bold text-lg mb-3" style={{ letterSpacing:"-0.02em" }}>{s.title}</h3>
+                <p className="text-[#6B5C44] leading-relaxed text-sm">{s.body}</p>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── FOOTER ────────────────────────────────────────── */}
-      <footer className="border-t border-[#1a1a1a] py-8">
-        <div className="max-w-[1400px] mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-5 h-5 border border-[#2a2a2a] flex items-center justify-center">
-              <span className="font-mono text-[7px] text-[#444] font-bold">GS</span>
-            </div>
-            <span className="font-mono text-[10px] text-[#333] tracking-widest uppercase">GigShield</span>
+      {/* ── PLATFORM TRUST STRIP ─────────────────────────────────────────── */}
+      <section className="px-8 md:px-14 lg:px-20 py-14 border-t border-[#2A2218]">
+        <div className="max-w-5xl mx-auto text-center">
+          <p className="lbl mb-8">Works with your platform</p>
+          <div className="flex flex-wrap justify-center gap-4">
+            {["Swiggy", "Zomato", "Uber", "Ola", "Dunzo", "Blinkit", "Porter", "Rapido"].map(p => (
+              <div key={p} className="panel px-6 py-3 text-[#6B5C44] font-semibold text-sm hover:text-[#9A8A72] hover:border-[#36301E] transition-all cursor-default">
+                {p}
+              </div>
+            ))}
           </div>
-          <p className="font-mono text-[10px] text-[#2a2a2a] tracking-widest uppercase">
-            \u00a9 2026 GigShield \u2014 Parametric insurance for gig workers
-          </p>
-          <div className="flex items-center gap-6">
-            {["Privacy", "Terms", "Contact"].map(l => (
-              <span key={l} className="font-mono text-[10px] text-[#333] tracking-widest uppercase cursor-pointer hover:text-[#555] transition-colors">{l}</span>
+        </div>
+      </section>
+
+      {/* ── CTA BAND ─────────────────────────────────────────────────────── */}
+      <section className="mx-6 my-10 rounded-2xl overflow-hidden"
+        style={{ background:"linear-gradient(135deg, #1a1200 0%, #2a1d00 50%, #1a1200 100%)", border:"1px solid rgba(245,158,11,0.25)" }}
+      >
+        <div className="px-10 py-14 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="dot dot-live" />
+              <span className="lbl-live">Zero downtime · payouts processing now</span>
+            </div>
+            <h2 className="text-[#F5F0E8] font-bold" style={{ fontSize:"clamp(1.6rem,3.5vw,2.8rem)", letterSpacing:"-0.03em", lineHeight:1.1 }}>
+              Your next disruption<br />is already covered.
+            </h2>
+          </div>
+          <div className="flex flex-col gap-3 min-w-max">
+            <Link href="/register">
+              <button className="btn-amber text-base px-8 py-4 w-full">Protect my income now</button>
+            </Link>
+            <p className="lbl text-center">Free to join · No premium upfront</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FOOTER ───────────────────────────────────────────────────────── */}
+      <footer className="px-8 md:px-14 py-10 border-t border-[#2A2218]">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded bg-amber-DEFAULT flex items-center justify-center">
+              <span className="text-[#0A0806] font-black text-xs">GS</span>
+            </div>
+            <span className="text-[#4A3E2A] text-sm">GigShield © 2026</span>
+          </div>
+          <div className="flex gap-6">
+            {["Privacy","Terms","Contact","API Docs"].map(t => (
+              <span key={t} className="lbl hover:text-[#6B5C44] cursor-pointer transition-colors">{t}</span>
             ))}
           </div>
         </div>

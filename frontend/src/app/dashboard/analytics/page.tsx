@@ -1,133 +1,99 @@
 "use client";
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { API_BASE } from "@/lib/config";
+import dynamic from "next/dynamic";
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
-const DEMO_DAILY = [
-  { date: "Mar 21", claims: 18, paid: 9400, workers: 11200 },
-  { date: "Mar 22", claims: 24, paid: 12800, workers: 11450 },
-  { date: "Mar 23", claims: 12, paid: 6200, workers: 11600 },
-  { date: "Mar 24", claims: 31, paid: 17200, workers: 11900 },
-  { date: "Mar 25", claims: 42, paid: 24100, workers: 12100 },
-  { date: "Mar 26", claims: 28, paid: 15800, workers: 12400 },
-  { date: "Mar 27", claims: 34, paid: 18600, workers: 12847 },
+const CLAIMS_DATA = [
+  {month:"Oct",claims:42,amount:11760},{month:"Nov",claims:58,amount:16240},{month:"Dec",claims:91,amount:25480},
+  {month:"Jan",claims:76,amount:21280},{month:"Feb",claims:104,amount:29120},{month:"Mar",claims:127,amount:35560},
+];
+const PAYOUT_DATA = [
+  {day:"Mon",amount:4200},{day:"Tue",amount:6800},{day:"Wed",amount:3200},{day:"Thu",amount:8900},
+  {day:"Fri",amount:11200},{day:"Sat",amount:7400},{day:"Sun",amount:5600},
+];
+const EVENTS = [
+  { type:"Heavy Rain",  count:48, pct:38, color:"#60A5FA" },
+  { type:"App Outage",  count:31, pct:24, color:"#F59E0B" },
+  { type:"Curfew",      count:24, pct:19, color:"#EF4444" },
+  { type:"AQI Alert",   count:14, pct:11, color:"#10B981" },
+  { type:"Heat Wave",   count:10, pct:8,  color:"#A78BFA" },
 ];
 
-const DEMO_PLATFORM = [
-  { platform: "Zomato", claims: 145, workers: 4200 },
-  { platform: "Swiggy", claims: 118, workers: 3800 },
-  { platform: "Blinkit", claims: 72, workers: 2100 },
-  { platform: "Zepto", claims: 54, workers: 1600 },
-  { platform: "Amazon", claims: 31, workers: 900 },
-  { platform: "Other", claims: 22, workers: 247 },
-];
-
-const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number; name: string }>; label?: string }) => {
-  if (!active || !payload?.length) return null;
-  return (
-    <div className="border border-[#2a2a2a] bg-[#0a0a0a] p-3">
-      <p className="mono-label mb-2">{label}</p>
-      {payload.map(p => (
-        <p key={p.name} className="font-mono text-xs text-white">{p.name}: <span className="text-[#00FF87]">{typeof p.value === "number" && p.name.includes("paid") ? "\u20b9" + p.value.toLocaleString("en-IN") : p.value.toLocaleString("en-IN")}</span></p>
-      ))}
-    </div>
-  );
-};
+const TT_STYLE = { background:"#14100A", border:"1px solid #2A2218", borderRadius:8, color:"#C8BAA0" };
 
 export default function AnalyticsPage() {
-  const [daily, setDaily] = useState(DEMO_DAILY);
-  const [platform, setPlatform] = useState(DEMO_PLATFORM);
-  const [loading, setLoading] = useState(false);
-
-  const totalPaid = daily.reduce((s, d) => s + d.paid, 0);
-  const totalClaims = daily.reduce((s, d) => s + d.claims, 0);
-  const avgPerClaim = totalClaims ? Math.round(totalPaid / totalClaims) : 0;
-
   return (
-    <div className="p-6 xl:p-8 max-w-[1400px]">
-      <div className="border-b border-[#1a1a1a] pb-5 mb-8">
-        <p className="mono-label mb-1.5">Data insights</p>
-        <h1 className="text-2xl font-black text-white tracking-tight">Analytics</h1>
+    <div className="max-w-[1400px]">
+      <div className="section-head">
+        <div><p className="lbl mb-1">Admin portal</p><h1 className="text-[#F5F0E8] font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Analytics</h1></div>
+        <span className="tag tag-info">Last 6 months</span>
       </div>
 
       {/* KPI row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border-t border-l border-[#1a1a1a] mb-10">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {[
-          { label: "7-day claims", value: totalClaims, accent: false },
-          { label: "7-day paid out", value: "\u20b9" + totalPaid.toLocaleString("en-IN"), accent: true },
-          { label: "Avg per claim", value: "\u20b9" + avgPerClaim.toLocaleString("en-IN"), accent: true },
-          { label: "Active workers", value: daily[daily.length - 1].workers.toLocaleString("en-IN"), accent: false },
-        ].map((s, i) => (
-          <motion.div key={s.label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
-            className="border-r border-b border-[#1a1a1a] p-5">
-            <div className={`font-mono text-2xl font-black tabular-nums leading-none ${s.accent ? "text-[#00FF87]" : "text-white"}`}>{s.value}</div>
-            <div className="mono-label mt-2">{s.label}</div>
-          </motion.div>
+          {label:"Total payouts YTD", val:"₹89,400",  sub:"+24% vs last yr"},
+          {label:"Claims processed",   val:"498",      sub:"127 this month"},
+          {label:"Avg. claim value",   val:"₹248",     sub:"↓ ₹12 vs last mo"},
+          {label:"Fraud prevented",    val:"₹28,400",  sub:"17 flagged, 4 rejected"},
+        ].map(k => (
+          <div key={k.label} className="panel p-4">
+            <div className="lbl mb-2">{k.label}</div>
+            <div className="text-[#F5F0E8] font-extrabold text-2xl mb-1" style={{letterSpacing:"-0.04em"}}>{k.val}</div>
+            <div className="lbl" style={{color:"#6B5C44"}}>{k.sub}</div>
+          </div>
         ))}
       </div>
 
-      <div className="grid xl:grid-cols-2 gap-8 mb-8">
-        {/* Claims chart */}
-        <div>
-          <div className="border-b border-[#1a1a1a] pb-3 mb-6">
-            <p className="mono-label">7-day claims volume</p>
-          </div>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={daily} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-              <CartesianGrid vertical={false} stroke="#1a1a1a" />
-              <XAxis dataKey="date" tick={{ fontFamily: "var(--font-mono)", fontSize: 9, fill: "#444", letterSpacing: "0.1em" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontFamily: "var(--font-mono)", fontSize: 9, fill: "#444" }} axisLine={false} tickLine={false} />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: "#0d0d0d" }} />
-              <Bar dataKey="claims" fill="#00FF87" radius={0} maxBarSize={32} />
+      <div className="grid xl:grid-cols-[1fr_1fr] gap-5 mb-5">
+        {/* Claims volume chart */}
+        <div className="panel p-5">
+          <p className="lbl mb-1">Monthly volume</p>
+          <h3 className="text-[#F5F0E8] font-bold mb-4" style={{letterSpacing:"-0.02em"}}>Claims by month</h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={CLAIMS_DATA} barSize={28}>
+              <CartesianGrid vertical={false} stroke="#2A2218" />
+              <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill:"#4A3E2A",fontSize:11,fontFamily:"var(--font-mono)"}} />
+              <YAxis axisLine={false} tickLine={false} tick={{fill:"#4A3E2A",fontSize:11,fontFamily:"var(--font-mono)"}} />
+              <Tooltip contentStyle={TT_STYLE} cursor={{fill:"rgba(245,158,11,0.05)"}} />
+              <Bar dataKey="claims" fill="#F59E0B" radius={[4,4,0,0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
-        {/* Paid out chart */}
-        <div>
-          <div className="border-b border-[#1a1a1a] pb-3 mb-6">
-            <p className="mono-label">7-day payouts (&#8377;)</p>
-          </div>
-          <ResponsiveContainer width="100%" height={220}>
-            <LineChart data={daily} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-              <CartesianGrid stroke="#1a1a1a" />
-              <XAxis dataKey="date" tick={{ fontFamily: "var(--font-mono)", fontSize: 9, fill: "#444", letterSpacing: "0.1em" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontFamily: "var(--font-mono)", fontSize: 9, fill: "#444" }} axisLine={false} tickLine={false} />
-              <Tooltip content={<CustomTooltip />} />
-              <Line type="monotone" dataKey="paid" stroke="#00FF87" strokeWidth={1.5} dot={false} />
+        {/* Payout trend */}
+        <div className="panel p-5">
+          <p className="lbl mb-1">This week</p>
+          <h3 className="text-[#F5F0E8] font-bold mb-4" style={{letterSpacing:"-0.02em"}}>Daily payout volume (₹)</h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <LineChart data={PAYOUT_DATA}>
+              <CartesianGrid vertical={false} stroke="#2A2218" />
+              <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fill:"#4A3E2A",fontSize:11,fontFamily:"var(--font-mono)"}} />
+              <YAxis axisLine={false} tickLine={false} tick={{fill:"#4A3E2A",fontSize:11,fontFamily:"var(--font-mono)"}} />
+              <Tooltip contentStyle={TT_STYLE} cursor={{stroke:"rgba(245,158,11,0.2)"}} />
+              <Line dataKey="amount" stroke="#F59E0B" strokeWidth={2} dot={{fill:"#F59E0B",r:4}} activeDot={{r:6}} />
             </LineChart>
           </ResponsiveContainer>
         </div>
       </div>
 
-      {/* Platform breakdown */}
-      <div>
-        <div className="border-b border-[#1a1a1a] pb-3 mb-0">
-          <p className="mono-label">Claims by platform</p>
+      {/* Event breakdown */}
+      <div className="panel p-5">
+        <p className="lbl mb-1">Cause analysis</p>
+        <h3 className="text-[#F5F0E8] font-bold mb-4" style={{letterSpacing:"-0.02em"}}>Claims by disruption type — this month</h3>
+        <div className="space-y-3">
+          {EVENTS.map(e => (
+            <div key={e.type} className="flex items-center gap-4">
+              <div className="w-28 text-sm text-[#9A8A72] flex-shrink-0">{e.type}</div>
+              <div className="prog-track flex-1">
+                <div className="prog-fill" style={{width:`${e.pct}%`,background:e.color,animation:"none"}} />
+              </div>
+              <div className="flex items-center gap-3 flex-shrink-0">
+                <span className="font-mono text-sm font-bold text-[#F5F0E8]">{e.count}</span>
+                <span className="lbl w-8 text-right">{e.pct}%</span>
+              </div>
+            </div>
+          ))}
         </div>
-        <table className="data-table">
-          <thead><tr><th>Platform</th><th className="text-right">Workers</th><th className="text-right">Claims</th><th className="text-right">Claim rate</th><th>Distribution</th></tr></thead>
-          <tbody>
-            {platform.map((p, i) => {
-              const maxClaims = Math.max(...platform.map(x => x.claims));
-              return (
-                <motion.tr key={p.platform} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.05 }}>
-                  <td className="text-white font-medium">{p.platform}</td>
-                  <td className="font-mono text-[12px] text-right tabular-nums text-[#777]">{p.workers.toLocaleString("en-IN")}</td>
-                  <td className="font-mono text-[12px] text-right tabular-nums text-white font-bold">{p.claims}</td>
-                  <td className="font-mono text-[12px] text-right tabular-nums text-[#00FF87]">{((p.claims / p.workers) * 100).toFixed(2)}%</td>
-                  <td className="py-4 pr-4">
-                    <div className="h-1 bg-[#1a1a1a] max-w-[200px]">
-                      <motion.div initial={{ width: 0 }} animate={{ width: `${(p.claims / maxClaims) * 100}%` }} transition={{ delay: 0.3 + i * 0.05, duration: 0.5 }}
-                        className="h-1 bg-[#00FF87]" />
-                    </div>
-                  </td>
-                </motion.tr>
-              );
-            })}
-          </tbody>
-        </table>
       </div>
     </div>
   );
