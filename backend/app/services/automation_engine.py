@@ -5,6 +5,7 @@ Orchestrates disruption simulation, claim generation, and settlement routing.
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from typing import Dict, List, Tuple
@@ -87,7 +88,7 @@ class AutomationEngine:
         signal_confidence = float(signal_profile["aggregate_confidence"])
 
         disruption = Disruption(
-            id=uuid.uuid4(),
+            id=str(uuid.uuid4()),
             disruption_type=_infer_disruption_type(event_type),
             event_type=event_type,
             severity=severity,
@@ -97,11 +98,11 @@ class AutomationEngine:
             start_time=now,
             is_active=True,
             source=source,
-            event_metadata={
+            event_metadata=json.dumps({
                 "strict_mode": strict_mode,
                 "phase": "phase2",
                 "signal_profile": signal_profile,
-            },
+            }),
         )
         db.add(disruption)
         db.flush()
@@ -226,7 +227,7 @@ class AutomationEngine:
             rejection_reason = f"{rejection_reason} ({decision_note})" if rejection_reason else decision_note
 
             claim = Claim(
-                id=uuid.uuid4(),
+                id=str(uuid.uuid4()),
                 claim_number=_claim_number(),
                 user_id=user.id,
                 policy_id=policy.id,

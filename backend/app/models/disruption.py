@@ -2,8 +2,7 @@
 Disruption Model
 """
 
-from sqlalchemy import Column, String, Float, DateTime, Boolean, Enum
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy import Column, String, Float, DateTime, Boolean, Enum, Text
 from sqlalchemy.sql import func
 import uuid
 import enum
@@ -43,7 +42,7 @@ class Disruption(Base):
     """Disruption Event Model"""
     __tablename__ = "disruptions"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     
     # Type & severity
     disruption_type = Column(Enum(DisruptionType), nullable=False)
@@ -64,7 +63,7 @@ class Disruption(Base):
     
     # Source
     source = Column(String(50), nullable=True)  # weather_api, manual, traffic_api
-    event_metadata = Column(JSONB, nullable=True)  # Additional data
+    event_metadata = Column(Text, nullable=True)  # Additional data (JSON string)
     
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())

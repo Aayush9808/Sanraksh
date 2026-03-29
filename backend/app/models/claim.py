@@ -3,7 +3,6 @@ Claim Model
 """
 
 from sqlalchemy import Column, String, Float, Date, DateTime, Enum, ForeignKey, Boolean, Text
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 import uuid
 import enum
@@ -30,13 +29,13 @@ class Claim(Base):
     """Insurance Claim Model"""
     __tablename__ = "claims"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     claim_number = Column(String(20), unique=True, nullable=False, index=True)
     
     # Relationships
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
-    policy_id = Column(UUID(as_uuid=True), ForeignKey("policies.id"), nullable=False)
-    disruption_id = Column(UUID(as_uuid=True), ForeignKey("disruptions.id"), nullable=True)
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    policy_id = Column(String(36), ForeignKey("policies.id"), nullable=False)
+    disruption_id = Column(String(36), ForeignKey("disruptions.id"), nullable=True)
     
     # Claim details
     claim_date = Column(Date, nullable=False)

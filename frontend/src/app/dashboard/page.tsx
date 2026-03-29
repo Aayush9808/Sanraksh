@@ -38,17 +38,6 @@ function FraudBar({ score }: { score: number }) {
 }
 
 // ─── WORKER DASHBOARD ──────────────────────────────────────────────────────
-const WORKER_PAYOUTS = [
-  { date: "Mar 24, 2026", event: "Heavy Rain",  amount: 280, status: "paid" },
-  { date: "Mar 18, 2026", event: "App Outage",  amount: 200, status: "paid" },
-  { date: "Mar 10, 2026", event: "Curfew",      amount: 350, status: "paid" },
-];
-
-const WORKER_TRIGGERS = [
-  { type: "Heavy Rain",  zone: "Andheri West",       payout: "₹280/day", severity: 0.82, status: "active" },
-  { type: "App Outage",  zone: "Zomato · Mumbai", payout: "₹200/inc", severity: 0.68, status: "active" },
-  { type: "AQI Alert",  zone: "Delhi NCR",            payout: "₹150/day", severity: 0.44, status: "watch" },
-];
 
 function SeverityBar({ val }: { val: number }) {
   const color = val >= 0.75 ? "#EF4444" : val >= 0.45 ? "#F59E0B" : "#10B981";
@@ -56,14 +45,32 @@ function SeverityBar({ val }: { val: number }) {
 }
 
 function WorkerHome() {
+  const [policy, setPolicy] = useState<Record<string,unknown>|null>(null);
+  const [claims, setClaims] = useState<Record<string,unknown>[]>([]);
+  const [triggers, setTriggers] = useState<Record<string,unknown>[]>([]);
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
+  const h = { Authorization: `Bearer ${token}` };
+
+  useEffect(() => {
+    fetch(`${API_BASE}/api/v1/workers/me/policy`, { headers: h }).then(r=>r.ok?r.json():null).then(d=>{ if(d) setPolicy(d); }).catch(()=>{});
+    fetch(`${API_BASE}/api/v1/workers/me/claims`, { headers: h }).then(r=>r.ok?r.json():null).then(d=>{ if(Array.isArray(d)) setClaims(d.slice(0,3)); }).catch(()=>{});
+    fetch(`${API_BASE}/api/v1/disruptions/active`, { headers: h }).then(r=>r.ok?r.json():null).then(d=>{ if(Array.isArray(d)) setTriggers(d.slice(0,3)); }).catch(()=>{});
+  }, []);
+
+  const policyNum = policy?.policy_number as string || "POL-0000";
+  const premium = policy?.weekly_premium as number || 0;
+  const endDate = policy?.end_date ? new Date(policy.end_date as string).toLocaleDateString("en-IN",{month:"short",year:"numeric"}) : "—";
+  const totalEarned = policy?.total_paid as number || 0;
+  const totalClaims = policy?.claims_count as number || 0;
+
   return (
     <div className="max-w-4xl">
       {/* Welcome banner */}
       <div className="rounded-2xl bg-[#0F2044] p-5 mb-6 flex items-center justify-between flex-wrap gap-4">
         <div>
           <p className="text-blue-300 text-xs font-semibold uppercase tracking-wider mb-1">Your coverage</p>
-          <h1 className="text-white font-extrabold text-xl tracking-tight">GigArmor Standard</h1>
-          <p className="text-blue-200 text-sm mt-0.5">POL-2024-8821 · Active till Apr 2027 · ₹49/week</p>
+          <h1 className="text-white font-extrabold text-xl tracking-tight">GigArmor {policy ? "Standard" : "—"}</h1>
+          <p className="text-blue-200 text-sm mt-0.5">{policyNum} · Active till {endDate} · ₹{premium}/week</p>
         </div>
         <div className="flex items-center gap-3">
           <Link href="/dashboard/triggers"><button className="bg-amber-400 text-[#0F2044] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-amber-300 transition-all">Live triggers</button></Link>
@@ -74,10 +81,10 @@ function WorkerHome() {
       {/* KPI cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {[
-          { label: "Total earned", val: 2840, prefix: "₹", suffix: "", amber: true },
-          { label: "Claims this month", val: 3, prefix: "", suffix: "", amber: false },
-          { label: "Active triggers", val: 2, prefix: "", suffix: " now", amber: false },
-          { label: "Coverage days left", val: 287, prefix: "", suffix: " days", amber: false },
+          { label: "Total earned", val: totalEarned, prefix: "₹", suffix: "", amber: true },
+          { label: "Total claims", val: totalClaims, prefix: "", suffix: "", amber: false },
+          { label: "Active triggers", val: triggers.length, prefix: "", suffix: " now", amber: false },
+          { label: "Weekly premium", val: premium, prefix: "₹", suffix: "/wk", amber: false },
         ].map((k, i) => (
           <motion.div key={k.label} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
             className="panel p-4 stat-card">
@@ -87,18 +94,6 @@ function WorkerHome() {
             </div>
           </motion.div>
         ))}
-      </div>
-
-      {/* Coverage progress */}
-      <div className="panel p-4 mb-6">
-        <div className="flex items-center justify-between mb-2.5">
-          <span className="text-sm font-semibold text-slate-700">Coverage remaining this month</span>
-          <span className="text-sm font-bold text-slate-900">79%</span>
-        </div>
-        <div className="prog-track">
-          <div className="prog-fill" style={{ width: "79%", animation: "none" }} />
-        </div>
-        <p className="text-xs text-slate-400 mt-2">₹3,160 of ₹4,000 coverage limit remaining</p>
       </div>
 
       <div className="grid md:grid-cols-[1fr_300px] gap-5">
@@ -112,21 +107,27 @@ function WorkerHome() {
             <Link href="/dashboard/triggers" className="text-[#0F2044] text-xs font-bold hover:underline">View all →</Link>
           </div>
           <div className="divide-y divide-slate-100">
-            {WORKER_TRIGGERS.map(t => (
-              <div key={t.type} className="flex items-stretch gap-0 hover:bg-slate-50 transition-colors">
-                <SeverityBar val={t.severity} />
-                <div className="flex items-center gap-3 px-4 py-3.5 flex-1">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="font-semibold text-slate-800 text-sm">{t.type}</span>
-                      <span className={`tag ${t.status === "active" ? "tag-neg" : "tag-warn"}`}>{t.status}</span>
+            {triggers.length === 0 ? (
+              <div className="p-6 text-center lbl text-sm">No active disruptions — all clear</div>
+            ) : triggers.map((t, i) => {
+              const et = (t.event_type as string).replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase());
+              const sev = t.severity === "high" ? 0.85 : t.severity === "medium" ? 0.55 : 0.3;
+              return (
+                <div key={i} className="flex items-stretch gap-0 hover:bg-slate-50 transition-colors">
+                  <SeverityBar val={sev} />
+                  <div className="flex items-center gap-3 px-4 py-3.5 flex-1">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="font-semibold text-slate-800 text-sm">{et}</span>
+                        <span className="tag tag-neg">active</span>
+                      </div>
+                      <div className="text-xs text-slate-400">{t.zone as string}, {t.city as string}</div>
                     </div>
-                    <div className="text-xs text-slate-400">{t.zone}</div>
+                    <div className="text-amber-600 font-mono font-bold text-sm flex-shrink-0">₹800/day</div>
                   </div>
-                  <div className="text-amber-600 font-mono font-bold text-sm flex-shrink-0">{t.payout}</div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -137,15 +138,17 @@ function WorkerHome() {
             <h2 className="font-bold text-slate-900">Recent payouts</h2>
           </div>
           <div className="divide-y divide-slate-100">
-            {WORKER_PAYOUTS.map(p => (
-              <div key={p.date} className="flex items-center justify-between px-4 py-3.5 hover:bg-slate-50 transition-colors">
+            {claims.length === 0 ? (
+              <div className="p-6 text-center lbl text-sm">No claims yet</div>
+            ) : claims.map((c, i) => (
+              <div key={i} className="flex items-center justify-between px-4 py-3.5 hover:bg-slate-50 transition-colors">
                 <div>
-                  <div className="font-semibold text-slate-800 text-sm">{p.event}</div>
-                  <div className="text-xs text-slate-400 mt-0.5">{p.date}</div>
+                  <div className="font-semibold text-slate-800 text-sm">{(c.event_type as string||"").replace(/_/g," ").replace(/\b\w/g,x=>x.toUpperCase())}</div>
+                  <div className="text-xs text-slate-400 mt-0.5">{c.claim_date as string}</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-emerald-600 font-mono font-bold text-sm">₹{p.amount}</div>
-                  <StatusTag s={p.status} />
+                  <div className="text-emerald-600 font-mono font-bold text-sm">₹{c.amount as number}</div>
+                  <StatusTag s={c.status as string} />
                 </div>
               </div>
             ))}
@@ -162,39 +165,28 @@ function WorkerHome() {
 }
 
 // ─── ADMIN DASHBOARD ──────────────────────────────────────────────────────
-const CLAIMS_DEMO = [
-  { id: "CLM-8821", worker: "Rahul Kumar",  event: "Heavy Rain",    amount: 280, status: "approved", fraud: 0.08, time: "12 min ago" },
-  { id: "CLM-8820", worker: "Priya Mistry", event: "App Outage",    amount: 200, status: "review",   fraud: 0.34, time: "28 min ago" },
-  { id: "CLM-8819", worker: "Arjun Sharma", event: "Curfew",        amount: 350, status: "approved", fraud: 0.06, time: "41 min ago" },
-  { id: "CLM-8818", worker: "Meena Rajan",  event: "Flood Warning", amount: 280, status: "approved", fraud: 0.11, time: "1h ago" },
-  { id: "CLM-8817", worker: "Vikram Patil", event: "Heat Wave",     amount: 200, status: "rejected", fraud: 0.82, time: "1.5h ago" },
-];
-
-const DISRUPTIONS_DEMO = [
-  { zone: "Andheri West, Mumbai",   type: "Heavy Rain",  severity: 0.82, workers: 243, color: "#EF4444" },
-  { zone: "Koramangala, Bengaluru", type: "App Outage",  severity: 0.68, workers: 187, color: "#F59E0B" },
-  { zone: "Saket, Delhi",           type: "AQI Alert",   severity: 0.44, workers: 156, color: "#F59E0B" },
-  { zone: "T.Nagar, Chennai",       type: "Cyclone",     severity: 0.91, workers: 312, color: "#EF4444" },
-];
-
-const KPIS = [
-  { label: "Active workers",     val: 14200, prefix: "",     suffix: "",    amber: false, delta: "+142 today",    up: true  },
-  { label: "Claims today",       val: 84,    prefix: "",     suffix: "",    amber: false, delta: "+12 pending",   up: false },
-  { label: "Payout today",       val: 23520, prefix: "₹", suffix: "",  amber: true,  delta: "₹2.4Cr MTD",  up: true  },
-  { label: "Disputed claims",    val: 6,     prefix: "",     suffix: "",    amber: false, delta: "2 urgent",      up: false },
-  { label: "Active triggers",    val: 12,    prefix: "",     suffix: "",    amber: false, delta: "3 cities",      up: false },
-  { label: "Engine uptime",      val: 99,    prefix: "",     suffix: "%",   amber: true,  delta: "\u25cf Operational", up: true  },
-];
 
 function AdminHome() {
-  const [claims, setClaims] = useState(CLAIMS_DEMO);
+  const [stats, setStats] = useState<Record<string,number>>({});
+  const [claims, setClaims] = useState<Record<string,unknown>[]>([]);
+  const [disruptions, setDisruptions] = useState<Record<string,unknown>[]>([]);
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
+  const h = { Authorization: `Bearer ${token}` };
+
   useEffect(() => {
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : "";
-    fetch(`${API_BASE}/api/v1/claims/?limit=5`, { headers: { Authorization: `Bearer ${token || ""}` } })
-      .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d?.claims) setClaims(d.claims); })
-      .catch(() => {});
+    fetch(`${API_BASE}/api/v1/analytics/dashboard`, { headers: h }).then(r=>r.ok?r.json():null).then(d=>{ if(d) setStats(d); }).catch(()=>{});
+    fetch(`${API_BASE}/api/v1/claims/all?limit=5`, { headers: h }).then(r=>r.ok?r.json():null).then(d=>{ if(d?.claims) setClaims(d.claims); }).catch(()=>{});
+    fetch(`${API_BASE}/api/v1/disruptions/active`, { headers: h }).then(r=>r.ok?r.json():null).then(d=>{ if(Array.isArray(d)) setDisruptions(d); }).catch(()=>{});
   }, []);
+
+  const kpis = [
+    { label: "Active workers",  val: stats.total_users||0, prefix:"", suffix:"", amber:false, delta:"platform-enrolled", up:true },
+    { label: "Claims total",    val: stats.total_claims||0, prefix:"", suffix:"", amber:false, delta:`${stats.claims_review||0} pending review`, up:false },
+    { label: "Total payout",    val: stats.total_payout_amount||0, prefix:"₹", suffix:"", amber:true, delta:"all time", up:true },
+    { label: "Active policies", val: stats.active_policies||0, prefix:"", suffix:"", amber:false, delta:`${(stats.coverage_ratio||0).toFixed(0)}% coverage`, up:true },
+    { label: "Automation rate", val: Math.round(stats.automation_rate||0), prefix:"", suffix:"%", amber:true, delta:"auto-approved", up:true },
+    { label: "Live triggers",   val: disruptions.length, prefix:"", suffix:"", amber:false, delta:"cities affected", up:false },
+  ];
 
   return (
     <div className="max-w-[1400px]">
@@ -214,7 +206,7 @@ function AdminHome() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 mb-6">
-        {KPIS.map((k, i) => (
+        {kpis.map((k, i) => (
           <motion.div key={k.label} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
             className="panel p-4 stat-card">
             <div className="lbl mb-2">{k.label}</div>
@@ -246,15 +238,15 @@ function AdminHome() {
               </thead>
               <tbody>
                 {claims.map(c => (
-                  <Link key={c.id} href="/dashboard/claims" legacyBehavior>
+                  <Link key={c.claim_number as string} href="/dashboard/claims" legacyBehavior>
                     <tr style={{ cursor: "pointer" }}>
-                      <td><span className="font-mono text-slate-800 text-xs font-semibold">{c.id}</span></td>
-                      <td><span className="font-semibold text-slate-800">{c.worker}</span></td>
-                      <td className="text-slate-600">{c.event}</td>
-                      <td><span className="text-emerald-600 font-mono font-bold">₹{c.amount}</span></td>
-                      <td><FraudBar score={c.fraud} /></td>
-                      <td><StatusTag s={c.status} /></td>
-                      <td><span className="text-slate-400 text-xs">{c.time}</span></td>
+                      <td><span className="font-mono text-slate-800 text-xs font-semibold">{c.claim_number as string}</span></td>
+                      <td><span className="font-semibold text-slate-800">{c.worker_name as string}</span></td>
+                      <td className="text-slate-600">{String(c.event_type || "").replace(/_/g, " ")}</td>
+                      <td><span className="text-emerald-600 font-mono font-bold">₹{c.amount as number}</span></td>
+                      <td><FraudBar score={c.fraud_score as number} /></td>
+                      <td><StatusTag s={c.status === "paid" ? "approved" : c.status === "pending" ? "review" : c.status as string} /></td>
+                      <td><span className="text-slate-400 text-xs">{String(c.created_at || "").slice(0, 10)}</span></td>
                     </tr>
                   </Link>
                 ))}
@@ -273,29 +265,37 @@ function AdminHome() {
             <div className="dot dot-live" />
           </div>
           <div className="divide-y divide-slate-100">
-            {DISRUPTIONS_DEMO.map((d, i) => (
-              <motion.div key={d.zone} initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }}
-                className="flex items-stretch hover:bg-slate-50 transition-colors">
-                <div className="w-1.5 flex-shrink-0 rounded-none" style={{ background: d.color }} />
-                <div className="px-4 py-3.5 flex-1">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <div className="font-semibold text-slate-800 text-sm">{d.type}</div>
-                      <div className="text-xs text-slate-400 mt-0.5">{d.zone}</div>
+            {disruptions.length === 0 ? (
+              <div className="p-6 text-center text-slate-400 text-sm">No active disruptions</div>
+            ) : disruptions.map((d, i) => {
+              const sev = d.severity === "high" ? 0.85 : d.severity === "medium" ? 0.55 : 0.3;
+              const color = d.severity === "high" ? "#ef4444" : d.severity === "medium" ? "#f59e0b" : "#10b981";
+              const label = String(d.event_type || "").replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+              const zone = `${d.zone as string}, ${d.city as string}`;
+              return (
+                <motion.div key={String(d.id)} initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }}
+                  className="flex items-stretch hover:bg-slate-50 transition-colors">
+                  <div className="w-1.5 flex-shrink-0 rounded-none" style={{ background: color }} />
+                  <div className="px-4 py-3.5 flex-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <div className="font-semibold text-slate-800 text-sm">{label}</div>
+                        <div className="text-xs text-slate-400 mt-0.5">{zone}</div>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <div className="font-bold text-slate-800 text-sm capitalize">{d.severity as string}</div>
+                        <div className="text-xs text-slate-400">severity</div>
+                      </div>
                     </div>
-                    <div className="text-right flex-shrink-0">
-                      <div className="font-bold text-slate-800 text-sm">{d.workers}</div>
-                      <div className="text-xs text-slate-400">workers</div>
+                    <div className="mt-2">
+                      <div className="prog-track">
+                        <div style={{ height: "100%", borderRadius: 999, width: `${sev * 100}%`, background: color, animation: "none" }} />
+                      </div>
                     </div>
                   </div>
-                  <div className="mt-2">
-                    <div className="prog-track">
-                      <div style={{ height: "100%", borderRadius: 999, width: `${d.severity * 100}%`, background: d.color, animation: "none" }} />
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </div>
           <div className="p-3 border-t border-slate-100">
             <Link href="/dashboard/triggers">

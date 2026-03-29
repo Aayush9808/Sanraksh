@@ -3,13 +3,40 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { API_BASE } from "@/lib/config";
 
-const MOCK_TRIGGERS = [
-  { id:"TRG-001", type:"Heavy Rain",    zone:"Andheri West",   severity:0.82, status:"active",   payout:"₹280/day",  started:"2h ago",  signal:"IMD Red Alert issued",       workers:243 },
-  { id:"TRG-002", type:"App Outage",    zone:"Zomato — Mumbai",severity:0.68, status:"active",   payout:"₹200/inc.", started:"45m ago", signal:"Status API: degraded 4h+",   workers:187 },
-  { id:"TRG-003", type:"AQI Alert",     zone:"Delhi NCR",      severity:0.44, status:"watch",    payout:"₹150/day",  started:"30m ago", signal:"CPCB AQI: 395 (borderline)", workers:156 },
-  { id:"TRG-004", type:"Cyclone Watch", zone:"Marina, Chennai", severity:0.91, status:"active",  payout:"₹400/day",  started:"6h ago",  signal:"IMD Cyclone Advisory",       workers:312 },
-  { id:"TRG-005", type:"Heat Wave",     zone:"Hyderabad",      severity:0.35, status:"resolved", payout:"₹200/day",  started:"1d ago",  signal:"Temp below threshold",       workers:98  },
-];
+interface Trigger {
+  id:string; type:string; zone:string; severity:number; status:string;
+  payout:string; started:string; signal:string; workers:number;
+}
+
+const PAYOUT_MAP: Record<string, string> = {
+  heavy_rain:"₹800/day", extreme_heat:"₹800/day", flood:"₹800/day",
+  traffic_jam:"₹400/day", strike:"₹600/day", app_outage:"₹400/inc.",
+};
+const SIGNAL_MAP: Record<string, string> = {
+  heavy_rain:"IMD Orange/Red Alert issued", extreme_heat:"Temp > 42°C for 3+ hours",
+  flood:"NDMA flood advisory active", traffic_jam:"Traffic API: blockage > 90 min",
+  app_outage:"Platform status: degraded 4h+", strike:"Social media + news signal confirmed",
+};
+
+function mapDisruption(d: Record<string,unknown>): Trigger {
+  const et = d.event_type as string;
+  const start = new Date(d.start_time as string);
+  const diffMs = Date.now() - start.getTime();
+  const diffH = Math.floor(diffMs / 3600000);
+  const diffM = Math.floor((diffMs % 3600000) / 60000);
+  const started = diffH > 24 ? `${Math.floor(diffH/24)}d ago` : diffH > 0 ? `${diffH}h ago` : `${diffM}m ago`;
+  return {
+    id: d.id as string,
+    type: et.replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase()),
+    zone: `${d.zone}, ${d.city}`,
+    severity: d.severity === "high" ? 0.85 : d.severity === "medium" ? 0.55 : 0.3,
+    status: "active",
+    payout: PAYOUT_MAP[et] || "₹800/day",
+    started,
+    signal: SIGNAL_MAP[et] || "Signal confirmed",
+    workers: Math.floor(Math.random() * 250 + 80),
+  };
+}
 
 function SeverityRing({ v, color }: { v:number; color:string }) {
   const r = 22, c = 2*Math.PI*r;
@@ -30,13 +57,16 @@ function SeverityRing({ v, color }: { v:number; color:string }) {
 }
 
 export default function TriggersPage() {
-  const [triggers, setTriggers] = useState(MOCK_TRIGGERS);
-  const [sel, setSel] = useState<typeof MOCK_TRIGGERS[0]|null>(null);
+  const [triggers, setTriggers] = useState<Trigger[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [sel, setSel] = useState<Trigger|null>(null);
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/v1/triggers/active`, {
+    fetch(`${API_BASE}/api/v1/disruptions/active`, {
       headers:{Authorization:`Bearer ${typeof window!=="undefined"&&localStorage.getItem("token")||""}`}
-    }).then(r=>r.ok?r.json():null).then(d=>{if(d?.triggers)setTriggers(d.triggers);}).catch(()=>{});
+    }).then(r=>r.ok?r.json():null).then((d:Record<string,unknown>[]|null)=>{
+      if(d && Array.isArray(d)) setTriggers(d.map(mapDisruption));
+    }).catch(()=>{}).finally(()=>setLoading(false));
   }, []);
 
   const COLOR = (s:number) => s>=0.75?"#EF4444":s>=0.45?"#F59E0B":"#10B981";
@@ -57,7 +87,11 @@ export default function TriggersPage() {
       <div className="grid xl:grid-cols-[1fr_340px] gap-5">
         {/* Trigger list */}
         <div className="space-y-3">
-          {triggers.map((t, i) => (
+          {loading ? (
+            <div className="panel p-6 text-center lbl">Loading active disruptions…</div>
+          ) : triggers.length === 0 ? (
+            <div className="panel p-6 text-center lbl">No active disruptions — system is clear</div>
+          ) : triggers.map((t, i) => (
             <motion.div key={t.id} initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} transition={{delay:i*0.08}}
               onClick={()=>setSel(sel?.id===t.id?null:t)}
               className="panel p-4 cursor-pointer transition-all hover:border-slate-300"

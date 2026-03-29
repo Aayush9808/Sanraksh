@@ -3,20 +3,10 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { API_BASE } from "@/lib/config";
 
-const MOCK: Claim[] = [
-  { id:"CLM-8821", worker:"Rahul Kumar",     phone:"+91 9900001111", event:"Heavy Rain",   amount:280, status:"review",   fraud:0.08, city:"Mumbai",    platform:"Swiggy",  created:"28 Mar 2026, 14:22" },
-  { id:"CLM-8820", worker:"Priya Mistry",    phone:"+91 9900002222", event:"App Outage",   amount:200, status:"review",   fraud:0.34, city:"Bengaluru",  platform:"Zomato",  created:"28 Mar 2026, 13:50" },
-  { id:"CLM-8819", worker:"Arjun Sharma",    phone:"+91 9900003333", event:"Curfew",       amount:350, status:"approved", fraud:0.06, city:"Delhi",      platform:"Uber",    created:"28 Mar 2026, 11:15" },
-  { id:"CLM-8818", worker:"Meena Rajan",     phone:"+91 9900004444", event:"Flood",        amount:280, status:"approved", fraud:0.11, city:"Chennai",    platform:"Dunzo",   created:"28 Mar 2026, 09:40" },
-  { id:"CLM-8817", worker:"Vikram Patil",    phone:"+91 9900005555", event:"Heat Wave",    amount:200, status:"rejected",  fraud:0.82, city:"Hyderabad",  platform:"Swiggy",  created:"27 Mar 2026, 22:10" },
-  { id:"CLM-8816", worker:"Divya Nair",      phone:"+91 9900006666", event:"Heavy Rain",   amount:280, status:"approved", fraud:0.09, city:"Pune",       platform:"Zomato",  created:"27 Mar 2026, 18:30" },
-  { id:"CLM-8815", worker:"Kiran Rao",       phone:"+91 9900007777", event:"AQI Alert",    amount:150, status:"review",   fraud:0.45, city:"Delhi",      platform:"Uber",    created:"27 Mar 2026, 15:55" },
-  { id:"CLM-8814", worker:"Anita Desai",     phone:"+91 9900008888", event:"App Outage",   amount:200, status:"approved", fraud:0.07, city:"Mumbai",     platform:"Swiggy",  created:"27 Mar 2026, 12:20" },
-];
-
 interface Claim {
   id:string; worker:string; phone:string; event:string; amount:number;
   status:string; fraud:number; city:string; platform:string; created:string;
+  decision_reasons?: string[];
 }
 
 const STATUS_TAB = ["all","review","approved","rejected"] as const;
@@ -103,23 +93,32 @@ function DetailPanel({ claim, onClose, onAction }: { claim:Claim; onClose:()=>vo
             </div>
           </div>
           <div className="space-y-2">
-            {[
-              ["Location match",   Math.max(0, 1-claim.fraud-0.1)],
-              ["Timing pattern",   Math.max(0, 1-claim.fraud+0.05)],
-              ["Claim frequency",  Math.min(1, claim.fraud+0.1)],
-              ["Signal corr.",    Math.max(0, 1-claim.fraud-0.05)],
-            ].map(([label, v]) => {
-              const val = v as number;
-              const col = val>0.7?"#10B981":val>0.4?"#F59E0B":"#EF4444";
-              return (
-                <div key={label as string} className="flex items-center gap-2">
-                  <span className="lbl w-28 flex-shrink-0">{label as string}</span>
-                  <div className="prog-track flex-1">
-                    <div style={{height:"100%",background:col,borderRadius:2,width:`${val*100}%`}} />
-                  </div>
+            {claim.decision_reasons && claim.decision_reasons.length > 0 ? (
+              claim.decision_reasons.map((r:string) => (
+                <div key={r} className="flex items-center gap-2">
+                  <span className="text-emerald-400 text-xs">✓</span>
+                  <span className="lbl text-xs">{r.replace(/_/g," ").toLowerCase()}</span>
                 </div>
-              );
-            })}
+              ))
+            ) : (
+              [
+                ["Location match",   Math.max(0, 1-claim.fraud-0.1)],
+                ["Timing pattern",   Math.max(0, 1-claim.fraud+0.05)],
+                ["Claim frequency",  Math.min(1, claim.fraud+0.1)],
+                ["Signal corr.",    Math.max(0, 1-claim.fraud-0.05)],
+              ].map(([label, v]) => {
+                const val = v as number;
+                const col = val>0.7?"#10B981":val>0.4?"#F59E0B":"#EF4444";
+                return (
+                  <div key={label as string} className="flex items-center gap-2">
+                    <span className="lbl w-28 flex-shrink-0">{label as string}</span>
+                    <div className="prog-track flex-1">
+                      <div style={{height:"100%",background:col,borderRadius:2,width:`${val*100}%`}} />
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
 
@@ -137,15 +136,33 @@ function DetailPanel({ claim, onClose, onAction }: { claim:Claim; onClose:()=>vo
 }
 
 export default function ClaimsPage() {
-  const [claims, setClaims] = useState<Claim[]>(MOCK);
+  const [claims, setClaims] = useState<Claim[]>([]);
+  const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<typeof STATUS_TAB[number]>("all");
   const [sel, setSel] = useState<Claim|null>(null);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/v1/claims/?limit=50`, {
+    fetch(`${API_BASE}/api/v1/claims/all?limit=100`, {
       headers:{Authorization:`Bearer ${typeof window!=="undefined"&&localStorage.getItem("token")||""}`}
-    }).then(r=>r.ok?r.json():null).then(d=>{if(d?.claims)setClaims(d.claims);}).catch(()=>{});
+    }).then(r=>r.ok?r.json():null).then(d=>{
+      if(d?.claims) {
+        const mapped: Claim[] = d.claims.map((c: Record<string,unknown>) => ({
+          id: c.claim_number as string,
+          worker: c.worker_name as string,
+          phone: "",
+          event: c.event_type as string || "General",
+          amount: c.amount as number,
+          status: c.status === "paid" ? "approved" : c.status === "pending" ? "review" : c.status as string,
+          fraud: c.fraud_score as number,
+          city: (c.zone as string) || "",
+          platform: c.worker_platform as string,
+          created: c.created_at ? new Date(c.created_at as string).toLocaleString("en-IN",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}) : "",
+          decision_reasons: c.decision_reasons as string[],
+        }));
+        setClaims(mapped);
+      }
+    }).catch(()=>{}).finally(()=>setLoading(false));
   }, []);
 
   function doAction(id:string, action:string) {
@@ -200,7 +217,11 @@ export default function ClaimsPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map(c => (
+              {loading ? (
+                <tr><td colSpan={8} className="text-center py-8 text-slate-400 lbl">Loading claims…</td></tr>
+              ) : filtered.length === 0 ? (
+                <tr><td colSpan={8} className="text-center py-8 text-slate-400 lbl">No claims found</td></tr>
+              ) : filtered.map(c => (
                 <tr key={c.id} onClick={()=>setSel(sel?.id===c.id?null:c)}>
                   <td><span className="font-mono text-xs text-slate-800">{c.id}</span></td>
                   <td><span className="text-slate-600 font-medium">{c.worker}</span></td>

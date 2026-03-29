@@ -3,7 +3,6 @@ Risk Zone Model
 """
 
 from sqlalchemy import Column, String, Float, DateTime
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 import uuid
 
@@ -14,7 +13,7 @@ class RiskZone(Base):
     """Risk Zone Model - Precomputed risk scores for micro-zones"""
     __tablename__ = "risk_zones"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     
     # Location
     city = Column(String(50), nullable=False, index=True)

@@ -47,7 +47,7 @@ async def create_disruption(
 ):
     """Create a new disruption event (admin/automated)"""
     d = Disruption(
-        id=uuid.uuid4(),
+        id=str(uuid.uuid4()),
         disruption_type=DisruptionType.WEATHER,
         event_type=event_type,
         severity=severity,

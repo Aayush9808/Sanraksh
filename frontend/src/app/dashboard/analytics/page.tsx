@@ -1,41 +1,51 @@
 "use client";
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { useEffect, useState } from "react";
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell } from "recharts";
+import { API_BASE } from "@/lib/config";
 
-const CLAIMS_DATA = [
-  {month:"Oct",claims:42,amount:11760},{month:"Nov",claims:58,amount:16240},{month:"Dec",claims:91,amount:25480},
-  {month:"Jan",claims:76,amount:21280},{month:"Feb",claims:104,amount:29120},{month:"Mar",claims:127,amount:35560},
-];
-const PAYOUT_DATA = [
-  {day:"Mon",amount:4200},{day:"Tue",amount:6800},{day:"Wed",amount:3200},{day:"Thu",amount:8900},
-  {day:"Fri",amount:11200},{day:"Sat",amount:7400},{day:"Sun",amount:5600},
-];
-const EVENTS = [
-  { type:"Heavy Rain",  count:48, pct:38, color:"#60A5FA" },
-  { type:"App Outage",  count:31, pct:24, color:"#F59E0B" },
-  { type:"Curfew",      count:24, pct:19, color:"#EF4444" },
-  { type:"AQI Alert",   count:14, pct:11, color:"#10B981" },
-  { type:"Heat Wave",   count:10, pct:8,  color:"#A78BFA" },
-];
+interface DashStats { total_users:number; active_policies:number; total_claims:number; total_payout_amount:number; automation_rate:number; coverage_ratio:number; }
+interface DayData { day:string; date:string; claims:number; payout:number; }
+interface PolicyMix { name:string; value:number; color:string; }
 
 const TT_STYLE = { background:"#14100A", border:"1px solid #2A2218", borderRadius:8, color:"#C8BAA0" };
 
 export default function AnalyticsPage() {
+  const [stats, setStats] = useState<DashStats|null>(null);
+  const [weekly, setWeekly] = useState<DayData[]>([]);
+  const [policyMix, setPolicyMix] = useState<PolicyMix[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const h = {Authorization:`Bearer ${typeof window!=="undefined"&&localStorage.getItem("token")||""}`};
+    Promise.all([
+      fetch(`${API_BASE}/api/v1/analytics/dashboard`,{headers:h}).then(r=>r.ok?r.json():null),
+      fetch(`${API_BASE}/api/v1/analytics/claims-summary`,{headers:h}).then(r=>r.ok?r.json():null),
+      fetch(`${API_BASE}/api/v1/analytics/policy-mix`,{headers:h}).then(r=>r.ok?r.json():null),
+    ]).then(([s, w, pm]) => {
+      if(s) setStats(s);
+      if(w) setWeekly(w);
+      if(pm && pm.length>0) setPolicyMix(pm);
+    }).finally(()=>setLoading(false));
+  }, []);
+
+  const kpis = stats ? [
+    {label:"Total payout (all time)",  val:`₹${stats.total_payout_amount.toLocaleString()}`,  sub:`${stats.total_claims} claims settled`},
+    {label:"Active policies",           val:String(stats.active_policies),                      sub:`${stats.coverage_ratio.toFixed(0)}% coverage ratio`},
+    {label:"Automation rate",           val:`${stats.automation_rate}%`,                        sub:"claims auto-approved"},
+    {label:"Registered workers",        val:String(stats.total_users),                          sub:"platform-enrolled"},
+  ] : Array(4).fill({label:"—",val:"…",sub:""});
+
   return (
     <div className="max-w-[1400px]">
       <div className="section-head">
         <div><p className="lbl mb-1">Admin portal</p>
           <h1 className="text-slate-800 font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Analytics</h1></div>
-        <span className="tag tag-info">Last 6 months</span>
+        <span className="tag tag-live">Live data</span>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        {[
-          {label:"Total payouts YTD",  val:"₹89,400",  sub:"+24% vs last yr"},
-          {label:"Claims processed",    val:"498",      sub:"127 this month"},
-          {label:"Avg. claim value",    val:"₹248",     sub:"↓ ₹12 vs last mo"},
-          {label:"Fraud prevented",     val:"₹28,400",  sub:"17 flagged, 4 rejected"},
-        ].map(k=>(
-          <div key={k.label} className="panel p-4">
+        {kpis.map((k,i)=>(
+          <div key={i} className="panel p-4">
             <div className="lbl mb-2">{k.label}</div>
             <div className="text-slate-800 font-extrabold text-2xl mb-1" style={{letterSpacing:"-0.04em"}}>{k.val}</div>
             <div className="lbl" style={{color:"#6B5C44"}}>{k.sub}</div>
@@ -45,52 +55,66 @@ export default function AnalyticsPage() {
 
       <div className="grid xl:grid-cols-[1fr_1fr] gap-5 mb-5">
         <div className="panel p-5">
-          <p className="lbl mb-1">Monthly volume</p>
-          <h3 className="text-slate-800 font-bold mb-4" style={{letterSpacing:"-0.02em"}}>Claims by month</h3>
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={CLAIMS_DATA} barSize={28}>
-              <CartesianGrid vertical={false} stroke="#2A2218" />
-              <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill:"#4A3E2A",fontSize:11,fontFamily:"var(--font-mono)"}} />
-              <YAxis axisLine={false} tickLine={false} tick={{fill:"#4A3E2A",fontSize:11,fontFamily:"var(--font-mono)"}} />
-              <Tooltip contentStyle={TT_STYLE} cursor={{fill:"rgba(245,158,11,0.05)"}} />
-              <Bar dataKey="claims" fill="#F59E0B" radius={[4,4,0,0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          <p className="lbl mb-1">This week</p>
+          <h3 className="text-slate-800 font-bold mb-4" style={{letterSpacing:"-0.02em"}}>Claims filed — last 7 days</h3>
+          {loading ? <div className="h-[200px] flex items-center justify-center lbl">Loading…</div> : (
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={weekly} barSize={28}>
+                <CartesianGrid vertical={false} stroke="#2A2218" />
+                <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fill:"#4A3E2A",fontSize:11,fontFamily:"var(--font-mono)"}} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill:"#4A3E2A",fontSize:11,fontFamily:"var(--font-mono)"}} allowDecimals={false} />
+                <Tooltip contentStyle={TT_STYLE} cursor={{fill:"rgba(245,158,11,0.05)"}} />
+                <Bar dataKey="claims" fill="#F59E0B" radius={[4,4,0,0]} name="Claims" />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
         </div>
 
         <div className="panel p-5">
           <p className="lbl mb-1">This week</p>
           <h3 className="text-slate-800 font-bold mb-4" style={{letterSpacing:"-0.02em"}}>Daily payout volume (₹)</h3>
-          <ResponsiveContainer width="100%" height={200}>
-            <LineChart data={PAYOUT_DATA}>
-              <CartesianGrid vertical={false} stroke="#2A2218" />
-              <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fill:"#4A3E2A",fontSize:11,fontFamily:"var(--font-mono)"}} />
-              <YAxis axisLine={false} tickLine={false} tick={{fill:"#4A3E2A",fontSize:11,fontFamily:"var(--font-mono)"}} />
-              <Tooltip contentStyle={TT_STYLE} cursor={{stroke:"rgba(245,158,11,0.2)"}} />
-              <Line dataKey="amount" stroke="#F59E0B" strokeWidth={2} dot={{fill:"#F59E0B",r:4}} activeDot={{r:6}} />
-            </LineChart>
-          </ResponsiveContainer>
+          {loading ? <div className="h-[200px] flex items-center justify-center lbl">Loading…</div> : (
+            <ResponsiveContainer width="100%" height={200}>
+              <LineChart data={weekly}>
+                <CartesianGrid vertical={false} stroke="#2A2218" />
+                <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fill:"#4A3E2A",fontSize:11,fontFamily:"var(--font-mono)"}} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill:"#4A3E2A",fontSize:11,fontFamily:"var(--font-mono)"}} />
+                <Tooltip contentStyle={TT_STYLE} cursor={{stroke:"rgba(245,158,11,0.2)"}} formatter={(v:number)=>[`₹${v.toLocaleString()}`,""]}/>
+                <Line dataKey="payout" stroke="#F59E0B" strokeWidth={2} dot={{fill:"#F59E0B",r:4}} activeDot={{r:6}} name="Payout ₹"/>
+              </LineChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </div>
 
-      <div className="panel p-5">
-        <p className="lbl mb-1">Cause analysis</p>
-        <h3 className="text-slate-800 font-bold mb-4" style={{letterSpacing:"-0.02em"}}>Claims by disruption type — this month</h3>
-        <div className="space-y-3">
-          {EVENTS.map(e=>(
-            <div key={e.type} className="flex items-center gap-4">
-              <div className="w-28 text-sm text-slate-500 flex-shrink-0">{e.type}</div>
-              <div className="prog-track flex-1">
-                <div className="prog-fill" style={{width:`${e.pct}%`,background:e.color,animation:"none"}} />
-              </div>
-              <div className="flex items-center gap-3 flex-shrink-0">
-                <span className="font-mono text-sm font-bold text-slate-800">{e.count}</span>
-                <span className="lbl w-8 text-right">{e.pct}%</span>
-              </div>
+      {policyMix.length > 0 && (
+        <div className="panel p-5 mb-5">
+          <p className="lbl mb-1">Coverage breakdown</p>
+          <h3 className="text-slate-800 font-bold mb-4" style={{letterSpacing:"-0.02em"}}>Active policies by coverage type</h3>
+          <div className="flex items-center gap-8">
+            <ResponsiveContainer width={180} height={180}>
+              <PieChart>
+                <Pie data={policyMix} cx={85} cy={85} innerRadius={50} outerRadius={80} dataKey="value" paddingAngle={3}>
+                  {policyMix.map((e,i)=><Cell key={i} fill={e.color} />)}
+                </Pie>
+                <Tooltip contentStyle={TT_STYLE} />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="space-y-2 flex-1">
+              {policyMix.map(e=>(
+                <div key={e.name} className="flex items-center gap-4">
+                  <div className="w-3 h-3 rounded-full flex-shrink-0" style={{background:e.color}} />
+                  <div className="text-sm text-slate-500 flex-1">{e.name}</div>
+                  <div className="prog-track w-28">
+                    <div style={{height:"100%",background:e.color,borderRadius:2,width:`${(e.value/Math.max(...policyMix.map(x=>x.value)))*100}%`}} />
+                  </div>
+                  <span className="font-mono text-sm font-bold text-slate-800 w-6 text-right">{e.value}</span>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

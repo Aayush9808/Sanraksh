@@ -11,38 +11,69 @@ const ENGINE_STATUS = [
   { name:"Platform Connector",  status:"degraded",latency:"1.8s",  processed:1240  },
   { name:"Notification Engine", status:"running", latency:"56ms",  processed:8920  },
 ];
-const QUEUE = [
-  { id:"Q-001", type:"Rain → Payout",     workers:280, status:"ready",      eta:"instant" },
-  { id:"Q-002", type:"Fraud review",      workers:3,   status:"pending",    eta:"manual"  },
-  { id:"Q-003", type:"Platform re-check", workers:120, status:"scheduled",  eta:"15m"     },
+
+const SCENARIOS = [
+  { city:"Mumbai",    zone:"Andheri West",    event_type:"heavy_rain",    severity:"high"   },
+  { city:"Delhi",     zone:"Connaught Place", event_type:"traffic_jam",   severity:"medium" },
+  { city:"Bengaluru", zone:"Koramangala",     event_type:"extreme_heat",  severity:"medium" },
+  { city:"Pune",      zone:"Kothrud",         event_type:"heavy_rain",    severity:"high"   },
+  { city:"Hyderabad", zone:"Banjara Hills",   event_type:"extreme_heat",  severity:"high"   },
 ];
+
 const INIT_LOGS = [
-  "[12:41:02] ✓ IMD signal received — ORANGE ALERT Mumbai",
-  "[12:41:04] ✓ Geo-match: 1,840 workers within flood polygon",
-  "[12:41:05] ✓ Policy check: 1,760 workers have Rain coverage",
-  "[12:41:06] ✓ Cooldown check: 1,612 eligible (wait period clear)",
-  "[12:41:07] ✓ Fraud scorer: 1,605 passed (7 flagged for review)",
-  "[12:41:08] → Dispatching ₹280 × 1,605 workers = ₹449,400",
-  "[12:41:09] ✓ Payout batch ACK by payment gateway",
+  "[system] GigArmor automation engine v2.0 — ready",
+  "[system] Signal sources: IMD API, OpenWeather, Platform Status",
+  "[system] Fraud scorer: ML model loaded (XGBoost v1.4)",
+  "[system] Payout dispatcher: connected to payment gateway",
+  "[system] All systems nominal — awaiting trigger",
 ];
 
 export default function ControlTowerPage() {
   const [logs, setLogs] = useState(INIT_LOGS);
   const [running, setRunning] = useState(false);
+  const [scenario, setScenario] = useState(0);
+  const [lastResult, setLastResult] = useState<Record<string,unknown>|null>(null);
   const logRef = useRef<HTMLDivElement>(null);
+
+  const ts = () => `[${new Date().toLocaleTimeString("en-GB")}]`;
+  const append = (msg:string) => setLogs(prev=>[...prev, msg]);
 
   const runEngine = async () => {
     setRunning(true);
-    const ts = ()=>`[${new Date().toLocaleTimeString("en-GB")}]`;
-    const append = (msg:string) => setLogs(prev=>[...prev, msg]);
-    append(`${ts()} ▶  Manual engine run triggered`);
-    await new Promise(r=>setTimeout(r,600)); append(`${ts()} ✓ Polling disruption sources…`);
-    await new Promise(r=>setTimeout(r,900)); append(`${ts()} ✓ 3 active alerts found`);
-    await new Promise(r=>setTimeout(r,500)); append(`${ts()} ✓ Evaluating 14,200 workers`);
-    await new Promise(r=>setTimeout(r,700)); append(`${ts()} ✓ 892 eligible for payout`);
-    await new Promise(r=>setTimeout(r,400)); append(`${ts()} → Dispatching batch…`);
-    await new Promise(r=>setTimeout(r,800)); append(`${ts()} ✓ DONE — ₹2,49,760 dispatched`);
+    const s = SCENARIOS[scenario];
+    append(`${ts()} ▶  Engine run triggered — ${s.event_type.replace(/_/g," ")} in ${s.city}`);
+    append(`${ts()} ✓ Polling disruption sources…`);
+    await new Promise(r=>setTimeout(r,600));
+    append(`${ts()} ✓ Signal confirmed: ${s.event_type.toUpperCase()} — ${s.severity} severity`);
+    await new Promise(r=>setTimeout(r,400));
+    append(`${ts()} ✓ Geo-matching workers in ${s.zone}, ${s.city}…`);
+    await new Promise(r=>setTimeout(r,500));
+
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/phase2/simulate-disruption`, {
+        method:"POST",
+        headers:{"Content-Type":"application/json",Authorization:`Bearer ${typeof window!=="undefined"&&localStorage.getItem("token")||""}`},
+        body: JSON.stringify({city:s.city, zone:s.zone, event_type:s.event_type, severity:s.severity, strict_mode:false}),
+      });
+      const data = await res.json();
+      setLastResult(data);
+      append(`${ts()} ✓ Policy check: ${data.targeted_workers} workers targeted`);
+      await new Promise(r=>setTimeout(r,300));
+      append(`${ts()} ✓ Fraud scoring complete — avg score: ${(data.avg_fraud_score*100).toFixed(0)}%`);
+      await new Promise(r=>setTimeout(r,400));
+      if(data.auto_paid_count > 0) append(`${ts()} → AUTO-PAY: ${data.auto_paid_count} claims × ₹800 = ₹${data.total_payout.toLocaleString()}`);
+      if(data.review_count > 0) append(`${ts()} ⚠ REVIEW: ${data.review_count} claims flagged for manual check`);
+      if(data.rejected_count > 0) append(`${ts()} ✗ REJECTED: ${data.rejected_count} claims (fraud detected)`);
+      if(data.decision_trace_samples?.length > 0) {
+        const ex = data.decision_trace_samples[0];
+        append(`${ts()} · Example: ${ex.claim_number} → ${ex.status.toUpperCase()} (fraud: ${(ex.fraud_score*100).toFixed(0)}%)`);
+      }
+      append(`${ts()} ✓ DONE — settlement estimated in ${data.estimated_settlement_seconds}s`);
+    } catch {
+      append(`${ts()} ✗ Engine error — check backend connection`);
+    }
     setRunning(false);
+    setScenario(i => (i+1) % SCENARIOS.length);
   };
 
   useEffect(()=>{
@@ -85,28 +116,45 @@ export default function ControlTowerPage() {
           </div>
         </div>
 
-        {/* Queue */}
+        {/* Last Run Result */}
         <div className="panel overflow-hidden">
           <div style={{padding:"1rem 1.25rem",borderBottom:"1px solid #2A2218"}}>
-            <p className="lbl mb-0.5">Pending actions</p>
-            <h2 className="text-slate-800 font-bold" style={{letterSpacing:"-0.02em"}}>Dispatch queue</h2>
+            <p className="lbl mb-0.5">Last simulation result</p>
+            <h2 className="text-slate-800 font-bold" style={{letterSpacing:"-0.02em"}}>Engine output</h2>
           </div>
-          <div className="divide-y divide-[#2A2218]">
-            {QUEUE.map(q=>(
-              <div key={q.id} className="px-5 py-4">
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <div className="text-slate-600 font-medium text-sm">{q.type}</div>
-                    <div className="lbl">{q.workers} workers · ETA: {q.eta}</div>
+          {lastResult ? (
+            <div className="p-5 space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                {([
+                  ["Workers targeted", lastResult.targeted_workers],
+                  ["Auto-paid", lastResult.auto_paid_count],
+                  ["Under review", lastResult.review_count],
+                  ["Total payout", `₹${Number(lastResult.total_payout).toLocaleString()}`],
+                ] as [string, unknown][]).map(([k,v])=>(
+                  <div key={k} className="panel-inset p-3 text-center">
+                    <div className="text-amber font-bold text-lg">{String(v)}</div>
+                    <div className="lbl text-xs mt-0.5">{k}</div>
                   </div>
-                  <span className={`tag ${q.status==="ready"?"tag-live":q.status==="pending"?"tag-warn":"tag-neutral"}`}>{q.status}</span>
-                </div>
-                {q.status==="ready" && (
-                  <button className="btn-amber btn-sm mt-1">Dispatch now</button>
-                )}
+                ))}
               </div>
-            ))}
-          </div>
+              <div className="panel-inset p-3">
+                <div className="lbl mb-1">Signal confidence</div>
+                <div className="prog-track">
+                  <div className="prog-fill" style={{width:`${Number(lastResult.signal_confidence)*100}%`,animation:"none"}} />
+                </div>
+                <div className="text-right lbl mt-1">{(Number(lastResult.signal_confidence)*100).toFixed(0)}%</div>
+              </div>
+              <div className="panel-inset p-3">
+                <div className="lbl mb-1">Settlement time</div>
+                <div className="text-slate-800 font-bold">{String(lastResult.estimated_settlement_seconds)}s</div>
+              </div>
+            </div>
+          ) : (
+            <div className="p-8 text-center">
+              <div className="lbl mb-2">No run yet</div>
+              <div className="text-sm text-slate-400">Click &quot;Run engine now&quot; to simulate a disruption</div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -121,7 +169,7 @@ export default function ControlTowerPage() {
         </div>
         <div ref={logRef} style={{background:"#070503",padding:"1.25rem",height:260,overflowY:"auto",fontFamily:"var(--font-mono)"}}>
           {logs.map((l,i)=>{
-            const color=l.includes("✓")?"#10B981":l.includes("→")?"#F59E0B":l.includes("▶")?"#60A5FA":"#4A3E2A";
+            const color=l.includes("✓")?"#10B981":l.includes("→")?"#F59E0B":l.includes("▶")?"#60A5FA":l.includes("✗")?"#EF4444":l.includes("⚠")?"#F59E0B":"#4A3E2A";
             return <div key={i} className="text-xs mb-1.5 leading-relaxed" style={{color}}>{l}</div>;
           })}
           {running && (

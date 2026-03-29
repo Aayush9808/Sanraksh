@@ -61,7 +61,7 @@ async def create_policy(data: PolicyCreateRequest, db: Session = Depends(get_db)
         zone=user.work_zone or "", season=CURRENT_SEASON
     )
     policy = Policy(
-        id=uuid.uuid4(),
+        id=str(uuid.uuid4()),
         user_id=data.user_id,
         policy_number=generate_policy_number(),
         start_date=date.today(),

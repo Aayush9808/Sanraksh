@@ -3,7 +3,6 @@ Premium History Model
 """
 
 from sqlalchemy import Column, String, Float, Date, DateTime, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 import uuid
 
@@ -14,10 +13,10 @@ class PremiumHistory(Base):
     """Premium History Model - Track weekly premium calculations"""
     __tablename__ = "premium_history"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
-    policy_id = Column(UUID(as_uuid=True), ForeignKey("policies.id"), nullable=False)
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    policy_id = Column(String(36), ForeignKey("policies.id"), nullable=False)
     
     # Week period
     week_start_date = Column(Date, nullable=False)

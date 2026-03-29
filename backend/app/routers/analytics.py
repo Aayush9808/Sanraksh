@@ -3,7 +3,7 @@ Analytics Router - Full Implementation with Real DB Queries
 """
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from sqlalchemy import func, cast, Date
+from sqlalchemy import func
 from datetime import datetime, timedelta, date
 import logging
 
@@ -23,7 +23,7 @@ async def get_dashboard_stats(db: Session = Depends(get_db)):
     active_policies = db.query(func.count(Policy.id)).filter(Policy.status == PolicyStatus.ACTIVE).scalar() or 0
     total_claims = db.query(func.count(Claim.id)).scalar() or 0
     claims_today = db.query(func.count(Claim.id)).filter(
-        cast(Claim.created_at, Date) == date.today()
+        func.date(Claim.created_at) == str(date.today())
     ).scalar() or 0
     total_payout = db.query(func.sum(Claim.claim_amount)).filter(
         Claim.status == ClaimStatus.PAID
@@ -50,9 +50,9 @@ async def get_claims_summary(days: int = 7, db: Session = Depends(get_db)):
     result = []
     for i in range(days - 1, -1, -1):
         day = date.today() - timedelta(days=i)
-        count = db.query(func.count(Claim.id)).filter(cast(Claim.created_at, Date) == day).scalar() or 0
+        count = db.query(func.count(Claim.id)).filter(func.date(Claim.created_at) == str(day)).scalar() or 0
         payout = db.query(func.sum(Claim.claim_amount)).filter(
-            cast(Claim.created_at, Date) == day, Claim.status == ClaimStatus.PAID
+            func.date(Claim.created_at) == str(day), Claim.status == ClaimStatus.PAID
         ).scalar() or 0
         result.append({
             "day": day.strftime("%a"),

@@ -14,13 +14,13 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     
     # Database
-    DATABASE_URL: str
+    DATABASE_URL: str = "sqlite:///./gigarmor.db"
     
     # Redis
-    REDIS_URL: str
+    REDIS_URL: str = "redis://localhost:6379"
     
     # Security
-    SECRET_KEY: str
+    SECRET_KEY: str = "gigarmor-dev-secret-key-2026-hackathon-do-not-use-in-prod"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     

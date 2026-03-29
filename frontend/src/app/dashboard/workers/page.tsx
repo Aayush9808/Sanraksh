@@ -8,15 +8,6 @@ interface Worker {
   platforms:string[]; status:string; risk:number;
   claims:number; total_earned:number; kyc:string; joined:string;
 }
-const MOCK: Worker[] = [
-  { id:"WRK-001", name:"Rahul Kumar",   phone:"+91 9900001111", city:"Mumbai",    platforms:["Swiggy","Uber"],        status:"active", risk:0.12, claims:8,  total_earned:2240, kyc:"verified", joined:"Jan 2026" },
-  { id:"WRK-002", name:"Priya Mistry",  phone:"+91 9900002222", city:"Bengaluru", platforms:["Zomato"],              status:"active", risk:0.34, claims:3,  total_earned:860,  kyc:"verified", joined:"Feb 2026" },
-  { id:"WRK-003", name:"Arjun Sharma",  phone:"+91 9900003333", city:"Delhi",     platforms:["Uber","Ola"],          status:"active", risk:0.06, claims:12, total_earned:3680, kyc:"verified", joined:"Nov 2025" },
-  { id:"WRK-004", name:"Meena Rajan",   phone:"+91 9900004444", city:"Chennai",   platforms:["Dunzo","Swiggy"],      status:"active", risk:0.11, claims:5,  total_earned:1420, kyc:"verified", joined:"Dec 2025" },
-  { id:"WRK-005", name:"Vikram Patil",  phone:"+91 9900005555", city:"Hyderabad", platforms:["Swiggy"],              status:"flagged",risk:0.82, claims:21, total_earned:5800, kyc:"review",   joined:"Oct 2025" },
-  { id:"WRK-006", name:"Divya Nair",    phone:"+91 9900006666", city:"Pune",      platforms:["Zomato","Blinkit"],    status:"active", risk:0.09, claims:4,  total_earned:1120, kyc:"verified", joined:"Jan 2026" },
-  { id:"WRK-007", name:"Kiran Rao",     phone:"+91 9900007777", city:"Delhi",     platforms:["Uber"],                status:"active", risk:0.45, claims:7,  total_earned:1960, kyc:"pending",  joined:"Mar 2026" },
-];
 
 function RiskBadge({ v }: { v:number }) {
   if (v>0.6) return <span className="tag tag-neg">High</span>;
@@ -29,14 +20,17 @@ function KycBadge({ s }: { s:string }) {
 }
 
 export default function WorkersPage() {
-  const [workers, setWorkers] = useState<Worker[]>(MOCK);
+  const [workers, setWorkers] = useState<Worker[]>([]);
+  const [loading, setLoading] = useState(true);
   const [sel, setSel] = useState<Worker|null>(null);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/v1/workers/?limit=50`, {
+    fetch(`${API_BASE}/api/v1/workers/all`, {
       headers:{Authorization:`Bearer ${typeof window!=="undefined"&&localStorage.getItem("token")||""}`}
-    }).then(r=>r.ok?r.json():null).then(d=>{if(d?.workers)setWorkers(d.workers);}).catch(()=>{});
+    }).then(r=>r.ok?r.json():null).then(d=>{
+      if(d?.workers) setWorkers(d.workers);
+    }).catch(()=>{}).finally(()=>setLoading(false));
   }, []);
 
   const filtered = workers.filter(w =>
@@ -65,7 +59,11 @@ export default function WorkersPage() {
             <table className="tbl tbl-click">
               <thead><tr><th>Worker</th><th>City</th><th>Platforms</th><th>Claims</th><th>Total earned</th><th>Risk</th><th>KYC</th></tr></thead>
               <tbody>
-                {filtered.map(w => (
+                {loading ? (
+                  <tr><td colSpan={7} className="text-center py-8 text-slate-400 lbl">Loading workers…</td></tr>
+                ) : filtered.length === 0 ? (
+                  <tr><td colSpan={7} className="text-center py-8 text-slate-400 lbl">No workers found</td></tr>
+                ) : filtered.map(w => (
                   <tr key={w.id} onClick={()=>setSel(sel?.id===w.id?null:w)} style={{background:sel?.id===w.id?"rgba(245,158,11,0.04)":""}}>
                     <td>
                       <div className="flex items-center gap-2.5">
@@ -74,7 +72,7 @@ export default function WorkersPage() {
                         </div>
                         <div>
                           <div className="text-slate-600 font-medium text-sm">{w.name}</div>
-                          <div className="lbl">{w.id}</div>
+                          <div className="lbl">{w.phone}</div>
                         </div>
                       </div>
                     </td>

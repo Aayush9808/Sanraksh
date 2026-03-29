@@ -3,7 +3,7 @@ Claims Router - Full Implementation
 """
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import func, cast, Date
+from sqlalchemy import func
 from datetime import date, datetime, timedelta
 import uuid, logging
 
@@ -11,6 +11,7 @@ from app.database import get_db
 from app.models.claim import Claim, ClaimStatus, ApprovalType
 from app.models.policy import Policy, PolicyStatus
 from app.models.user import User
+from app.models.disruption import Disruption
 from app.schemas.claim import ClaimCreateRequest
 from app.services.fraud_detection import fraud_detection_service
 from app.config import settings
@@ -75,7 +76,7 @@ async def create_claim(data: ClaimCreateRequest, db: Session = Depends(get_db)):
     approval_type = ApprovalType.AUTO if fraud_result["action"] == "approve" else ApprovalType.MANUAL
     status = ClaimStatus.APPROVED if fraud_result["action"] == "approve" else ClaimStatus.PENDING
     claim = Claim(
-        id=uuid.uuid4(), claim_number=generate_claim_number(),
+        id=str(uuid.uuid4()), claim_number=generate_claim_number(),
         user_id=data.user_id, policy_id=str(policy.id),
         claim_date=date.today(), claim_amount=policy.coverage_amount,
         status=status, approval_type=approval_type,
@@ -108,11 +109,14 @@ async def get_all_claims(skip: int = 0, limit: int = 50, status: str = None, db:
     result = []
     for c in claims_list:
         user = db.query(User).filter(User.id == c.user_id).first()
+        disc = db.query(Disruption).filter(Disruption.id == c.disruption_id).first() if c.disruption_id else None
+        event_label = disc.event_type.value.replace("_", " ").title() if disc and disc.event_type else "General"
         result.append({
             "id": str(c.id), "claim_number": c.claim_number,
             "worker_name": user.name if user else "Unknown",
-            "worker_platform": str(user.delivery_platform) if user else "",
+            "worker_platform": user.delivery_platform.value.capitalize() if user and user.delivery_platform else "",
             "zone": user.work_zone if user else "",
+            "event_type": event_label,
             "amount": c.claim_amount, "status": c.status,
             "approval_type": c.approval_type, "fraud_score": c.fraud_score,
             "decision_reasons": _decision_trace(c),

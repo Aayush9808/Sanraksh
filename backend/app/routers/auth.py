@@ -9,7 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
 from passlib.context import CryptContext
-import uuid, redis, json, logging
+import uuid, logging
 
 from app.database import get_db
 from app.models.user import User, KYCStatus
@@ -21,13 +21,21 @@ router = APIRouter()
 security = HTTPBearer(auto_error=False)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# Redis client for OTP storage
-try:
-    redis_client = redis.from_url(settings.REDIS_URL, decode_responses=True)
-except Exception:
-    redis_client = None
-
+# In-memory OTP store (Redis fallback)
+_otp_store: dict = {}
+ADMIN_PHONE = "9999000000"
 DEMO_OTP = "123456"
+ADMIN_OTP = "000000"
+
+def _store_otp(phone: str, otp: str):
+    _otp_store[phone] = otp
+
+def _get_otp(phone: str) -> str:
+    return _otp_store.get(phone, DEMO_OTP)
+
+def _is_admin_phone(phone: str) -> bool:
+    return phone == ADMIN_PHONE
+
 
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
@@ -58,7 +66,7 @@ async def register(data: UserRegisterRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=409, detail="Phone number already registered")
     try:
         user = User(
-            id=uuid.uuid4(),
+            id=str(uuid.uuid4()),
             phone=data.phone,
             name=data.name,
             email=data.email,
@@ -73,10 +81,9 @@ async def register(data: UserRegisterRequest, db: Session = Depends(get_db)):
         db.add(user)
         db.commit()
         db.refresh(user)
-        # Store OTP in Redis (demo: always 123456)
-        otp_key = f"otp:{data.phone}"
-        if redis_client:
-            redis_client.setex(otp_key, 300, DEMO_OTP)
+        # Store OTP in memory
+        otp = ADMIN_OTP if _is_admin_phone(data.phone) else DEMO_OTP
+        _store_otp(data.phone, otp)
         logger.info(f"New user registered: {data.name} ({data.phone})")
         return {
             "message": "Registration successful. OTP sent to your phone.",
@@ -88,48 +95,52 @@ async def register(data: UserRegisterRequest, db: Session = Depends(get_db)):
         db.rollback()
         raise HTTPException(status_code=409, detail="Phone or email already in use")
 
+@router.post("/send-otp")
+async def send_otp(data: UserLoginRequest, db: Session = Depends(get_db)):
+    """Send OTP to phone (demo: always returns 123456)"""
+    otp = ADMIN_OTP if _is_admin_phone(data.phone) else DEMO_OTP
+    _store_otp(data.phone, otp)
+    return {"message": "OTP sent.", "phone": data.phone, "demo_otp": otp}
+
+
 @router.post("/login")
 async def login(data: UserLoginRequest, db: Session = Depends(get_db)):
     """Send OTP to phone for login"""
     user = db.query(User).filter(User.phone == data.phone).first()
     if not user:
         raise HTTPException(status_code=404, detail="Phone number not registered. Please register first.")
-    otp_key = f"otp:{data.phone}"
-    if redis_client:
-        redis_client.setex(otp_key, 300, DEMO_OTP)
+    otp = ADMIN_OTP if _is_admin_phone(data.phone) else DEMO_OTP
+    _store_otp(data.phone, otp)
     return {
         "message": "OTP sent to your phone.",
         "phone": data.phone,
-        "demo_otp": DEMO_OTP,
+        "demo_otp": otp,
     }
 
 @router.post("/verify-otp")
 async def verify_otp(data: OTPVerifyRequest, db: Session = Depends(get_db)):
     """Verify OTP and return JWT token"""
-    # Demo: accept 123456 always
-    if data.otp != DEMO_OTP:
-        if redis_client:
-            stored = redis_client.get(f"otp:{data.phone}")
-            if stored != data.otp:
-                raise HTTPException(status_code=400, detail="Invalid OTP")
-        else:
-            raise HTTPException(status_code=400, detail="Invalid OTP. Use 123456 for demo.")
+    expected = _get_otp(data.phone)
+    if data.otp != expected and data.otp != DEMO_OTP:
+        raise HTTPException(status_code=400, detail="Invalid OTP. Use 123456 for workers or 000000 for admin demo.")
     user = db.query(User).filter(User.phone == data.phone).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     if not user.is_active:
         raise HTTPException(status_code=403, detail="Account suspended")
-    token = create_access_token({"sub": str(user.id), "phone": user.phone})
+    role = "admin" if _is_admin_phone(data.phone) else "worker"
+    token = create_access_token({"sub": str(user.id), "phone": user.phone, "role": role})
     return {
         "access_token": token,
         "token_type": "bearer",
+        "role": role,
         "user": {
             "id": str(user.id),
             "name": user.name,
             "phone": user.phone,
-            "delivery_platform": user.delivery_platform,
+            "delivery_platform": user.delivery_platform.value if user.delivery_platform else "",
             "work_city": user.work_city,
-            "kyc_status": user.kyc_status,
+            "kyc_status": user.kyc_status.value if user.kyc_status else "pending",
         }
     }
 
@@ -147,10 +158,10 @@ async def get_me(current_user: User = Depends(get_current_user)):
         "name": current_user.name,
         "phone": current_user.phone,
         "email": current_user.email,
-        "delivery_platform": current_user.delivery_platform,
+        "delivery_platform": current_user.delivery_platform.value if current_user.delivery_platform else "",
         "work_city": current_user.work_city,
         "work_zone": current_user.work_zone,
-        "kyc_status": current_user.kyc_status,
+        "kyc_status": current_user.kyc_status.value if current_user.kyc_status else "pending",
         "risk_score": current_user.risk_score,
         "is_active": current_user.is_active,
     }
