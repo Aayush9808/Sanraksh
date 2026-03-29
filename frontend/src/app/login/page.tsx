@@ -63,15 +63,17 @@ export default function LoginPage() {
     setErr(""); setLoading(true);
     // Demo bypass — works without backend
     if (DEMO[phone]) { setLoading(false); setStep("otp"); return; }
+    // Try backend — always advance to OTP step (works offline too)
     try {
-      const r = await fetch(`${API_BASE}/api/v1/auth/send-otp`, {
+      await fetch(`${API_BASE}/api/v1/auth/send-otp`, {
         method:"POST", headers:{"Content-Type":"application/json"},
         body: JSON.stringify({ phone }),
       });
-      if (r.ok) setStep("otp");
-      else setErr("Failed to send OTP. Try again.");
-    } catch { setErr("Backend offline. Use demo credentials below."); }
-    finally { setLoading(false); }
+    } catch {
+      // Backend offline — still advance so user can try OTP
+    }
+    setLoading(false);
+    setStep("otp");
   }
 
   async function verifyOtp(e: React.FormEvent) {

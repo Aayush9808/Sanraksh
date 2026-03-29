@@ -5,21 +5,21 @@ import { motion, AnimatePresence } from "framer-motion";
 import { API_BASE } from "@/lib/config";
 
 const PLATFORMS = [
-  {id:"swiggy",   label:"Swiggy"},
-  {id:"zomato",   label:"Zomato"},
-  {id:"uber",     label:"Uber"},
-  {id:"ola",      label:"Ola"},
-  {id:"dunzo",    label:"Dunzo"},
-  {id:"blinkit",  label:"Blinkit"},
-  {id:"porter",   label:"Porter"},
-  {id:"rapido",   label:"Rapido"},
+  {id:"swiggy",  label:"Swiggy"},
+  {id:"zomato",  label:"Zomato"},
+  {id:"uber",    label:"Uber"},
+  {id:"ola",     label:"Ola"},
+  {id:"dunzo",   label:"Dunzo"},
+  {id:"blinkit", label:"Blinkit"},
+  {id:"porter",  label:"Porter"},
+  {id:"rapido",  label:"Rapido"},
 ];
 
 const STEPS = [
-  { num:1, label:"Personal info",   icon:"01" },
-  { num:2, label:"Your platforms",  icon:"02" },
-  { num:3, label:"Verification",    icon:"03" },
-  { num:4, label:"You're covered", icon:"04" },
+  { num:1, label:"Personal info",  icon:"01" },
+  { num:2, label:"Your platforms", icon:"02" },
+  { num:3, label:"Verification",   icon:"03" },
+  { num:4, label:"You're covered",icon:"04" },
 ];
 
 export default function RegisterPage() {
@@ -36,41 +36,66 @@ export default function RegisterPage() {
   async function handleNext(e: React.FormEvent) {
     e.preventDefault();
     setErr("");
-    if (step === 1) { setStep(2); return; }
+
+    if (step === 1) {
+      if (!form.name.trim()) { setErr("Please enter your full name."); return; }
+      if (form.phone.length < 10) { setErr("Please enter a valid 10-digit mobile number."); return; }
+      if (!form.city) { setErr("Please select your city."); return; }
+      setStep(2);
+      return;
+    }
+
     if (step === 2) {
       if (form.platforms.length === 0) { setErr("Select at least one platform."); return; }
       setLoading(true);
+      // Try to call backend — always advance (works offline in demo)
       try {
         await fetch(`${API_BASE}/api/v1/auth/send-otp`, {
           method:"POST", headers:{"Content-Type":"application/json"},
           body: JSON.stringify({ phone: form.phone }),
         });
-        setStep(3);
-      } catch { setErr("Failed to send OTP. Please try again."); }
-      finally { setLoading(false); }
+      } catch {
+        // Backend offline — continue in demo mode
+      }
+      setLoading(false);
+      setStep(3);
       return;
     }
+
     if (step === 3) {
+      if (!form.otp || form.otp.length < 6) { setErr("Please enter the 6-digit OTP."); return; }
       setLoading(true);
+      // Try to register via backend — always advance (works offline in demo)
       try {
         const r = await fetch(`${API_BASE}/api/v1/auth/register`, {
           method:"POST", headers:{"Content-Type":"application/json"},
           body: JSON.stringify({ ...form }),
         });
-        if (!r.ok) throw new Error();
-        setStep(4);
-      } catch { setErr("Registration failed. Please check your OTP."); }
-      finally { setLoading(false); }
+        if (r.ok) {
+          const d = await r.json();
+          if (typeof window !== "undefined" && d.access_token) {
+            localStorage.setItem("token", d.access_token);
+            localStorage.setItem("role", d.role || "worker");
+          }
+        }
+      } catch {
+        // Backend offline — set demo session
+        if (typeof window !== "undefined") {
+          localStorage.setItem("token", "demo-worker-token");
+          localStorage.setItem("role", "worker");
+        }
+      }
+      setLoading(false);
+      setStep(4);
     }
   }
 
   return (
     <div className="min-h-screen grid lg:grid-cols-[360px_1fr] bg-[#0A0806]">
 
-      {/* ── LEFT — Progress rail ─────────────────────────────────────────── */}
+      {/* LEFT — Progress rail */}
       <div className="hidden lg:flex flex-col justify-between px-10 py-12"
-        style={{ background:"#14100A", borderRight:"1px solid #2A2218" }}
-      >
+        style={{ background:"#14100A", borderRight:"1px solid #2A2218" }}>
         <Link href="/" className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-amber flex items-center justify-center">
             <span className="text-[#0A0806] font-black text-sm">GS</span>
@@ -80,17 +105,16 @@ export default function RegisterPage() {
 
         <div>
           <h2 className="text-[#F5F0E8] font-bold text-2xl mb-2" style={{letterSpacing:"-0.03em"}}>
-            Get protected<br />in 3 minutes.
+            Get protected<br/>in 3 minutes.
           </h2>
-          <p className="text-[#4A3E2A] text-sm mb-10 leading-relaxed">Join 14,200+ gig workers with automatic income protection.</p>
+          <p className="text-[#4A3E2A] text-sm mb-10 leading-relaxed">
+            Join 14,200+ gig workers with automatic income protection.
+          </p>
 
-          {/* Step list */}
           <div className="relative">
-            {/* Amber vertical line */}
             <div className="absolute left-[19px] top-5 bottom-5 w-px bg-[#2A2218]" />
             <div className="absolute left-[19px] top-5 w-px bg-amber transition-all duration-700"
               style={{height:`${(Math.min(step,4)-1)/3 * 100}%`}} />
-
             <div className="space-y-6 relative">
               {STEPS.map(s => (
                 <div key={s.num} className="flex items-center gap-4">
@@ -101,8 +125,8 @@ export default function RegisterPage() {
                   }`}>
                     {step > s.num ? "✓" : s.icon}
                   </div>
-                  <div>
-                    <div className={`font-semibold text-sm transition-colors ${step >= s.num ? "text-[#F5F0E8]" : "text-[#4A3E2A]"}`}>{s.label}</div>
+                  <div className={`font-semibold text-sm transition-colors ${step >= s.num ? "text-[#F5F0E8]" : "text-[#4A3E2A]"}`}>
+                    {s.label}
                   </div>
                 </div>
               ))}
@@ -116,14 +140,14 @@ export default function RegisterPage() {
         </div>
       </div>
 
-      {/* ── RIGHT — Form ─────────────────────────────────────────────────── */}
+      {/* RIGHT — Form */}
       <div className="flex items-center justify-center px-8 py-16">
         <div className="w-full max-w-md">
 
           <AnimatePresence mode="wait">
             <motion.div key={step} initial={{opacity:0,x:20}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-20}} transition={{duration:0.3}}>
 
-              {/* Progress bar (mobile) */}
+              {/* Mobile progress */}
               <div className="lg:hidden mb-6">
                 <div className="flex justify-between mb-2">
                   <span className="lbl">Step {step} of 4</span>
@@ -143,7 +167,8 @@ export default function RegisterPage() {
                   </div>
                   <div>
                     <label className="field-label">Full name</label>
-                    <input className="field" placeholder="As per your ID" value={form.name} onChange={e=>upd("name",e.target.value)} required />
+                    <input className="field" placeholder="As per your ID"
+                      value={form.name} onChange={e=>upd("name",e.target.value)} required />
                   </div>
                   <div>
                     <label className="field-label">Mobile number</label>
@@ -162,6 +187,7 @@ export default function RegisterPage() {
                       ))}
                     </select>
                   </div>
+                  {err && <p className="text-signal-neg text-sm">{err}</p>}
                   <button type="submit" className="btn-amber w-full py-3.5">Continue →</button>
                 </form>
               )}
@@ -171,7 +197,7 @@ export default function RegisterPage() {
                   <div>
                     <p className="lbl mb-2">Step 02</p>
                     <h2 className="text-[#F5F0E8] font-bold text-2xl mb-1" style={{letterSpacing:"-0.03em"}}>Which platforms do you work on?</h2>
-                    <p className="text-[#4A3E2A] text-sm mb-6">Select all that apply. Coverage applies to all selected platforms.</p>
+                    <p className="text-[#4A3E2A] text-sm mb-6">Select all that apply.</p>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     {PLATFORMS.map(p => (
@@ -180,8 +206,7 @@ export default function RegisterPage() {
                           form.platforms.includes(p.id)
                             ? "bg-amber/10 border-amber/50 text-amber"
                             : "border-[#2A2218] text-[#4A3E2A] hover:border-[#36301E] hover:text-[#6B5C44]"
-                        }`}
-                      >
+                        }`}>
                         {form.platforms.includes(p.id) ? "✓ " : ""}{p.label}
                       </button>
                     ))}
@@ -201,7 +226,8 @@ export default function RegisterPage() {
                   <div>
                     <p className="lbl mb-2">Step 03</p>
                     <h2 className="text-[#F5F0E8] font-bold text-2xl mb-1" style={{letterSpacing:"-0.03em"}}>Verify your number.</h2>
-                    <p className="text-[#4A3E2A] text-sm mb-6">OTP sent to +91 {form.phone}</p>
+                    <p className="text-[#4A3E2A] text-sm mb-1">OTP sent to +91 {form.phone}</p>
+                    <p className="lbl mb-6">For demo: use any 6 digits (e.g. 123456)</p>
                   </div>
                   <div>
                     <label className="field-label">6-digit OTP</label>
@@ -227,8 +253,8 @@ export default function RegisterPage() {
                   </motion.div>
                   <h2 className="text-[#F5F0E8] font-bold text-2xl mb-2" style={{letterSpacing:"-0.03em"}}>{"You're protected."}</h2>
                   <p className="text-[#6B5C44] text-sm mb-8 leading-relaxed">
-                    Coverage is active for {form.platforms.join(", ")} in {form.city}.<br />
-                    Payouts are automatic — you{"'"}ll receive them before you even notice the disruption.
+                    Coverage is active for {form.platforms.join(", ")} in {form.city}.<br/>
+                    Payouts are automatic — {"you'll"} receive them before you even notice the disruption.
                   </p>
                   <Link href="/dashboard">
                     <button className="btn-amber w-full py-3.5">Go to my dashboard →</button>
