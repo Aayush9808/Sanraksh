@@ -40,7 +40,7 @@ export default function ProfilePage() {
       <div className="section-head">
         <div>
           <p className="lbl mb-1">Account</p>
-          <h1 className="text-[#F5F0E8] font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Profile & Settings</h1>
+          <h1 className="text-slate-800 font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Profile & Settings</h1>
         </div>
         <div className="flex items-center gap-2">
           <span className="dot" style={{width:8,height:8,background:"#10B981"}} />
@@ -54,7 +54,7 @@ export default function ProfilePage() {
           <span className="text-amber font-bold text-2xl">{form.name.charAt(0)}</span>
         </div>
         <div>
-          <div className="text-[#F5F0E8] font-bold text-lg">{form.name}</div>
+          <div className="text-slate-800 font-bold text-lg">{form.name}</div>
           <div className="lbl mt-0.5">{form.phone} · {form.city}</div>
           <div className="flex gap-2 mt-2">
             <span className="tag tag-neutral">Swiggy</span>
@@ -94,8 +94,8 @@ export default function ProfilePage() {
         <p className="lbl mb-4">Notification preferences</p>
         <div className="space-y-1">
           {NOTIF_PREFS.map(n => (
-            <div key={n} className="flex items-center justify-between py-3 border-b border-[#2A2218] last:border-0">
-              <span className="text-sm text-[#9A8A72]">{n}</span>
+            <div key={n} className="flex items-center justify-between py-3 border-b border-slate-200 last:border-0">
+              <span className="text-sm text-slate-500">{n}</span>
               <button
                 type="button"
                 onClick={() => toggleNotif(n)}

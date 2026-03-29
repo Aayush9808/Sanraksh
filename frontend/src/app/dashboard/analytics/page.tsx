@@ -24,7 +24,7 @@ export default function AnalyticsPage() {
     <div className="max-w-[1400px]">
       <div className="section-head">
         <div><p className="lbl mb-1">Admin portal</p>
-          <h1 className="text-[#F5F0E8] font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Analytics</h1></div>
+          <h1 className="text-slate-800 font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Analytics</h1></div>
         <span className="tag tag-info">Last 6 months</span>
       </div>
 
@@ -37,7 +37,7 @@ export default function AnalyticsPage() {
         ].map(k=>(
           <div key={k.label} className="panel p-4">
             <div className="lbl mb-2">{k.label}</div>
-            <div className="text-[#F5F0E8] font-extrabold text-2xl mb-1" style={{letterSpacing:"-0.04em"}}>{k.val}</div>
+            <div className="text-slate-800 font-extrabold text-2xl mb-1" style={{letterSpacing:"-0.04em"}}>{k.val}</div>
             <div className="lbl" style={{color:"#6B5C44"}}>{k.sub}</div>
           </div>
         ))}
@@ -46,7 +46,7 @@ export default function AnalyticsPage() {
       <div className="grid xl:grid-cols-[1fr_1fr] gap-5 mb-5">
         <div className="panel p-5">
           <p className="lbl mb-1">Monthly volume</p>
-          <h3 className="text-[#F5F0E8] font-bold mb-4" style={{letterSpacing:"-0.02em"}}>Claims by month</h3>
+          <h3 className="text-slate-800 font-bold mb-4" style={{letterSpacing:"-0.02em"}}>Claims by month</h3>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={CLAIMS_DATA} barSize={28}>
               <CartesianGrid vertical={false} stroke="#2A2218" />
@@ -60,7 +60,7 @@ export default function AnalyticsPage() {
 
         <div className="panel p-5">
           <p className="lbl mb-1">This week</p>
-          <h3 className="text-[#F5F0E8] font-bold mb-4" style={{letterSpacing:"-0.02em"}}>Daily payout volume (₹)</h3>
+          <h3 className="text-slate-800 font-bold mb-4" style={{letterSpacing:"-0.02em"}}>Daily payout volume (₹)</h3>
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={PAYOUT_DATA}>
               <CartesianGrid vertical={false} stroke="#2A2218" />
@@ -75,16 +75,16 @@ export default function AnalyticsPage() {
 
       <div className="panel p-5">
         <p className="lbl mb-1">Cause analysis</p>
-        <h3 className="text-[#F5F0E8] font-bold mb-4" style={{letterSpacing:"-0.02em"}}>Claims by disruption type — this month</h3>
+        <h3 className="text-slate-800 font-bold mb-4" style={{letterSpacing:"-0.02em"}}>Claims by disruption type — this month</h3>
         <div className="space-y-3">
           {EVENTS.map(e=>(
             <div key={e.type} className="flex items-center gap-4">
-              <div className="w-28 text-sm text-[#9A8A72] flex-shrink-0">{e.type}</div>
+              <div className="w-28 text-sm text-slate-500 flex-shrink-0">{e.type}</div>
               <div className="prog-track flex-1">
                 <div className="prog-fill" style={{width:`${e.pct}%`,background:e.color,animation:"none"}} />
               </div>
               <div className="flex items-center gap-3 flex-shrink-0">
-                <span className="font-mono text-sm font-bold text-[#F5F0E8]">{e.count}</span>
+                <span className="font-mono text-sm font-bold text-slate-800">{e.count}</span>
                 <span className="lbl w-8 text-right">{e.pct}%</span>
               </div>
             </div>

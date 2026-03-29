@@ -46,11 +46,11 @@ function DetailPanel({ claim, onClose, onAction }: { claim:Claim; onClose:()=>vo
       className="fixed right-0 top-0 bottom-0 z-50 overflow-y-auto"
       style={{width:380,background:"#14100A",borderLeft:"1px solid #2A2218",boxShadow:"-24px 0 48px rgba(0,0,0,0.4)"}}
     >
-      <div className="sticky top-0 px-5 py-4 border-b border-[#2A2218] flex items-center justify-between"
+      <div className="sticky top-0 px-5 py-4 border-b border-slate-200 flex items-center justify-between"
         style={{background:"#14100A",zIndex:1}}>
         <div>
           <p className="lbl mb-0.5">Claim detail</p>
-          <div className="text-[#F5F0E8] font-bold font-mono">{claim.id}</div>
+          <div className="text-slate-800 font-bold font-mono">{claim.id}</div>
         </div>
         <button onClick={onClose} className="rail-btn text-lg">✕</button>
       </div>
@@ -64,7 +64,7 @@ function DetailPanel({ claim, onClose, onAction }: { claim:Claim; onClose:()=>vo
               <span className="text-amber font-bold">{claim.worker.charAt(0)}</span>
             </div>
             <div>
-              <div className="text-[#F5F0E8] font-semibold">{claim.worker}</div>
+              <div className="text-slate-800 font-semibold">{claim.worker}</div>
               <div className="lbl">{claim.phone} · {claim.city}</div>
             </div>
           </div>
@@ -81,9 +81,9 @@ function DetailPanel({ claim, onClose, onAction }: { claim:Claim; onClose:()=>vo
             ["Amount",   "₹"+claim.amount],
             ["Filed",    claim.created],
           ].map(([k,v])=>(
-            <div key={k} className="flex justify-between py-1.5 border-b border-[#2A2218]">
-              <span className="text-sm text-[#6B5C44]">{k}</span>
-              <span className={`text-sm font-medium ${k==="Amount"?"text-amber":"text-[#C8BAA0]"}`}>{v}</span>
+            <div key={k} className="flex justify-between py-1.5 border-b border-slate-200">
+              <span className="text-sm text-slate-500">{k}</span>
+              <span className={`text-sm font-medium ${k==="Amount"?"text-amber":"text-slate-600"}`}>{v}</span>
             </div>
           ))}
         </div>
@@ -167,7 +167,7 @@ export default function ClaimsPage() {
       <div className="section-head">
         <div>
           <p className="lbl mb-1">Admin portal</p>
-          <h1 className="text-[#F5F0E8] font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Claims Management</h1>
+          <h1 className="text-slate-800 font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Claims Management</h1>
         </div>
         <div className="flex items-center gap-3">
           <span className="tag tag-warn">{claims.filter(c=>c.status==="review").length} pending review</span>
@@ -176,10 +176,10 @@ export default function ClaimsPage() {
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3 mb-5">
-        <div className="flex border border-[#2A2218] rounded-lg overflow-hidden">
+        <div className="flex border border-slate-200 rounded-lg overflow-hidden">
           {STATUS_TAB.map(t => (
             <button key={t} onClick={()=>setTab(t)}
-              className={`px-4 py-2 text-xs font-semibold font-mono uppercase tracking-wider transition-colors ${tab===t?"bg-amber/10 text-amber":"text-[#4A3E2A] hover:text-[#6B5C44]"}`}
+              className={`px-4 py-2 text-xs font-semibold font-mono uppercase tracking-wider transition-colors ${tab===t?"bg-amber/10 text-amber":"text-slate-500 hover:text-slate-500"}`}
             >
               {t} {t!=="all"&&<span className="ml-1">({claims.filter(c=>c.status===t).length})</span>}
             </button>
@@ -202,8 +202,8 @@ export default function ClaimsPage() {
             <tbody>
               {filtered.map(c => (
                 <tr key={c.id} onClick={()=>setSel(sel?.id===c.id?null:c)}>
-                  <td><span className="font-mono text-xs text-[#F5F0E8]">{c.id}</span></td>
-                  <td><span className="text-[#C8BAA0] font-medium">{c.worker}</span></td>
+                  <td><span className="font-mono text-xs text-slate-800">{c.id}</span></td>
+                  <td><span className="text-slate-600 font-medium">{c.worker}</span></td>
                   <td>{c.city}</td>
                   <td>{c.event}</td>
                   <td><span className="text-amber font-mono font-bold">₹{c.amount}</span></td>

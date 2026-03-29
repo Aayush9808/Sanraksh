@@ -16,7 +16,7 @@ const mono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GigShield — Parametric Income Protection",
+  title: "GigArmor — Parametric Income Protection for Gig Workers",
   description: "Automatic payouts when disruption hits. No claims. No waiting.",
 };
 

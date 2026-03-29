@@ -18,7 +18,7 @@ export default function ThreatDefensePage() {
   return (
     <div className="max-w-5xl">
       <div className="section-head">
-        <div><p className="lbl mb-1">Admin portal</p><h1 className="text-[#F5F0E8] font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Threat Defense</h1></div>
+        <div><p className="lbl mb-1">Admin portal</p><h1 className="text-slate-800 font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Threat Defense</h1></div>
         <div className="flex gap-2">
           <span className="tag tag-neg">1 escalated</span>
           <span className="tag tag-warn">2 reviewing</span>
@@ -42,12 +42,12 @@ export default function ThreatDefensePage() {
       <div className="panel overflow-hidden">
         <div style={{padding:"1rem 1.25rem",borderBottom:"1px solid #2A2218"}}>
           <p className="lbl mb-0.5">Real-time signal queue</p>
-          <h2 className="text-[#F5F0E8] font-bold" style={{letterSpacing:"-0.02em"}}>Active fraud signals</h2>
+          <h2 className="text-slate-800 font-bold" style={{letterSpacing:"-0.02em"}}>Active fraud signals</h2>
         </div>
         <div className="divide-y divide-[#2A2218]">
           {SIGNALS.map(s=>(
             <div key={s.id}>
-              <div className="flex items-center gap-4 px-5 py-4 cursor-pointer hover:bg-[#180F06] transition-colors"
+              <div className="flex items-center gap-4 px-5 py-4 cursor-pointer hover:bg-slate-50 transition-colors"
                 onClick={()=>setActive(active?.id===s.id?null:s)}>
                 {/* Score ring */}
                 <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0"
@@ -56,12 +56,12 @@ export default function ThreatDefensePage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-[#C8BAA0] font-medium text-sm">{s.type}</span>
+                    <span className="text-slate-600 font-medium text-sm">{s.type}</span>
                     <span className={`tag ${statusCls(s.status)}`}>{s.status}</span>
                   </div>
                   <div className="lbl">{s.worker} · {s.time}</div>
                 </div>
-                <div className="w-4 h-4 text-[#4A3E2A]" style={{transform:active?.id===s.id?"rotate(90deg)":"none",transition:"transform 0.2s"}}>▶</div>
+                <div className="w-4 h-4 text-slate-500" style={{transform:active?.id===s.id?"rotate(90deg)":"none",transition:"transform 0.2s"}}>▶</div>
               </div>
               <AnimatePresence>
                 {active?.id===s.id && (
@@ -69,7 +69,7 @@ export default function ThreatDefensePage() {
                     style={{overflow:"hidden"}}>
                     <div className="px-5 pb-4 pt-2">
                       <div className="panel-inset p-4">
-                        <div className="text-sm text-[#9A8A72] mb-3">{s.detail}</div>
+                        <div className="text-sm text-slate-500 mb-3">{s.detail}</div>
                         <div className="mb-3">
                           <div className="lbl mb-1.5">Risk index</div>
                           <div className="prog-track">

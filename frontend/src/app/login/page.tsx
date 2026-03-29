@@ -1,224 +1,234 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { API_BASE } from "@/lib/config";
 
-const LIVE_FEED = [
-  { worker:"Rahul K.",  amount:"₹280", event:"Rain alert — Mumbai", time:"2m ago" },
-  { worker:"Priya M.",  amount:"₹350", event:"Curfew — Ahmedabad", time:"5m ago" },
-  { worker:"Arjun S.",  amount:"₹200", event:"App outage — Zomato", time:"9m ago" },
-  { worker:"Meena R.",  amount:"₹180", event:"Flood warning — Pune", time:"14m ago" },
-  { worker:"Vikram P.", amount:"₹320", event:"Heat wave — Delhi",   time:"18m ago" },
-];
-
-function PayoutFeed() {
+function OtpInput({ value, onChange, onFill }: { value: string; onChange: (v: string) => void; onFill: (completed: string) => void }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const getInput = (i: number) => containerRef.current?.querySelectorAll<HTMLInputElement>("input")[i];
+  const digits = Array.from({ length: 6 }, (_, i) => value[i] ?? "");
+  const handleKey = useCallback((i: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace") {
+      if (digits[i]) { onChange(value.slice(0, i) + value.slice(i + 1)); }
+      else if (i > 0) { getInput(i - 1)?.focus(); onChange(value.slice(0, i - 1) + value.slice(i)); }
+    } else if (e.key === "ArrowLeft" && i > 0) getInput(i - 1)?.focus();
+    else if (e.key === "ArrowRight" && i < 5) getInput(i + 1)?.focus();
+  }, [digits, value, onChange]);
+  const handleChange = useCallback((i: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const ch = e.target.value.replace(/\D/g, "").slice(-1);
+    const next = value.slice(0, i) + ch + value.slice(i + 1);
+    const completed = next.slice(0, 6);
+    onChange(completed);
+    if (ch && i < 5) setTimeout(() => getInput(i + 1)?.focus(), 0);
+    if (ch && i === 5 && completed.length === 6) setTimeout(() => onFill(completed), 80);
+  }, [value, onChange, onFill]);
+  const handlePaste = useCallback((e: React.ClipboardEvent) => {
+    const paste = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    if (paste) { onChange(paste); if (paste.length === 6) setTimeout(() => onFill(paste), 100); }
+    e.preventDefault();
+  }, [onChange, onFill]);
   return (
-    <div className="space-y-2 mt-6">
-      {LIVE_FEED.map((p, i) => (
-        <motion.div key={p.worker}
-          initial={{ opacity:0, x:-16 }} animate={{ opacity:1, x:0 }}
-          transition={{ delay: 0.6 + i*0.12, duration:0.4 }}
-          className="flex items-center justify-between panel-amber px-3.5 py-2.5"
-        >
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className="dot dot-live" style={{width:5,height:5}} />
-              <span className="text-[#F5F0E8] text-xs font-semibold">{p.worker}</span>
-            </div>
-            <div className="lbl mt-0.5">{p.event}</div>
-          </div>
-          <div className="text-right">
-            <div className="text-amber font-mono font-bold text-sm">{p.amount}</div>
-            <div className="lbl">{p.time}</div>
-          </div>
-        </motion.div>
+    <div ref={containerRef} className="flex gap-2.5 justify-center" onPaste={handlePaste}>
+      {digits.map((d, i) => (
+        <input key={i} type="text" inputMode="numeric" maxLength={1} value={d}
+          style={{
+            width: 48, height: 56, flexShrink: 0,
+            background: d ? "#F0F4FF" : "#F8FAFC",
+            border: `2px solid ${d ? "#0F2044" : "#94A3B8"}`,
+            borderRadius: 10,
+            textAlign: "center" as const,
+            fontSize: "1.5rem",
+            fontWeight: d ? 800 : 500,
+            color: "#0F2044",
+            outline: "none",
+            caretColor: "#F59E0B",
+            transition: "border-color 0.15s, box-shadow 0.15s",
+          }}
+          onFocus={e => { e.target.select(); e.target.style.borderColor = "#0F2044"; e.target.style.boxShadow = "0 0 0 3px rgba(15,32,68,0.12)"; }}
+          onBlur={e => { e.target.style.boxShadow = ""; e.target.style.borderColor = digits[i] ? "#0F2044" : "#94A3B8"; }}
+          onChange={e => handleChange(i, e)}
+          onKeyDown={e => handleKey(i, e)} />
       ))}
     </div>
   );
 }
 
+function Spinner() {
+  return (
+    <svg className="w-4 h-4" style={{ animation: "spin 1s linear infinite" }} viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.25" />
+      <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export default function LoginPage() {
+  const router = useRouter();
+  const [step, setStep] = useState<"phone" | "otp">("phone");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
-  const [step, setStep] = useState<"phone"|"otp">("phone");
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
 
-  const DEMO: Record<string,{otp:string;role:string;token:string}> = {
-    "9999000000": { otp:"000000", role:"admin",  token:"demo-admin-token"  },
-    "9999000001": { otp:"123456", role:"worker", token:"demo-worker-token" },
-  };
-
-  function demoLogin(role: "admin"|"worker") {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("token", `demo-${role}-token`);
-      localStorage.setItem("role", role);
-    }
-    window.location.href = "/dashboard";
-  }
-
   async function sendOtp(e: React.FormEvent) {
     e.preventDefault();
+    if (phone.length < 10) { setErr("Please enter a valid 10-digit number."); return; }
     setErr(""); setLoading(true);
-    // Demo bypass — works without backend
-    if (DEMO[phone]) { setLoading(false); setStep("otp"); return; }
-    // Try backend — always advance to OTP step (works offline too)
     try {
-      await fetch(`${API_BASE}/api/v1/auth/send-otp`, {
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ phone }),
-      });
-    } catch {
-      // Backend offline — still advance so user can try OTP
-    }
-    setLoading(false);
-    setStep("otp");
+      await fetch(`${API_BASE}/api/v1/auth/send-otp`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone }) });
+    } catch {}
+    setLoading(false); setStep("otp"); setOtp("");
   }
 
-  async function verifyOtp(e: React.FormEvent) {
-    e.preventDefault();
+  async function verifyOtp(e?: React.FormEvent, directOtp?: string) {
+    e?.preventDefault();
+    const otpToVerify = directOtp ?? otp;
+    if (otpToVerify.length < 6) { setErr("Please enter the complete 6-digit OTP."); return; }
     setErr(""); setLoading(true);
-    // Demo bypass — check hardcoded credentials first
-    const demo = DEMO[phone];
-    if (demo && otp === demo.otp) {
+    const isAdmin  = phone === "9999000000" && otpToVerify === "000000";
+    const isWorker = phone === "9999000001" && otpToVerify === "123456";
+    if (isAdmin || isWorker) {
       if (typeof window !== "undefined") {
-        localStorage.setItem("token", demo.token);
-        localStorage.setItem("role", demo.role);
+        localStorage.setItem("token", isAdmin ? "demo-admin-token" : "demo-worker-token");
+        localStorage.setItem("role", isAdmin ? "admin" : "worker");
       }
-      window.location.href = "/dashboard";
-      return;
+      setLoading(false); router.push("/dashboard"); return;
     }
     try {
-      const r = await fetch(`${API_BASE}/api/v1/auth/verify-otp`, {
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ phone, otp }),
-      });
-      if (!r.ok) throw new Error();
-      const d = await r.json();
-      if (typeof window !== "undefined") {
-        localStorage.setItem("token", d.access_token);
-        localStorage.setItem("role", d.role || "worker");
-      }
-      window.location.href = "/dashboard";
-    } catch { setErr("Invalid OTP. Please try again."); }
-    finally { setLoading(false); }
+      const r = await fetch(`${API_BASE}/api/v1/auth/verify-otp`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone, otp }) });
+      if (r.ok) {
+        const d = await r.json();
+        if (typeof window !== "undefined") { localStorage.setItem("token", d.access_token); localStorage.setItem("role", d.role || "worker"); }
+        router.push("/dashboard");
+      } else { setErr("Invalid OTP. Please try again."); }
+    } catch { setErr("Connection failed. Please try again."); }
+    setLoading(false);
   }
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-[44%_56%]">
+    <div className="min-h-screen bg-slate-50 flex">
 
-      {/* ── LEFT PANEL ─────────────────────────────────────────────────── */}
-      <div className="hidden lg:flex flex-col justify-between px-12 py-10 relative overflow-hidden"
-        style={{ background:"linear-gradient(160deg, #0E0A04 0%, #1a1200 100%)", borderRight:"1px solid #2A2218" }}
-      >
-        {/* Ambient glow */}
-        <div className="absolute top-20 left-10 w-64 h-64 rounded-full pointer-events-none"
-          style={{ background:"radial-gradient(circle, rgba(245,158,11,0.06) 0%, transparent 70%)" }} />
-
-        <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{duration:0.5}}>
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-amber flex items-center justify-center">
-              <span className="text-[#0A0806] font-black text-sm">GS</span>
-            </div>
-            <span className="text-[#F5F0E8] font-bold">GigShield</span>
-          </Link>
-        </motion.div>
-
-        <div className="relative z-10">
-          <motion.div initial={{opacity:0,y:24}} animate={{opacity:1,y:0}} transition={{delay:0.2,duration:0.6}}>
-            <p className="lbl mb-4">Payouts processed right now</p>
-            <div className="mb-2">
-              <span className="text-[#F5F0E8] font-extrabold" style={{fontSize:"3.5rem",lineHeight:0.88,letterSpacing:"-0.05em"}}>₹1.24Cr</span>
-            </div>
-            <p className="text-[#6B5C44] text-sm mb-6">paid out this month across 14,200 workers</p>
-          </motion.div>
-          <PayoutFeed />
-        </div>
-
-        <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:1}}>
-          <div className="panel-amber px-4 py-3 flex gap-3 items-start">
-            <div className="w-1 h-8 rounded-full bg-amber flex-shrink-0 mt-0.5" />
-            <div>
-              <div className="text-[#F5F0E8] text-sm font-semibold mb-0.5">Demo credentials</div>
-              <div className="lbl">Worker: +91 9999000001 · OTP: 123456</div>
-              <div className="lbl">Admin: &nbsp; +91 9999000000 · OTP: 000000</div>
-            </div>
+      {/* Left brand panel */}
+      <div className="hidden lg:flex flex-col justify-between w-[400px] flex-shrink-0 bg-[#0F2044] px-10 py-12">
+        <Link href="/" className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center">
+            <span className="text-white font-black text-sm">GA</span>
           </div>
-        </motion.div>
+          <span className="text-white font-bold text-lg">GigArmor</span>
+        </Link>
+        <div>
+          <h2 className="text-white font-extrabold text-3xl leading-tight tracking-tight mb-4">Income protection for gig workers.</h2>
+          <p className="text-blue-200 text-sm leading-relaxed mb-8">Automatic payouts when your earnings are disrupted — rain, app outages, curfews, and more. No claims ever.</p>
+          <div className="space-y-4">
+            {[
+              { icon: "\u26a1", title: "Automatic payouts", desc: "No claim forms. Money arrives on its own." },
+              { icon: "\ud83d\udee1\ufe0f", title: "8 platforms covered", desc: "Swiggy, Zomato, Uber, Ola and more." },
+              { icon: "\ud83d\udcb8", title: "No upfront cost", desc: "Premium deducted only when triggered." },
+            ].map(b => (
+              <div key={b.title} className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0 text-sm">{b.icon}</div>
+                <div>
+                  <div className="text-white font-semibold text-sm">{b.title}</div>
+                  <div className="text-blue-300 text-xs mt-0.5">{b.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="bg-white/5 border border-white/10 rounded-2xl px-4 py-3">
+          <div className="text-blue-300 text-xs font-bold uppercase tracking-wider mb-1.5">Live payout</div>
+          <div className="text-white text-sm font-medium">Rahul K. received <span className="text-amber-400 font-bold">₹280</span> — heavy rain in Andheri</div>
+          <div className="text-blue-400 text-xs mt-0.5">4 minutes ago · Swiggy · Mumbai</div>
+        </div>
       </div>
 
-      {/* ── RIGHT FORM ─────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-center px-8 py-16 bg-[#0A0806]">
-        <div className="w-full max-w-sm">
+      {/* Right login form */}
+      <div className="flex-1 flex items-center justify-center px-4 py-16">
+        <div className="w-full max-w-[400px]">
 
-          <Link href="/" className="flex lg:hidden items-center gap-2 mb-10">
-            <div className="w-7 h-7 rounded-lg bg-amber flex items-center justify-center">
-              <span className="text-[#0A0806] font-black text-xs">GS</span>
-            </div>
-            <span className="text-[#F5F0E8] font-bold text-sm">GigShield</span>
-          </Link>
+          <div className="lg:hidden flex items-center gap-2 mb-8">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-[#0F2044] flex items-center justify-center">
+                <span className="text-white font-black text-sm">GA</span>
+              </div>
+              <span className="text-slate-900 font-bold text-lg">GigArmor</span>
+            </Link>
+          </div>
 
-          <motion.div key={step} initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} transition={{duration:0.35}}>
-            <p className="lbl mb-2">{step === "phone" ? "Sign in" : "Verification"}</p>
-            <h1 className="text-[#F5F0E8] font-bold text-2xl mb-1" style={{letterSpacing:"-0.03em"}}>
-              {step === "phone" ? "Welcome back." : "Check your phone."}
-            </h1>
-            <p className="text-[#6B5C44] text-sm mb-8">
-              {step === "phone" ? "Enter your registered mobile number." : `OTP sent to +91 ${phone}. Valid for 10 min.`}
-            </p>
+          <AnimatePresence mode="wait">
+            {step === "phone" ? (
+              <motion.div key="phone" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
+                <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1.5">Welcome back</h1>
+                <p className="text-slate-400 text-sm mb-7">Sign in with your registered mobile number.</p>
 
-            <form onSubmit={step === "phone" ? sendOtp : verifyOtp} className="space-y-4">
-              {step === "phone" ? (
-                <div>
-                  <label className="field-label">Mobile number</label>
-                  <div className="flex">
-                    <span className="field" style={{width:"auto",borderRadius:"8px 0 0 8px",borderRight:"none",padding:"0.75rem 0.875rem",color:"#6B5C44",flexShrink:0}}>+91</span>
-                    <input className="field" style={{borderRadius:"0 8px 8px 0"}} placeholder="Enter 10-digit number"
-                      value={phone} onChange={e=>setPhone(e.target.value.replace(/\D/g,"").slice(0,10))} maxLength={10} required />
+                <form onSubmit={sendOtp} className="space-y-4">
+                  <div>
+                    <label className="field-label">Mobile number</label>
+                    <div className="flex rounded-xl overflow-hidden border border-slate-200 focus-within:border-[#0F2044] focus-within:ring-2 focus-within:ring-[#0F2044]/10 transition-all shadow-sm bg-white">
+                      <span className="inline-flex items-center bg-slate-50 border-r border-slate-200 px-3 text-slate-500 text-sm font-semibold flex-shrink-0">+91</span>
+                      <input type="tel" inputMode="numeric" placeholder="10-digit number"
+                        className="flex-1 bg-transparent px-3 py-3 text-slate-900 text-sm outline-none"
+                        value={phone} onChange={e => { setPhone(e.target.value.replace(/\D/g, "").slice(0, 10)); setErr(""); }}
+                        autoFocus required />
+                    </div>
+                  </div>
+                  <AnimatePresence>
+                    {err && <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-red-500 text-sm">{err}</motion.p>}
+                  </AnimatePresence>
+                  <button type="submit" disabled={loading || phone.length < 10} className="btn-navy w-full py-3.5 disabled:opacity-40 disabled:cursor-not-allowed">
+                    {loading ? <span className="flex items-center gap-2"><Spinner />Sending OTP…</span> : "Send OTP →"}
+                  </button>
+                </form>
+
+                {/* Demo access */}
+                <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                  <p className="text-amber-700 text-xs font-bold uppercase tracking-wider mb-3">Demo access</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[{ label: "Worker", phone: "9999000001", otp: "123456", desc: "Delivery worker view" }, { label: "Admin", phone: "9999000000", otp: "000000", desc: "Operations dashboard" }].map(d => (
+                      <button key={d.label} onClick={() => { setPhone(d.phone); setErr(""); }}
+                        className="text-left p-3 bg-white border border-amber-200 rounded-xl hover:border-amber-400 hover:shadow-sm transition-all group">
+                        <div className="text-amber-800 font-bold text-xs group-hover:text-amber-900">{d.label}</div>
+                        <div className="text-amber-600 font-mono text-xs mt-0.5">{d.phone}</div>
+                        <div className="text-amber-500 text-[10px] mt-0.5">{d.desc}</div>
+                      </button>
+                    ))}
                   </div>
                 </div>
-              ) : (
-                <div>
-                  <label className="field-label">6-digit OTP</label>
-                  <input className="field text-center text-xl font-mono tracking-widest" placeholder="— — — — — —"
-                    value={otp} onChange={e=>setOtp(e.target.value.replace(/\D/g,"").slice(0,6))} maxLength={6} required />
-                </div>
-              )}
-
-              {err && <p className="text-signal-neg text-sm">{err}</p>}
-
-              <button type="submit" disabled={loading} className="btn-amber w-full py-3.5">
-                {loading ? "Please wait…" : step === "phone" ? "Send OTP →" : "Verify & Sign in →"}
-              </button>
-            </form>
-
-            {step === "otp" && (
-              <button onClick={()=>setStep("phone")} className="w-full text-center text-[#4A3E2A] text-sm mt-4 hover:text-[#6B5C44] transition-colors">
-                ← Change number
-              </button>
+              </motion.div>
+            ) : (
+              <motion.div key="otp" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.25 }}>
+                <button onClick={() => { setStep("phone"); setErr(""); }} className="flex items-center gap-1.5 text-slate-400 hover:text-slate-700 text-sm font-medium mb-7 transition-colors">
+                  ← Back
+                </button>
+                <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1.5">Enter OTP</h1>
+                <p className="text-slate-400 text-sm mb-1">Sent to <span className="font-semibold text-slate-700">+91 {phone}</span></p>
+                <p className="text-amber-600 text-xs mb-7 font-medium">
+                  {phone === "9999000001" ? "Demo OTP: 123456" : phone === "9999000000" ? "Demo OTP: 000000" : "Enter the OTP sent to your phone"}
+                </p>
+                <form onSubmit={verifyOtp} className="space-y-5">
+                  <OtpInput value={otp} onChange={setOtp} onFill={(completed) => verifyOtp(undefined, completed)} />
+                  <AnimatePresence>
+                    {err && <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-red-500 text-sm text-center">{err}</motion.p>}
+                  </AnimatePresence>
+                  <button type="submit" disabled={loading || otp.length < 6} className="btn-navy w-full py-3.5 disabled:opacity-40 disabled:cursor-not-allowed">
+                    {loading ? <span className="flex items-center gap-2"><Spinner />Verifying…</span> : "Sign in →"}
+                  </button>
+                  <p className="text-center">
+                    <button type="button" onClick={() => { setStep("phone"); setOtp(""); setErr(""); }} className="text-slate-400 hover:text-slate-600 text-sm transition-colors">
+                      Resend OTP
+                    </button>
+                  </p>
+                </form>
+              </motion.div>
             )}
+          </AnimatePresence>
 
-            {/* Quick demo access */}
-            <div className="mt-6 pt-5 border-t border-[#2A2218]">
-              <p className="lbl text-center mb-3">Quick demo access</p>
-              <div className="grid grid-cols-2 gap-2">
-                <button type="button" onClick={()=>demoLogin("worker")} className="btn-ghost btn-sm text-center">
-                  Demo Worker
-                </button>
-                <button type="button" onClick={()=>demoLogin("admin")} className="btn-outline-amber btn-sm text-center">
-                  Demo Admin
-                </button>
-              </div>
-            </div>
-
-            <div className="mt-4 text-center">
-              <span className="text-[#4A3E2A] text-sm">New worker? </span>
-              <Link href="/register" className="text-amber text-sm font-semibold hover:text-amber-bright transition-colors">
-                Create account →
-              </Link>
-            </div>
-          </motion.div>
+          <div className="mt-8 pt-6 border-t border-slate-200 text-center">
+            <span className="text-slate-400 text-sm">New to GigArmor? </span>
+            <Link href="/register" className="text-[#0F2044] font-semibold text-sm hover:underline">Get protected →</Link>
+          </div>
         </div>
       </div>
     </div>

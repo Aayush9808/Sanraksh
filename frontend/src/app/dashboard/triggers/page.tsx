@@ -46,7 +46,7 @@ export default function TriggersPage() {
       <div className="section-head">
         <div>
           <p className="lbl mb-1">Signal monitor</p>
-          <h1 className="text-[#F5F0E8] font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Live Disruption Triggers</h1>
+          <h1 className="text-slate-800 font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Live Disruption Triggers</h1>
         </div>
         <div className="flex items-center gap-2">
           <span className="dot dot-live" />
@@ -60,18 +60,18 @@ export default function TriggersPage() {
           {triggers.map((t, i) => (
             <motion.div key={t.id} initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} transition={{delay:i*0.08}}
               onClick={()=>setSel(sel?.id===t.id?null:t)}
-              className="panel p-4 cursor-pointer transition-all hover:border-[#36301E]"
+              className="panel p-4 cursor-pointer transition-all hover:border-slate-300"
               style={{ borderLeft:`3px solid ${COLOR(t.severity)}` }}
             >
               <div className="flex items-center gap-4">
                 <SeverityRing v={t.severity} color={COLOR(t.severity)} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[#F5F0E8] font-bold">{t.type}</span>
+                    <span className="text-slate-800 font-bold">{t.type}</span>
                     <span className={`tag ${t.status==="active"?"tag-neg":t.status==="watch"?"tag-warn":"tag-neutral"}`}>{t.status}</span>
                   </div>
                   <div className="lbl mb-1">{t.zone} · Started {t.started}</div>
-                  <div className="text-sm text-[#6B5C44]">{t.signal}</div>
+                  <div className="text-sm text-slate-500">{t.signal}</div>
                 </div>
                 <div className="text-right flex-shrink-0">
                   <div className="text-amber font-mono font-bold text-sm">{t.payout}</div>
@@ -84,8 +84,8 @@ export default function TriggersPage() {
                   <motion.div initial={{height:0,opacity:0}} animate={{height:"auto",opacity:1}} exit={{height:0,opacity:0}}
                     className="overflow-hidden"
                   >
-                    <div className="mt-4 pt-4 border-t border-[#2A2218]">
-                      <div className="panel-amber p-3 text-sm text-[#C8BAA0] leading-relaxed">
+                    <div className="mt-4 pt-4 border-t border-slate-200">
+                      <div className="panel-amber p-3 text-sm text-slate-600 leading-relaxed">
                         <span className="lbl-amber font-bold block mb-1">Trigger condition met</span>
                         This event meets the parametric conditions in your policy. If it persists, your payout of <strong className="text-amber">{t.payout}</strong> will be processed automatically within 4 hours.
                       </div>
@@ -104,19 +104,19 @@ export default function TriggersPage() {
             <div className="space-y-3">
               <div>
                 <div className="flex justify-between mb-1">
-                  <span className="text-sm text-[#6B5C44]">Max potential payout</span>
+                  <span className="text-sm text-slate-500">Max potential payout</span>
                   <span className="text-amber font-mono font-bold">₹880</span>
                 </div>
               </div>
               <div>
                 <div className="flex justify-between mb-1">
-                  <span className="text-sm text-[#6B5C44]">Active triggers</span>
+                  <span className="text-sm text-slate-500">Active triggers</span>
                   <span className="text-[#EF4444] font-bold">{triggers.filter(t=>t.status==="active").length}</span>
                 </div>
               </div>
               <div>
                 <div className="flex justify-between mb-1">
-                  <span className="text-sm text-[#6B5C44]">Watch alerts</span>
+                  <span className="text-sm text-slate-500">Watch alerts</span>
                   <span className="text-[#F59E0B] font-bold">{triggers.filter(t=>t.status==="watch").length}</span>
                 </div>
               </div>
@@ -124,7 +124,7 @@ export default function TriggersPage() {
           </div>
           <div className="panel-amber p-4">
             <p className="lbl-amber mb-2">Auto-payout guarantee</p>
-            <p className="text-sm text-[#C8BAA0] leading-relaxed">When any active trigger meets its threshold, your payout is processed without any action needed from you.</p>
+            <p className="text-sm text-slate-600 leading-relaxed">When any active trigger meets its threshold, your payout is processed without any action needed from you.</p>
           </div>
         </div>
       </div>

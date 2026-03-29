@@ -2,7 +2,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 const RiskMapLeaflet = dynamic(()=>import("@/components/RiskMapLeaflet"),{ssr:false,loading:()=>(
-  <div className="flex items-center justify-center h-full text-[#4A3E2A] font-mono text-sm">Loading map…</div>
+  <div className="flex items-center justify-center h-full text-slate-500 font-mono text-sm">Loading map…</div>
 )});
 
 const MAP_ZONES = [
@@ -28,7 +28,7 @@ export default function RiskMapPage() {
   return (
     <div className="max-w-[1400px] h-full">
       <div className="section-head">
-        <div><p className="lbl mb-1">Admin portal</p><h1 className="text-[#F5F0E8] font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Risk Map</h1></div>
+        <div><p className="lbl mb-1">Admin portal</p><h1 className="text-slate-800 font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Risk Map</h1></div>
         <div className="flex gap-3 items-center">
           <div className="flex gap-2 items-center"><div className="w-2 h-2 rounded-full bg-red-500" /><span className="lbl">High</span></div>
           <div className="flex gap-2 items-center"><div className="w-2 h-2 rounded-full bg-amber" /><span className="lbl">Med</span></div>
@@ -45,14 +45,14 @@ export default function RiskMapPage() {
         <div className="panel overflow-hidden self-start">
           <div style={{padding:"1rem 1.25rem",borderBottom:"1px solid #2A2218"}}>
             <p className="lbl mb-0.5">Active disruption zones</p>
-            <h2 className="text-[#F5F0E8] font-bold" style={{letterSpacing:"-0.02em"}}>6 zones tracked</h2>
+            <h2 className="text-slate-800 font-bold" style={{letterSpacing:"-0.02em"}}>6 zones tracked</h2>
           </div>
           <div className="divide-y divide-[#2A2218]">
             {ZONES.map(z=>(
-              <div key={z.zone} className="px-4 py-3.5 hover:bg-[#180F06] transition-colors">
+              <div key={z.zone} className="px-4 py-3.5 hover:bg-slate-50 transition-colors">
                 <div className="flex justify-between items-start mb-2">
                   <div>
-                    <div className="text-[#C8BAA0] font-medium text-sm">{z.zone}</div>
+                    <div className="text-slate-600 font-medium text-sm">{z.zone}</div>
                     <div className="lbl">{z.events}</div>
                   </div>
                   <span className="font-mono font-bold text-sm" style={{color:rc(z.risk)}}>{(z.risk*100).toFixed(0)}%</span>

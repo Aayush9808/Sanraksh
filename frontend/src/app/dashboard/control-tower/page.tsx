@@ -54,7 +54,7 @@ export default function ControlTowerPage() {
   return (
     <div className="max-w-[1400px]">
       <div className="section-head">
-        <div><p className="lbl mb-1">Admin portal</p><h1 className="text-[#F5F0E8] font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Control Tower</h1></div>
+        <div><p className="lbl mb-1">Admin portal</p><h1 className="text-slate-800 font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Control Tower</h1></div>
         <button className="btn-amber" onClick={runEngine} disabled={running}>
           {running?"Running…":"▶  Run engine now"}
         </button>
@@ -65,7 +65,7 @@ export default function ControlTowerPage() {
         <div className="panel overflow-hidden">
           <div style={{padding:"1rem 1.25rem",borderBottom:"1px solid #2A2218"}}>
             <p className="lbl mb-0.5">Automation services</p>
-            <h2 className="text-[#F5F0E8] font-bold" style={{letterSpacing:"-0.02em"}}>Engine health</h2>
+            <h2 className="text-slate-800 font-bold" style={{letterSpacing:"-0.02em"}}>Engine health</h2>
           </div>
           <div className="divide-y divide-[#2A2218]">
             {ENGINE_STATUS.map(s=>(
@@ -73,7 +73,7 @@ export default function ControlTowerPage() {
                 <div className={`w-2 h-2 rounded-full flex-shrink-0 ${s.status==="running"?"bg-emerald-400":s.status==="degraded"?"bg-amber":"bg-red-400"}`}
                   style={{boxShadow:s.status==="running"?"0 0 6px #10B981":s.status==="degraded"?"0 0 6px #F59E0B":"none"}} />
                 <div className="flex-1">
-                  <div className="text-[#C8BAA0] text-sm font-medium">{s.name}</div>
+                  <div className="text-slate-600 text-sm font-medium">{s.name}</div>
                   <div className="lbl">{s.processed.toLocaleString()} events processed</div>
                 </div>
                 <div className="text-right">
@@ -89,14 +89,14 @@ export default function ControlTowerPage() {
         <div className="panel overflow-hidden">
           <div style={{padding:"1rem 1.25rem",borderBottom:"1px solid #2A2218"}}>
             <p className="lbl mb-0.5">Pending actions</p>
-            <h2 className="text-[#F5F0E8] font-bold" style={{letterSpacing:"-0.02em"}}>Dispatch queue</h2>
+            <h2 className="text-slate-800 font-bold" style={{letterSpacing:"-0.02em"}}>Dispatch queue</h2>
           </div>
           <div className="divide-y divide-[#2A2218]">
             {QUEUE.map(q=>(
               <div key={q.id} className="px-5 py-4">
                 <div className="flex justify-between items-start mb-2">
                   <div>
-                    <div className="text-[#C8BAA0] font-medium text-sm">{q.type}</div>
+                    <div className="text-slate-600 font-medium text-sm">{q.type}</div>
                     <div className="lbl">{q.workers} workers · ETA: {q.eta}</div>
                   </div>
                   <span className={`tag ${q.status==="ready"?"tag-live":q.status==="pending"?"tag-warn":"tag-neutral"}`}>{q.status}</span>
@@ -115,7 +115,7 @@ export default function ControlTowerPage() {
         <div style={{padding:"1rem 1.25rem",borderBottom:"1px solid #2A2218",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
           <div>
             <p className="lbl mb-0.5">Engine log</p>
-            <h2 className="text-[#F5F0E8] font-bold" style={{letterSpacing:"-0.02em"}}>Execution trace</h2>
+            <h2 className="text-slate-800 font-bold" style={{letterSpacing:"-0.02em"}}>Execution trace</h2>
           </div>
           <button className="btn-ghost btn-sm" onClick={()=>setLogs(INIT_LOGS)}>Clear</button>
         </div>
@@ -125,7 +125,7 @@ export default function ControlTowerPage() {
             return <div key={i} className="text-xs mb-1.5 leading-relaxed" style={{color}}>{l}</div>;
           })}
           {running && (
-            <div className="text-xs text-[#4A3E2A] mt-1">
+            <div className="text-xs text-slate-500 mt-1">
               <span className="animate-pulse">▋</span>
             </div>
           )}

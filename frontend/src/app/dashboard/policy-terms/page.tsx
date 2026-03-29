@@ -44,14 +44,14 @@ export default function PolicyTermsPage() {
       <div className="section-head">
         <div>
           <p className="lbl mb-1">Legal & coverage</p>
-          <h1 className="text-[#F5F0E8] font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Policy Terms — Plain Language</h1>
+          <h1 className="text-slate-800 font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Policy Terms — Plain Language</h1>
         </div>
         <span className="tag tag-info">v3.2 · Mar 2026</span>
       </div>
 
       <div className="panel-amber p-4 mb-6">
         <p className="lbl-amber mb-1">How to read this</p>
-        <p className="text-sm text-[#C8BAA0] leading-relaxed">
+        <p className="text-sm text-slate-600 leading-relaxed">
           Each condition below defines exactly when a payout triggers. When the <strong className="text-amber">IF</strong> and <strong className="text-amber">AND</strong> conditions are both met, the <strong className="text-amber">THEN</strong> action executes automatically — no form, no call, no wait.
         </p>
       </div>
@@ -59,21 +59,21 @@ export default function PolicyTermsPage() {
       <div className="space-y-4">
         {CONDITIONS.map((c, i) => (
           <div key={c.id} className="panel overflow-hidden">
-            <div className="px-5 py-3 border-b border-[#2A2218] flex items-center justify-between">
+            <div className="px-5 py-3 border-b border-slate-200 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <span className="font-mono text-xs text-[#4A3E2A]">{c.id}</span>
-                <h3 className="text-[#F5F0E8] font-bold">{c.event}</h3>
+                <span className="font-mono text-xs text-slate-500">{c.id}</span>
+                <h3 className="text-slate-800 font-bold">{c.event}</h3>
               </div>
               <span className="tag tag-live">Active</span>
             </div>
             <div className="p-5 grid md:grid-cols-[1fr_1fr_auto] gap-4">
               <div className="panel-inset p-3">
                 <p className="lbl-amber mb-2">IF</p>
-                <p className="text-sm text-[#C8BAA0] leading-relaxed">{c.if_}</p>
+                <p className="text-sm text-slate-600 leading-relaxed">{c.if_}</p>
               </div>
               <div className="panel-inset p-3">
                 <p className="lbl mb-2" style={{color:"#60A5FA"}}>AND</p>
-                <p className="text-sm text-[#C8BAA0] leading-relaxed">{c.and_}</p>
+                <p className="text-sm text-slate-600 leading-relaxed">{c.and_}</p>
               </div>
               <div className="panel-amber p-3 min-w-[160px]">
                 <p className="lbl-amber mb-2">THEN (auto)</p>
@@ -87,9 +87,9 @@ export default function PolicyTermsPage() {
 
       <div className="panel p-5 mt-6">
         <p className="lbl mb-2">General provisions</p>
-        <ul className="space-y-2 text-sm text-[#6B5C44] leading-relaxed">
+        <ul className="space-y-2 text-sm text-slate-500 leading-relaxed">
           <li>• All trigger decisions use independent, publicly verifiable data sources</li>
-          <li>• GigShield holds no discretion in payout decisions — outcomes are entirely algorithmic</li>
+          <li>• GigArmor holds no discretion in payout decisions — outcomes are entirely algorithmic</li>
           <li>• Disputes must be raised within 14 days of the relevant trigger event</li>
           <li>• Policy is governed by Indian Contract Act, 1872 · IRDAI parametric guidelines 2024</li>
         </ul>

@@ -47,7 +47,7 @@ export default function WorkersPage() {
   return (
     <div className="max-w-[1400px]">
       <div className="section-head">
-        <div><p className="lbl mb-1">Admin portal</p><h1 className="text-[#F5F0E8] font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Worker Directory</h1></div>
+        <div><p className="lbl mb-1">Admin portal</p><h1 className="text-slate-800 font-bold text-xl" style={{letterSpacing:"-0.03em"}}>Worker Directory</h1></div>
         <div className="flex items-center gap-3">
           <span className="tag tag-live">{workers.filter(w=>w.status==="active").length} active</span>
           <span className="tag tag-neg">{workers.filter(w=>w.status==="flagged").length} flagged</span>
@@ -73,14 +73,14 @@ export default function WorkersPage() {
                           <span className="text-amber font-bold text-xs">{w.name.charAt(0)}</span>
                         </div>
                         <div>
-                          <div className="text-[#C8BAA0] font-medium text-sm">{w.name}</div>
+                          <div className="text-slate-600 font-medium text-sm">{w.name}</div>
                           <div className="lbl">{w.id}</div>
                         </div>
                       </div>
                     </td>
                     <td>{w.city}</td>
                     <td><div className="flex gap-1 flex-wrap">{w.platforms.map(p=><span key={p} className="tag tag-neutral">{p}</span>)}</div></td>
-                    <td><span className="text-[#F5F0E8] font-bold">{w.claims}</span></td>
+                    <td><span className="text-slate-800 font-bold">{w.claims}</span></td>
                     <td><span className="text-amber font-mono font-bold">₹{w.total_earned.toLocaleString()}</span></td>
                     <td><RiskBadge v={w.risk} /></td>
                     <td><KycBadge s={w.kyc} /></td>
@@ -101,7 +101,7 @@ export default function WorkersPage() {
                   <span className="text-amber font-bold text-xl">{sel.name.charAt(0)}</span>
                 </div>
                 <div>
-                  <div className="text-[#F5F0E8] font-bold">{sel.name}</div>
+                  <div className="text-slate-800 font-bold">{sel.name}</div>
                   <div className="lbl">{sel.phone}</div>
                 </div>
               </div>
@@ -109,9 +109,9 @@ export default function WorkersPage() {
                 {[
                   ["Worker ID",sel.id],["City",sel.city],["Joined",sel.joined],["KYC",sel.kyc],
                 ].map(([k,v])=>(
-                  <div key={k} className="flex justify-between text-sm py-1.5 border-b border-[#2A2218]">
-                    <span className="text-[#6B5C44]">{k}</span>
-                    <span className="text-[#C8BAA0] font-medium">{v}</span>
+                  <div key={k} className="flex justify-between text-sm py-1.5 border-b border-slate-200">
+                    <span className="text-slate-500">{k}</span>
+                    <span className="text-slate-600 font-medium">{v}</span>
                   </div>
                 ))}
               </div>
@@ -121,7 +121,7 @@ export default function WorkersPage() {
                   <div className="lbl mt-1">Total earned</div>
                 </div>
                 <div className="panel-inset p-3 text-center">
-                  <div className="text-[#F5F0E8] font-bold text-xl">{sel.claims}</div>
+                  <div className="text-slate-800 font-bold text-xl">{sel.claims}</div>
                   <div className="lbl mt-1">Total claims</div>
                 </div>
               </div>

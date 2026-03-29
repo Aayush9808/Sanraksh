@@ -1,161 +1,196 @@
 "use client";
-import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useState, useCallback, useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
-type NavItem = { href: string; icon: React.ReactNode; label: string; adminOnly?: boolean };
+const WORKER_NAV = [
+  { href: "/dashboard",              label: "Overview",     icon: <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> },
+  { href: "/dashboard/triggers",     label: "Live Triggers", badge: 2, icon: <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> },
+  { href: "/dashboard/my-policy",   label: "My Policy",    icon: <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> },
+  { href: "/dashboard/profile",     label: "Profile",      icon: <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> },
+];
 
-function Icon({ d, size = 18 }: { d: string; size?: number }) {
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d={d}/></svg>;
-}
+const ADMIN_NAV = [
+  { href: "/dashboard",              label: "Command Center", icon: <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> },
+  { href: "/dashboard/claims",       label: "Claims",         badge: 3, icon: <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> },
+  { href: "/dashboard/workers",      label: "Workers",        icon: <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> },
+  { href: "/dashboard/triggers",     label: "Triggers",       icon: <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> },
+  { href: "/dashboard/analytics",    label: "Analytics",      icon: <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> },
+  { href: "/dashboard/policies",     label: "Policies",       icon: <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> },
+  { href: "/dashboard/risk-map",     label: "Risk Map",       icon: <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg> },
+  { href: "/dashboard/market-crash", label: "Threat Events",  badge: 1, icon: <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> },
+  { href: "/dashboard/profile",      label: "Profile",        icon: <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> },
+];
 
-const ICONS = {
-  home:    "M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z M9 22V12h6v10",
-  shield:  "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z",
-  bolt:    "M13 2L3 14h9l-1 8 10-12h-9l1-8z",
-  users:   "M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2 M23 21v-2a4 4 0 00-3-3.87 M16 3.13a4 4 0 010 7.75",
-  chart:   "M18 20V10 M12 20V4 M6 20v-6",
-  file:    "M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8",
-  map:     "M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z M12 10a2 2 0 11-4 0 2 2 0 014 0",
-  alert:   "M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z M12 9v4 M12 17h.01",
-  terminal:"M4 17l6-6-6-6 M12 19h8",
-  user:    "M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2 M12 11a4 4 0 100-8 4 4 0 000 8z",
-  logout:  "M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4 M16 17l5-5-5-5 M21 12H9",
-  policy:  "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2 M9 5a2 2 0 002 2h2a2 2 0 002-2 M9 5a2 2 0 012-2h2a2 2 0 012 2",
-};
-
-export default function DashLayout({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [role, setRole] = useState<"worker"|"admin">("worker");
-  const [tooltip, setTooltip] = useState("");
-  const [engineOk, setEngineOk] = useState(true);
+  const [role, setRole] = useState("worker");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const token = localStorage.getItem("token");
-    if (!token) { router.replace("/login"); return; }
-    const r = localStorage.getItem("role");
-    if (r === "admin") setRole("admin");
-    setEngineOk(Math.random() > 0.15);
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const r = typeof window !== "undefined" ? localStorage.getItem("role") : "";
+    if (!token) {
+      router.replace("/login");
+      return;
+    }
+    if (r) setRole(r);
+    setAuthChecked(true);
   }, [router]);
 
-  const workerNav: NavItem[] = [
-    { href:"/dashboard",             icon:<Icon d={ICONS.home}/>,    label:"Overview"     },
-    { href:"/dashboard/my-policy",   icon:<Icon d={ICONS.shield}/>,  label:"My Policy"    },
-    { href:"/dashboard/triggers",    icon:<Icon d={ICONS.bolt}/>,    label:"Live Triggers"},
-    { href:"/dashboard/policy-terms",icon:<Icon d={ICONS.policy}/>,  label:"Policy Terms" },
-    { href:"/dashboard/profile",     icon:<Icon d={ICONS.user}/>,    label:"Profile"      },
-  ];
-  const adminNav: NavItem[] = [
-    { href:"/dashboard",                icon:<Icon d={ICONS.home}/>,     label:"Overview"       },
-    { href:"/dashboard/claims",         icon:<Icon d={ICONS.file}/>,     label:"Claims"         },
-    { href:"/dashboard/workers",        icon:<Icon d={ICONS.users}/>,    label:"Workers"        },
-    { href:"/dashboard/policies",       icon:<Icon d={ICONS.policy}/>,   label:"Policies"       },
-    { href:"/dashboard/analytics",      icon:<Icon d={ICONS.chart}/>,    label:"Analytics"      },
-    { href:"/dashboard/risk-map",       icon:<Icon d={ICONS.map}/>,      label:"Risk Map"       },
-    { href:"/dashboard/threat-defense", icon:<Icon d={ICONS.alert}/>,    label:"Threat Defense" },
-    { href:"/dashboard/control-tower",  icon:<Icon d={ICONS.terminal}/>, label:"Control Tower"  },
-  ];
-  const nav = role === "admin" ? adminNav : workerNav;
-
-  function logout() {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("token");
-      localStorage.removeItem("role");
-    }
+  const logout = useCallback(() => {
+    if (typeof window !== "undefined") { localStorage.removeItem("token"); localStorage.removeItem("role"); }
     router.push("/login");
+  }, [router]);
+
+  const nav = role === "admin" ? ADMIN_NAV : WORKER_NAV;
+  const activeItem = nav.find(n => n.href === pathname) || nav[0];
+
+  const SidebarContent = () => (
+    <>
+      {/* Logo */}
+      <div className="px-5 py-5 border-b border-slate-200 flex-shrink-0">
+        <Link href="/" className="flex items-center gap-2.5" onClick={() => setSidebarOpen(false)}>
+          <div className="w-8 h-8 rounded-lg bg-[#0F2044] flex items-center justify-center flex-shrink-0">
+            <span className="text-white font-black text-xs">GA</span>
+          </div>
+          <div>
+            <div className="font-bold text-slate-900 text-sm leading-tight">GigArmor</div>
+            <div className="text-xs text-slate-400 font-medium capitalize">{role} portal</div>
+          </div>
+        </Link>
+      </div>
+
+      {/* Nav items */}
+      <nav className="flex-1 py-3 px-3 overflow-y-auto space-y-0.5">
+        {nav.map(item => {
+          const isActive = pathname === item.href;
+          return (
+            <Link key={item.href} href={item.href} onClick={() => setSidebarOpen(false)}
+              className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all group ${
+                isActive
+                  ? "bg-[#0F2044] text-white shadow-sm"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              }`}>
+              <span className={`flex-shrink-0 transition-colors ${isActive ? "text-white" : "text-slate-400 group-hover:text-slate-600"}`}>
+                {item.icon}
+              </span>
+              <span className="flex-1 truncate">{item.label}</span>
+              {item.badge && !isActive && (
+                <span className="ml-auto bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                  {item.badge}
+                </span>
+              )}
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* Bottom: status + logout */}
+      <div className="px-3 py-3 border-t border-slate-200 space-y-1 flex-shrink-0">
+        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-200">
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
+          <span className="text-emerald-700 text-xs font-semibold">Engine operational</span>
+        </div>
+        <button onClick={logout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-500 hover:bg-red-50 hover:text-red-600 text-sm font-semibold transition-all">
+          <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          Sign out
+        </button>
+      </div>
+    </>
+  );
+
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-[#0F2044] flex items-center justify-center">
+            <span className="text-white font-black text-sm">GA</span>
+          </div>
+          <div className="w-5 h-5 border-2 border-[#0F2044] border-t-transparent rounded-full animate-spin" />
+        </div>
+      </div>
+    );
   }
 
-  const isActive = (href: string) => href === "/dashboard" ? pathname === href : pathname.startsWith(href);
-
   return (
-    <div className="flex min-h-screen bg-[#0A0806]">
+    <div className="min-h-screen bg-slate-50 flex">
 
-      {/* ── LEFT ICON RAIL ────────────────────────────────────────────────── */}
-      <aside className="fixed left-0 top-0 bottom-0 z-40 flex flex-col items-center py-4 gap-1"
-        style={{ width:64, background:"#0A0806", borderRight:"1px solid #2A2218" }}
-      >
-        {/* Logo */}
-        <Link href="/dashboard" className="w-10 h-10 rounded-lg bg-amber flex items-center justify-center mb-4 flex-shrink-0">
-          <span className="text-[#0A0806] font-black text-sm">GS</span>
-        </Link>
-
-        <div className="w-8 h-px bg-[#2A2218] mb-3" />
-
-        {/* Nav icons */}
-        <nav className="flex flex-col gap-1.5 flex-1">
-          {nav.map(item => {
-            const active = isActive(item.href);
-            return (
-              <Link key={item.href} href={item.href}
-                onMouseEnter={()=>setTooltip(item.label)} onMouseLeave={()=>setTooltip("")}
-              >
-                <div className={`rail-btn ${active ? "active" : ""}`}>
-                  {item.icon}
-                  {/* Tooltip */}
-                  {tooltip === item.label && (
-                    <div className="absolute left-[52px] z-50 pointer-events-none"
-                      style={{ background:"#1E1810", border:"1px solid #2A2218", borderRadius:6, padding:"5px 10px", whiteSpace:"nowrap", fontSize:"0.75rem", color:"#F5F0E8", fontWeight:600 }}>
-                      {item.label}
-                    </div>
-                  )}
-                </div>
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* Bottom: engine status + logout */}
-        <div className="flex flex-col items-center gap-3 mt-auto">
-          {/* Engine status dot */}
-          <div title={engineOk ? "Engine: Healthy" : "Engine: Degraded"}
-            className={`w-2 h-2 rounded-full ${engineOk ? "dot-live" : "dot-warn"}`}
-            style={{animation: engineOk ? "pulse-live 2s ease-in-out infinite" : "pulse-amber 2.5s ease-in-out infinite"}}
-          />
-          <button onClick={logout} className="rail-btn mb-2" title="Logout"
-            onMouseEnter={()=>setTooltip("Logout")} onMouseLeave={()=>setTooltip("")}
-          >
-            <Icon d={ICONS.logout} />
-            {tooltip === "Logout" && (
-              <div className="absolute left-[52px] z-50 pointer-events-none"
-                style={{ background:"#1E1810", border:"1px solid #2A2218", borderRadius:6, padding:"5px 10px", whiteSpace:"nowrap", fontSize:"0.75rem", color:"#EF4444", fontWeight:600 }}>
-                Logout
-              </div>
-            )}
-          </button>
-        </div>
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:flex flex-col w-60 flex-shrink-0 bg-white border-r border-slate-200 fixed top-0 bottom-0 left-0 z-30">
+        <SidebarContent />
       </aside>
 
-      {/* ── MAIN CONTENT ──────────────────────────────────────────────────── */}
-      <main className="flex-1 min-w-0" style={{ marginLeft:64 }}>
-        {/* Top strip: role badge + breadcrumb */}
-        <div className="h-11 border-b border-[#2A2218] flex items-center justify-between px-6 bg-[#0A0806] sticky top-0 z-30">
+      {/* Mobile sidebar overlay */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="lg:hidden fixed inset-0 bg-black/40 z-40" onClick={() => setSidebarOpen(false)} />
+            <motion.aside initial={{ x: -280 }} animate={{ x: 0 }} exit={{ x: -280 }} transition={{ type: "spring", damping: 30, stiffness: 300 }}
+              className="lg:hidden fixed top-0 bottom-0 left-0 w-72 bg-white z-50 flex flex-col shadow-2xl">
+              <SidebarContent />
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Main content */}
+      <div className="flex-1 flex flex-col lg:ml-60">
+
+        {/* Top bar */}
+        <header className="sticky top-0 z-20 bg-white/95 backdrop-blur border-b border-slate-200 h-14 flex items-center px-4 sm:px-6 gap-3 flex-shrink-0">
+          <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors text-slate-500">
+            <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
+
+          <div className="flex items-center gap-2 text-sm flex-1 min-w-0">
+            <span className="text-slate-400 font-medium truncate hidden sm:block">GigArmor</span>
+            <span className="text-slate-300 hidden sm:block">/</span>
+            <span className="font-semibold text-slate-900 truncate">{activeItem.label}</span>
+          </div>
+
           <div className="flex items-center gap-2">
-            <span className="dot dot-live" style={{width:5,height:5}} />
-            <span className="lbl">GigShield {role === "admin" ? "Command" : "Worker"} Dashboard</span>
+            <div className="hidden sm:flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold px-2.5 py-1.5 rounded-lg">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Live
+            </div>
+            <div className="w-8 h-8 rounded-full bg-[#0F2044] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+              {role === "admin" ? "AD" : "W"}
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <span className={`tag ${role === "admin" ? "tag-amber" : "tag-live"}`}>
-              {role.toUpperCase()}
-            </span>
-            <button onClick={()=>{
-              if(typeof window==="undefined") return;
-              const cur = localStorage.getItem("role");
-              const next = cur === "admin" ? "worker" : "admin";
-              localStorage.setItem("role", next);
-              setRole(next as "worker"|"admin");
-              router.push("/dashboard");
-            }} className="lbl hover:text-amber cursor-pointer transition-colors">
-              [switch view]
-            </button>
-          </div>
-        </div>
-        <div className="p-6 xl:p-8">
+        </header>
+
+        {/* Page content */}
+        <main className="flex-1 p-4 sm:p-6 page-enter pb-20 lg:pb-6">
           {children}
-        </div>
-      </main>
+        </main>
+      </div>
+
+      {/* Mobile bottom nav */}
+      <nav className="lg:hidden mobile-nav">
+        {nav.slice(0, 5).map(item => {
+          const isActive = pathname === item.href;
+          return (
+            <Link key={item.href} href={item.href} className={`mobile-nav-item relative ${isActive ? "active" : ""}`}>
+              {item.badge && (
+                <span className="absolute top-1.5 right-1/2 translate-x-3 w-4 h-4 bg-red-500 rounded-full text-white text-[9px] font-bold flex items-center justify-center">
+                  {item.badge}
+                </span>
+              )}
+              <span className={isActive ? "text-[#0F2044]" : "text-slate-400"}>{item.icon}</span>
+              <span>{item.label.split(" ")[0]}</span>
+            </Link>
+          );
+        })}
+      </nav>
     </div>
   );
 }

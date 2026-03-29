@@ -6,7 +6,7 @@ import { API_BASE } from "@/lib/config";
 const MOCK_POLICY = {
   id: "POL-2024-8821",
   status: "active",
-  plan: "GigShield Standard",
+  plan: "GigArmor Standard",
   platforms: ["Swiggy", "Zomato", "Uber"],
   city: "Mumbai",
   coverage_days_left: 287,
@@ -61,7 +61,7 @@ export default function MyPolicyPage() {
       <div className="section-head">
         <div>
           <p className="lbl mb-1">Worker portal</p>
-          <h1 className="text-[#F5F0E8] font-bold text-xl" style={{letterSpacing:"-0.03em"}}>My Insurance Policy</h1>
+          <h1 className="text-slate-800 font-bold text-xl" style={{letterSpacing:"-0.03em"}}>My Insurance Policy</h1>
         </div>
         <span className="tag tag-live">Active</span>
       </div>
@@ -71,22 +71,22 @@ export default function MyPolicyPage() {
         {/* Policy card */}
         <div className="panel p-5">
           <p className="lbl mb-3">Policy details</p>
-          <div className="text-[#F5F0E8] font-bold text-lg mb-1">{policy.plan}</div>
+          <div className="text-slate-800 font-bold text-lg mb-1">{policy.plan}</div>
           <p className="lbl mb-4">{policy.id}</p>
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-[#6B5C44]">City</span>
-              <span className="text-[#C8BAA0] font-medium">{policy.city}</span>
+              <span className="text-slate-500">City</span>
+              <span className="text-slate-600 font-medium">{policy.city}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-[#6B5C44]">Platforms</span>
+              <span className="text-slate-500">Platforms</span>
               <div className="flex gap-1.5">
                 {policy.platforms.map(p=><span key={p} className="tag tag-neutral">{p}</span>)}
               </div>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-[#6B5C44]">Review date</span>
-              <span className="text-[#C8BAA0]">{policy.next_review}</span>
+              <span className="text-slate-500">Review date</span>
+              <span className="text-slate-600">{policy.next_review}</span>
             </div>
           </div>
         </div>
@@ -105,7 +105,7 @@ export default function MyPolicyPage() {
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className="text-[#F5F0E8] font-bold text-2xl" style={{letterSpacing:"-0.04em"}}>{pct}%</div>
+              <div className="text-slate-800 font-bold text-2xl" style={{letterSpacing:"-0.04em"}}>{pct}%</div>
               <div className="lbl text-center">{policy.coverage_days_left}d left</div>
             </div>
           </div>
@@ -120,7 +120,7 @@ export default function MyPolicyPage() {
           <div className="div-h" />
           <div>
             <p className="lbl mb-1">Claims this month</p>
-            <div className="text-[#F5F0E8] font-bold text-2xl" style={{letterSpacing:"-0.03em"}}>{policy.claims_this_month}</div>
+            <div className="text-slate-800 font-bold text-2xl" style={{letterSpacing:"-0.03em"}}>{policy.claims_this_month}</div>
           </div>
         </div>
       </div>
@@ -129,14 +129,14 @@ export default function MyPolicyPage() {
       <div className="panel overflow-hidden mb-6">
         <div style={{padding:"1rem 1.25rem",borderBottom:"1px solid #2A2218"}}>
           <p className="lbl mb-1">What triggers your payout</p>
-          <h2 className="text-[#F5F0E8] font-bold" style={{letterSpacing:"-0.02em"}}>Coverage matrix</h2>
+          <h2 className="text-slate-800 font-bold" style={{letterSpacing:"-0.02em"}}>Coverage matrix</h2>
         </div>
         <table className="tbl">
           <thead><tr><th>Event</th><th>Your payout</th><th>Trigger likelihood</th><th>Status</th></tr></thead>
           <tbody>
             {COVERAGES.map(c => (
               <tr key={c.event}>
-                <td><span className="text-[#C8BAA0] font-medium">{c.event}</span></td>
+                <td><span className="text-slate-600 font-medium">{c.event}</span></td>
                 <td><span className="text-amber font-mono font-bold">{c.payout}</span></td>
                 <td><LikelihoodBar v={c.likelihood} /></td>
                 <td><span className="tag tag-live">{c.status}</span></td>
@@ -150,7 +150,7 @@ export default function MyPolicyPage() {
       <div className="panel overflow-hidden">
         <div style={{padding:"1rem 1.25rem",borderBottom:"1px solid #2A2218"}}>
           <p className="lbl mb-1">Payment history</p>
-          <h2 className="text-[#F5F0E8] font-bold" style={{letterSpacing:"-0.02em"}}>Past payouts</h2>
+          <h2 className="text-slate-800 font-bold" style={{letterSpacing:"-0.02em"}}>Past payouts</h2>
         </div>
         <table className="tbl">
           <thead><tr><th>Date</th><th>Event</th><th>Trigger</th><th>Amount</th><th>Status</th></tr></thead>
@@ -158,7 +158,7 @@ export default function MyPolicyPage() {
             {PAYOUTS.map(p => (
               <tr key={p.id}>
                 <td className="font-mono text-xs">{p.date}</td>
-                <td><span className="text-[#C8BAA0] font-medium">{p.event}</span></td>
+                <td><span className="text-slate-600 font-medium">{p.event}</span></td>
                 <td className="text-sm">{p.trigger}</td>
                 <td><span className="text-amber font-mono font-bold">₹{p.amount}</span></td>
                 <td><span className="tag tag-live">{p.status}</span></td>
