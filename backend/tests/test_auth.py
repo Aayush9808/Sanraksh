@@ -5,10 +5,10 @@ Test authentication utilities
 import pytest
 from datetime import datetime, timedelta
 from app.utils.auth import (
-    hash_password,
+    get_password_hash,
     verify_password,
     create_access_token,
-    decode_access_token,
+    decode_token,
     generate_otp,
     verify_otp,
 )
@@ -17,30 +17,24 @@ from app.utils.auth import (
 def test_password_hashing():
     """Test password hashing and verification"""
     password = "SecurePassword123!"
-    
-    # Hash password
-    hashed = hash_password(password)
+
+    hashed = get_password_hash(password)
     assert hashed != password
     assert hashed.startswith("$2b$")
-    
-    # Verify correct password
+
     assert verify_password(password, hashed) is True
-    
-    # Verify wrong password
     assert verify_password("WrongPassword", hashed) is False
 
 
 def test_jwt_token():
     """Test JWT token creation and decoding"""
     data = {"user_id": "test-user-123", "phone": "+919876543210"}
-    
-    # Create token
+
     token = create_access_token(data)
     assert isinstance(token, str)
     assert len(token) > 50
-    
-    # Decode token
-    decoded = decode_access_token(token)
+
+    decoded = decode_token(token)
     assert decoded["user_id"] == "test-user-123"
     assert decoded["phone"] == "+919876543210"
     assert "exp" in decoded
@@ -49,13 +43,12 @@ def test_jwt_token():
 def test_jwt_expired_token():
     """Test JWT token expiration"""
     data = {"user_id": "test-user"}
-    
-    # Create token that expires immediately
+
     token = create_access_token(data, expires_delta=timedelta(seconds=-1))
-    
-    # Should fail to decode expired token
+
     with pytest.raises(Exception):
-        decode_access_token(token)
+        decode_token(token)
+
 
 
 def test_otp_generation():
