@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { API_BASE } from "@/lib/config";
 
 const NOTIF_PREFS = [
@@ -10,7 +10,8 @@ const NOTIF_PREFS = [
 ];
 
 export default function ProfilePage() {
-  const [form, setForm] = useState({ name:"Rahul Kumar", phone:"+91 9999000001", city:"Mumbai", email:"rahul@example.com" });
+  const [form, setForm] = useState({ name:"", phone:"", city:"", email:"" });
+  const [platforms, setPlatforms] = useState<string[]>([]);
   const [saved, setSaved] = useState(false);
   const [notifs, setNotifs] = useState<Record<string,boolean>>({
     "Payout received": true,
@@ -18,6 +19,23 @@ export default function ProfilePage() {
     "Policy renewal reminder": true,
     "New coverage added": false,
   });
+
+  useEffect(() => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
+    fetch(`${API_BASE}/api/v1/workers/me`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).then(r => r.ok ? r.json() : null).then(d => {
+      if (d) {
+        setForm({
+          name: d.name || "",
+          phone: d.phone || "",
+          city: d.work_city || "",
+          email: d.email || "",
+        });
+        if (d.delivery_platform) setPlatforms([d.delivery_platform]);
+      }
+    }).catch(() => {});
+  }, []);
 
   const upd = (k:string, v:string) => { setForm(p=>({...p,[k]:v})); setSaved(false); };
   const toggleNotif = (n:string) => setNotifs(p=>({...p,[n]:!p[n]}));
@@ -57,9 +75,9 @@ export default function ProfilePage() {
           <div className="text-slate-800 font-bold text-lg">{form.name}</div>
           <div className="lbl mt-0.5">{form.phone} · {form.city}</div>
           <div className="flex gap-2 mt-2">
-            <span className="tag tag-neutral">Swiggy</span>
-            <span className="tag tag-neutral">Zomato</span>
-            <span className="tag tag-neutral">Uber</span>
+            {platforms.length > 0
+              ? platforms.map(p => <span key={p} className="tag tag-neutral">{p}</span>)
+              : <span className="tag tag-neutral">—</span>}
           </div>
         </div>
       </div>

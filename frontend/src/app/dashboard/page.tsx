@@ -52,7 +52,7 @@ function WorkerHome() {
   const h = { Authorization: `Bearer ${token}` };
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/v1/workers/me/policy`, { headers: h }).then(r=>r.ok?r.json():null).then(d=>{ if(d) setPolicy(d); }).catch(()=>{});
+    fetch(`${API_BASE}/api/v1/workers/me/policy`, { headers: h }).then(r=>r.ok?r.json():null).then(d=>{ if(d?.has_policy && d.policy) setPolicy(d.policy); }).catch(()=>{});
     fetch(`${API_BASE}/api/v1/workers/me/claims`, { headers: h }).then(r=>r.ok?r.json():null).then(d=>{ if(Array.isArray(d)) setClaims(d.slice(0,3)); }).catch(()=>{});
     fetch(`${API_BASE}/api/v1/disruptions/active`, { headers: h }).then(r=>r.ok?r.json():null).then(d=>{ if(Array.isArray(d)) setTriggers(d.slice(0,3)); }).catch(()=>{});
   }, []);

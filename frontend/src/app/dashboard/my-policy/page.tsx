@@ -3,27 +3,6 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { API_BASE } from "@/lib/config";
 
-const MOCK_POLICY = {
-  id: "POL-2024-8821",
-  status: "active",
-  plan: "GigArmor Standard",
-  platforms: ["Swiggy", "Zomato", "Uber"],
-  city: "Mumbai",
-  coverage_days_left: 287,
-  total_coverage: 365,
-  total_earned: 2840,
-  claims_this_month: 3,
-  next_review: "Apr 1, 2026",
-};
-
-const PAYOUTS = [
-  { id:"P-001", date:"Mar 24, 2026", event:"Heavy Rain",   amount:280, status:"paid",    trigger:"IMD Red Alert" },
-  { id:"P-002", date:"Mar 18, 2026", event:"App Outage",   amount:200, status:"paid",    trigger:"Swiggy down 5h" },
-  { id:"P-003", date:"Mar 10, 2026", event:"Curfew",       amount:350, status:"paid",    trigger:"Municipal order" },
-  { id:"P-004", date:"Feb 28, 2026", event:"Heat Wave",    amount:200, status:"paid",    trigger:"Temp > 44°C" },
-  { id:"P-005", date:"Feb 14, 2026", event:"Heavy Rain",   amount:280, status:"paid",    trigger:"IMD Orange Alert" },
-];
-
 const COVERAGES = [
   { event:"Heavy rainfall / flooding", payout:"₹280/day",      likelihood:0.72, status:"active" },
   { event:"Platform app outage",       payout:"₹200/incident", likelihood:0.45, status:"active" },
@@ -45,16 +24,83 @@ function LikelihoodBar({ v }: { v:number }) {
   );
 }
 
+interface PolicyData {
+  policy_number?: string;
+  status?: string;
+  coverage_type?: string;
+  start_date?: string;
+  end_date?: string;
+  weekly_premium?: number;
+  coverage_amount?: number;
+}
+
+interface ClaimData {
+  id: string;
+  claim_number: string;
+  event_type?: string;
+  claim_amount?: number;
+  status?: string;
+  claim_date?: string;
+  payout_transaction_id?: string;
+  fraud_score?: number;
+}
+
 export default function MyPolicyPage() {
-  const [policy, setPolicy] = useState(MOCK_POLICY);
+  const [policy, setPolicy] = useState<PolicyData | null>(null);
+  const [hasPolicy, setHasPolicy] = useState(false);
+  const [claims, setClaims] = useState<ClaimData[]>([]);
+  const [totalEarned, setTotalEarned] = useState(0);
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/v1/workers/me/policy`, {
-      headers: { Authorization: `Bearer ${typeof window!=="undefined"&&localStorage.getItem("token")||""}` }
-    }).then(r=>r.ok?r.json():null).then(d=>{ if(d) setPolicy(d); }).catch(()=>{});
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
+    const h = { Authorization: `Bearer ${token}` };
+
+    fetch(`${API_BASE}/api/v1/workers/me/policy`, { headers: h })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d?.has_policy && d.policy) {
+          setHasPolicy(true);
+          setPolicy(d.policy);
+        }
+      }).catch(() => {});
+
+    fetch(`${API_BASE}/api/v1/workers/me/claims`, { headers: h })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (Array.isArray(d)) {
+          setClaims(d);
+          const earned = d
+            .filter((c: ClaimData) => c.status === "paid")
+            .reduce((sum: number, c: ClaimData) => sum + (c.claim_amount || 0), 0);
+          setTotalEarned(Math.round(earned));
+        }
+      }).catch(() => {});
   }, []);
 
-  const pct = Math.round((policy.coverage_days_left / policy.total_coverage) * 100);
+  // Compute coverage days remaining
+  const today = new Date();
+  const endDate = policy?.end_date ? new Date(policy.end_date) : null;
+  const coverageDaysLeft = endDate ? Math.max(0, Math.ceil((endDate.getTime() - today.getTime()) / 86400000)) : 0;
+  const startDate = policy?.start_date ? new Date(policy.start_date) : null;
+  const totalCoverage = (endDate && startDate)
+    ? Math.ceil((endDate.getTime() - startDate.getTime()) / 86400000)
+    : 365;
+  const pct = totalCoverage > 0 ? Math.round((coverageDaysLeft / totalCoverage) * 100) : 0;
+
+  const paidClaims = claims.filter(c => c.status === "paid").length;
+
+  const formatDate = (iso?: string) => {
+    if (!iso) return "—";
+    return new Date(iso).toLocaleDateString("en-IN", { day:"numeric", month:"short", year:"numeric" });
+  };
+
+  const statusTag = (s?: string) => {
+    if (!s) return "tag-neutral";
+    if (s === "paid") return "tag-live";
+    if (s === "pending") return "tag-warn";
+    if (s === "rejected") return "tag-neg";
+    return "tag-neutral";
+  };
 
   return (
     <div className="max-w-5xl">
@@ -63,7 +109,7 @@ export default function MyPolicyPage() {
           <p className="lbl mb-1">Worker portal</p>
           <h1 className="text-slate-800 font-bold text-xl" style={{letterSpacing:"-0.03em"}}>My Insurance Policy</h1>
         </div>
-        <span className="tag tag-live">Active</span>
+        <span className={`tag ${hasPolicy ? "tag-live" : "tag-neutral"}`}>{hasPolicy ? "Active" : "No policy"}</span>
       </div>
 
       {/* Top: policy overview + stats */}
@@ -71,22 +117,22 @@ export default function MyPolicyPage() {
         {/* Policy card */}
         <div className="panel p-5">
           <p className="lbl mb-3">Policy details</p>
-          <div className="text-slate-800 font-bold text-lg mb-1">{policy.plan}</div>
-          <p className="lbl mb-4">{policy.id}</p>
+          <div className="text-slate-800 font-bold text-lg mb-1">
+            {policy ? `GigArmor ${policy.coverage_type === "income_loss_only" ? "Standard" : "Pro"}` : "—"}
+          </div>
+          <p className="lbl mb-4">{policy?.policy_number || "—"}</p>
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-slate-500">City</span>
-              <span className="text-slate-600 font-medium">{policy.city}</span>
+              <span className="text-slate-500">Weekly premium</span>
+              <span className="text-slate-600 font-medium">₹{policy?.weekly_premium?.toFixed(0) || "—"}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-slate-500">Platforms</span>
-              <div className="flex gap-1.5">
-                {policy.platforms.map(p=><span key={p} className="tag tag-neutral">{p}</span>)}
-              </div>
+              <span className="text-slate-500">Coverage</span>
+              <span className="text-slate-600 font-medium">₹{policy?.coverage_amount?.toLocaleString() || "—"}/day</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-slate-500">Review date</span>
-              <span className="text-slate-600">{policy.next_review}</span>
+              <span className="text-slate-500">Expires</span>
+              <span className="text-slate-600">{formatDate(policy?.end_date)}</span>
             </div>
           </div>
         </div>
@@ -106,7 +152,7 @@ export default function MyPolicyPage() {
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <div className="text-slate-800 font-bold text-2xl" style={{letterSpacing:"-0.04em"}}>{pct}%</div>
-              <div className="lbl text-center">{policy.coverage_days_left}d left</div>
+              <div className="lbl text-center">{coverageDaysLeft}d left</div>
             </div>
           </div>
         </div>
@@ -115,12 +161,12 @@ export default function MyPolicyPage() {
         <div className="panel p-5 flex flex-col gap-4">
           <div>
             <p className="lbl mb-1">Total earned</p>
-            <div className="text-amber font-extrabold text-3xl" style={{letterSpacing:"-0.04em"}}>₹{policy.total_earned.toLocaleString()}</div>
+            <div className="text-amber font-extrabold text-3xl" style={{letterSpacing:"-0.04em"}}>₹{totalEarned.toLocaleString()}</div>
           </div>
           <div className="div-h" />
           <div>
-            <p className="lbl mb-1">Claims this month</p>
-            <div className="text-slate-800 font-bold text-2xl" style={{letterSpacing:"-0.03em"}}>{policy.claims_this_month}</div>
+            <p className="lbl mb-1">Paid claims</p>
+            <div className="text-slate-800 font-bold text-2xl" style={{letterSpacing:"-0.03em"}}>{paidClaims}</div>
           </div>
         </div>
       </div>
@@ -150,22 +196,28 @@ export default function MyPolicyPage() {
       <div className="panel overflow-hidden">
         <div style={{padding:"1rem 1.25rem",borderBottom:"1px solid #2A2218"}}>
           <p className="lbl mb-1">Payment history</p>
-          <h2 className="text-slate-800 font-bold" style={{letterSpacing:"-0.02em"}}>Past payouts</h2>
+          <h2 className="text-slate-800 font-bold" style={{letterSpacing:"-0.02em"}}>
+            Past payouts {claims.length > 0 ? `(${claims.length})` : ""}
+          </h2>
         </div>
-        <table className="tbl">
-          <thead><tr><th>Date</th><th>Event</th><th>Trigger</th><th>Amount</th><th>Status</th></tr></thead>
-          <tbody>
-            {PAYOUTS.map(p => (
-              <tr key={p.id}>
-                <td className="font-mono text-xs">{p.date}</td>
-                <td><span className="text-slate-600 font-medium">{p.event}</span></td>
-                <td className="text-sm">{p.trigger}</td>
-                <td><span className="text-amber font-mono font-bold">₹{p.amount}</span></td>
-                <td><span className="tag tag-live">{p.status}</span></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {claims.length === 0 ? (
+          <div className="px-5 py-8 text-center text-slate-400 text-sm">No claims yet</div>
+        ) : (
+          <table className="tbl">
+            <thead><tr><th>Claim #</th><th>Date</th><th>Event</th><th>Amount</th><th>Status</th></tr></thead>
+            <tbody>
+              {claims.map(c => (
+                <tr key={c.id}>
+                  <td className="font-mono text-xs">{c.claim_number}</td>
+                  <td className="font-mono text-xs">{formatDate(c.claim_date)}</td>
+                  <td><span className="text-slate-600 font-medium">{c.event_type || "—"}</span></td>
+                  <td><span className="text-amber font-mono font-bold">₹{(c.claim_amount || 0).toFixed(0)}</span></td>
+                  <td><span className={`tag ${statusTag(c.status)}`}>{c.status || "—"}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

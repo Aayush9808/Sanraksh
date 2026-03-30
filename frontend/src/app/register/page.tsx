@@ -15,7 +15,13 @@ const PLATFORMS = [
   { id: "rapido",  label: "Rapido",   icon: "\ud83c\udfc1" },
 ];
 
-const STEPS = ["Personal info", "Your platforms", "Verification", "Protected"];
+const PLANS = [
+  { id: "lite",     label: "Lite",     price: 29,  cover: 150, desc: "Basic rainfall & outage cover" },
+  { id: "standard", label: "Standard", price: 49,  cover: 280, desc: "Most popular — all major triggers" },
+  { id: "pro",      label: "Pro",      price: 79,  cover: 400, desc: "Maximum coverage including cyclone" },
+];
+
+const STEPS = ["Personal info", "Your platforms", "Choose plan", "Verification", "Protected"];
 
 function OtpInput({ value, onChange, onFill }: { value: string; onChange: (v: string) => void; onFill: (completed: string) => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -78,7 +84,7 @@ function Spinner() {
 
 export default function RegisterPage() {
   const [step, setStep] = useState(1);
-  const [form, setForm] = useState({ name: "", phone: "", city: "", platforms: [] as string[], otp: "" });
+  const [form, setForm] = useState({ name: "", phone: "", city: "", platforms: [] as string[], plan: "standard", otp: "" });
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
   const upd = (k: string, v: unknown) => setForm(p => ({ ...p, [k]: v }));
@@ -94,11 +100,15 @@ export default function RegisterPage() {
     }
     if (step === 2) {
       if (form.platforms.length === 0) { setErr("Please select at least one platform."); return; }
-      setLoading(true);
-      try { await fetch(`${API_BASE}/api/v1/auth/send-otp`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone: form.phone }) }); } catch {}
-      setLoading(false); setStep(3); return;
+      setStep(3); return;
     }
     if (step === 3) {
+      // Plan selection — send OTP then move to verification
+      setLoading(true);
+      try { await fetch(`${API_BASE}/api/v1/auth/send-otp`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone: form.phone }) }); } catch {}
+      setLoading(false); setStep(4); return;
+    }
+    if (step === 4) {
       const otpToVerify = directOtp ?? form.otp;
       if (!otpToVerify || otpToVerify.length < 6) { setErr("Please enter the complete 6-digit OTP."); return; }
       setLoading(true);
@@ -111,11 +121,11 @@ export default function RegisterPage() {
       } catch {
         if (typeof window !== "undefined") { localStorage.setItem("token", "demo-worker-token"); localStorage.setItem("role", "worker"); }
       }
-      setLoading(false); setStep(4);
+      setLoading(false); setStep(5);
     }
   }
 
-  const progress = ((step - 1) / 3) * 100;
+  const progress = ((step - 1) / 4) * 100;
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
@@ -178,14 +188,14 @@ export default function RegisterPage() {
               </div>
               <span className="font-bold text-slate-900">GigArmor</span>
             </Link>
-            <span className="text-sm text-slate-400 font-medium">Step {step} of 4</span>
+            <span className="text-sm text-slate-400 font-medium">Step {step} of 5</span>
           </div>
 
           {/* Mobile progress bar */}
           <div className="lg:hidden mb-8">
             <div className="flex justify-between mb-2">
               <span className="text-xs font-semibold text-slate-500">{STEPS[step - 1]}</span>
-              <span className="text-xs text-slate-400">{step}/4</span>
+              <span className="text-xs text-slate-400">{step}/5</span>
             </div>
             <div className="prog-track">
               <div className="prog-fill" style={{ width: `${progress}%`, animation: "none" }} />
@@ -278,11 +288,54 @@ export default function RegisterPage() {
                 </form>
               )}
 
-              {/* STEP 3 - OTP */}
+              {/* STEP 3 - Plan selection */}
               {step === 3 && (
                 <form onSubmit={handleNext}>
                   <div className="mb-7">
                     <div className="lbl mb-2">Step 03</div>
+                    <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1">Choose your plan</h2>
+                    <p className="text-slate-400 text-sm">Pay only when a trigger fires. Cancel anytime.</p>
+                  </div>
+                  <div className="space-y-3">
+                    {PLANS.map(p => {
+                      const selected = form.plan === p.id;
+                      return (
+                        <button key={p.id} type="button" onClick={() => upd("plan", p.id)}
+                          className={`relative w-full flex items-center gap-4 p-4 rounded-xl border-2 font-semibold text-sm transition-all text-left ${
+                            selected ? "border-[#0F2044] bg-blue-50" : "border-slate-200 bg-white hover:border-slate-300"
+                          }`}>
+                          <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold ${selected ? "bg-[#0F2044] text-white" : "bg-slate-100 text-slate-500"}`}>
+                            {selected ? "✓" : p.label[0]}
+                          </div>
+                          <div className="flex-1">
+                            <div className={`font-bold ${selected ? "text-[#0F2044]" : "text-slate-800"}`}>{p.label}</div>
+                            <div className="text-slate-400 text-xs font-normal mt-0.5">{p.desc} · ₹{p.cover}/day payout</div>
+                          </div>
+                          <div className="text-right flex-shrink-0">
+                            <div className={`font-extrabold text-lg ${selected ? "text-[#0F2044]" : "text-slate-700"}`}>₹{p.price}</div>
+                            <div className="text-slate-400 text-xs">/week</div>
+                          </div>
+                          {p.id === "standard" && (
+                            <span className="absolute -top-2 left-4 bg-amber-400 text-[#0F2044] text-[10px] font-black px-2 py-0.5 rounded-full">Popular</span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="flex gap-3 mt-6">
+                    <button type="button" onClick={() => setStep(2)} className="btn-ghost flex-1 py-3.5">← Back</button>
+                    <button type="submit" disabled={loading} className="btn-navy flex-[2] py-3.5 disabled:opacity-40">
+                      {loading ? <span className="flex items-center gap-2 justify-center"><Spinner />Sending OTP…</span> : "Continue →"}
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {/* STEP 4 - OTP */}
+              {step === 4 && (
+                <form onSubmit={handleNext}>
+                  <div className="mb-7">
+                    <div className="lbl mb-2">Step 04</div>
                     <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1">Verify your number</h2>
                     <p className="text-slate-400 text-sm mb-1">OTP sent to <span className="font-semibold text-slate-700">+91 {form.phone}</span></p>
                     <p className="text-amber-600 text-xs font-medium">For demo: enter any 6 digits</p>
@@ -296,7 +349,7 @@ export default function RegisterPage() {
                     {err && <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-red-500 text-sm">{err}</motion.p>}
                   </AnimatePresence>
                   <div className="flex gap-3 mt-6">
-                    <button type="button" onClick={() => setStep(2)} className="btn-ghost flex-1 py-3.5">← Back</button>
+                    <button type="button" onClick={() => setStep(3)} className="btn-ghost flex-1 py-3.5">← Back</button>
                     <button type="submit" disabled={loading} className="btn-navy flex-[2] py-3.5 disabled:opacity-40">
                       {loading ? <span className="flex items-center gap-2 justify-center"><Spinner />Verifying…</span> : "Complete registration →"}
                     </button>
@@ -304,8 +357,8 @@ export default function RegisterPage() {
                 </form>
               )}
 
-              {/* STEP 4 - Success */}
-              {step === 4 && (
+              {/* STEP 5 - Success */}
+              {step === 5 && (
                 <div className="text-center pt-4">
                   <motion.div initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
                     transition={{ type: "spring", stiffness: 250, damping: 20 }}
@@ -318,7 +371,7 @@ export default function RegisterPage() {
                   <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
                     <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-2">{"You\'re protected."}</h2>
                     <p className="text-slate-500 text-sm mb-6 leading-relaxed">
-                      Coverage is active for <span className="font-semibold text-slate-800">{form.platforms.join(", ")}</span> in {form.city}.
+                      <span className="font-semibold text-slate-800">{PLANS.find(p=>p.id===form.plan)?.label} plan</span> active for {form.platforms.join(", ")} in {form.city}.
                       Payouts happen automatically — no action needed.
                     </p>
                     <div className="bg-[#0F2044] rounded-2xl p-5 text-left mb-6">
@@ -340,7 +393,7 @@ export default function RegisterPage() {
             </motion.div>
           </AnimatePresence>
 
-          {step < 4 && (
+          {step < 5 && (
             <div className="mt-8 pt-6 border-t border-slate-200 text-center">
               <span className="text-slate-400 text-sm">Already registered? </span>
               <Link href="/login" className="text-[#0F2044] font-semibold text-sm hover:underline">Sign in →</Link>

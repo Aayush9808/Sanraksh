@@ -30,6 +30,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [role, setRole] = useState("worker");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -163,8 +164,43 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               Live
             </div>
-            <div className="w-8 h-8 rounded-full bg-[#0F2044] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-              {role === "admin" ? "AD" : "W"}
+            <div className="relative">
+              <button
+                onClick={() => setProfileOpen(o => !o)}
+                className="w-8 h-8 rounded-full bg-[#0F2044] flex items-center justify-center text-white text-xs font-bold flex-shrink-0 hover:ring-2 hover:ring-[#0F2044]/30 transition-all"
+              >
+                {role === "admin" ? "AD" : "W"}
+              </button>
+              <AnimatePresence>
+                {profileOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setProfileOpen(false)} />
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute right-0 top-10 z-50 w-44 bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden"
+                    >
+                      <Link href="/dashboard/profile" onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-2.5 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 transition-colors font-medium">
+                        <svg width={15} height={15} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        Profile
+                      </Link>
+                      <div className="border-t border-slate-100" />
+                      <button onClick={logout}
+                        className="w-full flex items-center gap-2.5 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors font-medium">
+                        <svg width={15} height={15} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+                        </svg>
+                        Sign out
+                      </button>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </header>
