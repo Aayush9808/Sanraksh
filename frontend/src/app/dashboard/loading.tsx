@@ -8,7 +8,7 @@ export default function DashboardLoading() {
           <div className="absolute inset-2 border border-accent-violet/20 rounded-full" />
           <div className="absolute inset-2 border border-transparent border-b-accent-violet rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }} />
         </div>
-        <p className="text-xs text-text-muted font-mono tracking-[0.2em]">LOADING</p>
+        <p className="text-xs text-text-muted font-mono tracking-[0.2em]">Loading…</p>
       </div>
     </div>
   );

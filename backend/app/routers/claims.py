@@ -185,7 +185,7 @@ async def auto_trigger_claims(disruption_zone: str = Query(...), db: Session = D
     for policy in affected_policies:
         existing = db.query(Claim).filter(
             Claim.user_id == policy.user_id,
-            cast(Claim.created_at, Date) == date.today()
+            func.date(Claim.created_at) == str(date.today())
         ).first()
         if not existing:
             claim = Claim(
