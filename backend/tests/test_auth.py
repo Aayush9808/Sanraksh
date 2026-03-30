@@ -86,13 +86,13 @@ def test_otp_verification():
 def test_multiple_hash_different():
     """Test that same password hashes to different values"""
     password = "TestPassword123"
-    
-    hash1 = hash_password(password)
-    hash2 = hash_password(password)
-    
+
+    hash1 = get_password_hash(password)
+    hash2 = get_password_hash(password)
+
     # Different hashes (due to salt)
     assert hash1 != hash2
-    
+
     # Both verify correctly
     assert verify_password(password, hash1) is True
     assert verify_password(password, hash2) is True
