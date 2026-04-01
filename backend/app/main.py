@@ -13,6 +13,7 @@ from app.config import settings
 from app.database import engine, Base, SessionLocal
 from app.routers import auth, users, policies, claims, disruptions, risk_zones, analytics, phase2
 from app.routers import premium as premium_router
+from app.routers import support as support_router
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -50,6 +51,7 @@ app.include_router(risk_zones.router, prefix="/api/v1/risk-zones", tags=["Risk Z
 app.include_router(analytics.router, prefix="/api/v1/analytics", tags=["Analytics"])
 app.include_router(phase2.router, prefix="/api/v1/phase2", tags=["Phase 2 Automation"])
 app.include_router(premium_router.router, prefix="/api/v1/premium", tags=["Premium Calculator"])
+app.include_router(support_router.router, prefix="/api/v1/support", tags=["Support"])
 
 # ─── SEED DATA ──────────────────────────────────────────────────────────────
 

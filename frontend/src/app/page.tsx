@@ -152,6 +152,8 @@ export default function LandingPage() {
             {[["#how", "How it works"], ["#plans", "Plans"], ["#about", "About"], ["#faq", "FAQ"]].map(([href, label]) => (
               <a key={href} href={href} className="text-slate-500 hover:text-slate-900 text-sm font-medium transition-colors">{label}</a>
             ))}
+            <Link href="/support" className="text-slate-500 hover:text-slate-900 text-sm font-medium transition-colors">Support</Link>
+            <Link href="/terms" className="text-slate-500 hover:text-slate-900 text-sm font-medium transition-colors">Terms</Link>
           </nav>
           <div className="flex items-center gap-2">
             <Link href="/login" className="hidden sm:inline-flex text-sm font-semibold text-slate-600 hover:text-slate-900 px-3 py-2 rounded-lg hover:bg-slate-100 transition-all">Sign in</Link>

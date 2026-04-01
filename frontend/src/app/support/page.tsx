@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { API_V1_BASE } from "@/lib/config";
 
 const FAQS = [
   { q: "How does automatic payout work?", a: "GigArmor monitors weather APIs, platform status, and government alerts 24/7. When a qualifying event hits your registered zone, the payout triggers automatically — no claim required. Money arrives in your UPI account within 24–72 hours." },
@@ -44,15 +45,29 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 
 export default function SupportPage() {
   const [category, setCategory] = useState("");
-  const [form, setForm] = useState({ name: "", phone: "", message: "" });
+  const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.name || !form.phone || !category || !form.message) return;
+    if (!form.name || !form.email || !category || !form.message) return;
     setLoading(true);
-    setTimeout(() => { setLoading(false); setSent(true); }, 1200);
+    setError("");
+    try {
+      const res = await fetch(`${API_V1_BASE}/support/message`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: form.name, email: form.email, category, message: form.message }),
+      });
+      if (!res.ok) throw new Error("Server error");
+      setSent(true);
+    } catch {
+      setError("Failed to send. Please email us at support@gigarmor.in directly.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -117,8 +132,8 @@ export default function SupportPage() {
                   <span className="text-2xl">✓</span>
                 </div>
                 <h3 className="font-bold text-slate-900 mb-2">Message received!</h3>
-                <p className="text-slate-500 text-sm">We'll get back to you within 24 hours at the phone number you provided.</p>
-                <button onClick={() => { setSent(false); setForm({ name: "", phone: "", message: "" }); setCategory(""); }}
+                <p className="text-slate-500 text-sm">We'll get back to you within 24 hours at the email address you provided.</p>
+                <button onClick={() => { setSent(false); setForm({ name: "", email: "", message: "" }); setCategory(""); setError(""); }}
                   className="mt-5 text-[#0F2044] font-semibold text-sm hover:underline">Send another message</button>
               </motion.div>
             ) : (
@@ -130,9 +145,9 @@ export default function SupportPage() {
                     className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-[#0F2044] focus:ring-2 focus:ring-[#0F2044]/10 bg-white transition" />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Mobile number</label>
-                  <input type="tel" placeholder="10-digit number" value={form.phone}
-                    onChange={e => setForm(p => ({ ...p, phone: e.target.value.replace(/\D/g, "").slice(0, 10) }))}
+                  <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Email address</label>
+                  <input type="email" placeholder="you@example.com" value={form.email}
+                    onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
                     className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-[#0F2044] focus:ring-2 focus:ring-[#0F2044]/10 bg-white transition" />
                 </div>
                 <div>
@@ -152,7 +167,8 @@ export default function SupportPage() {
                     onChange={e => setForm(p => ({ ...p, message: e.target.value }))}
                     className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-[#0F2044] focus:ring-2 focus:ring-[#0F2044]/10 bg-white transition resize-none" />
                 </div>
-                <button type="submit" disabled={loading || !form.name || !form.phone || !category || !form.message}
+                {error && <p className="text-red-500 text-xs">{error}</p>}
+                <button type="submit" disabled={loading || !form.name || !form.email || !category || !form.message}
                   className="w-full py-3 bg-[#0F2044] text-white font-bold text-sm rounded-xl hover:bg-[#1E3A5F] transition disabled:opacity-40 disabled:cursor-not-allowed">
                   {loading ? "Sending…" : "Send message →"}
                 </button>
