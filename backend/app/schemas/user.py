@@ -28,6 +28,9 @@ class UserRegisterRequest(BaseModel):
     work_zone: Optional[str] = None
     work_location_lat: Optional[float] = None
     work_location_lng: Optional[float] = None
+    plan_type: Optional[str] = "standard"  # lite | standard | pro
+    aadhaar_last4: Optional[str] = None
+    weekly_earnings_band: Optional[str] = "4000_7000"
 
 
 class UserLoginRequest(BaseModel):

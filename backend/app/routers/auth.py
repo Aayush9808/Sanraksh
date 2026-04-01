@@ -13,8 +13,16 @@ import uuid, logging
 
 from app.database import get_db
 from app.models.user import User, KYCStatus
+from app.models.policy import Policy, PolicyStatus
 from app.schemas.user import UserRegisterRequest, UserLoginRequest, OTPVerifyRequest, UserResponse
 from app.config import settings
+
+# Plan config: lite / standard / pro
+PLAN_CONFIG = {
+    "lite":     {"weekly_premium": 29.0, "coverage_amount": 150.0, "coverage_type": "basic"},
+    "standard": {"weekly_premium": 49.0, "coverage_amount": 280.0, "coverage_type": "income_loss_only"},
+    "pro":      {"weekly_premium": 79.0, "coverage_amount": 400.0, "coverage_type": "full_coverage"},
+}
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -60,7 +68,7 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
 
 @router.post("/register", status_code=201)
 async def register(data: UserRegisterRequest, db: Session = Depends(get_db)):
-    """Register new gig worker"""
+    """Register new gig worker and create their initial policy"""
     existing = db.query(User).filter(User.phone == data.phone).first()
     if existing:
         raise HTTPException(status_code=409, detail="Phone number already registered")
@@ -79,17 +87,39 @@ async def register(data: UserRegisterRequest, db: Session = Depends(get_db)):
             risk_score=0.5,
         )
         db.add(user)
+        db.flush()  # get user.id without full commit
+
+        # Auto-create policy based on chosen plan
+        plan = (data.plan_type or "standard").lower()
+        cfg = PLAN_CONFIG.get(plan, PLAN_CONFIG["standard"])
+        from datetime import date, timedelta
+        today = date.today()
+        policy_number = f"GA-{today.strftime('%Y%m')}-{user.id[:6].upper()}"
+        policy = Policy(
+            id=str(uuid.uuid4()),
+            user_id=user.id,
+            policy_number=policy_number,
+            start_date=today,
+            end_date=today + timedelta(days=365),
+            status=PolicyStatus.ACTIVE,
+            weekly_premium=cfg["weekly_premium"],
+            coverage_amount=cfg["coverage_amount"],
+            coverage_type=cfg["coverage_type"],
+        )
+        db.add(policy)
         db.commit()
         db.refresh(user)
-        # Store OTP in memory
+
         otp = ADMIN_OTP if _is_admin_phone(data.phone) else DEMO_OTP
         _store_otp(data.phone, otp)
-        logger.info(f"New user registered: {data.name} ({data.phone})")
+        logger.info(f"New user registered: {data.name} ({data.phone}) plan={plan}")
         return {
             "message": "Registration successful. OTP sent to your phone.",
             "phone": data.phone,
             "demo_otp": DEMO_OTP,
             "user_id": str(user.id),
+            "plan": plan,
+            "policy_number": policy_number,
         }
     except IntegrityError:
         db.rollback()

@@ -225,7 +225,7 @@ export default function LandingPage() {
                   />
                 </div>
               </div>
-              <Link href={phone.length === 10 ? `/register?phone=${phone}` : "/register"}>
+              <Link href={phone.length === 10 ? `/onboarding?phone=${phone}` : "/onboarding"}>
                 <button className="w-full bg-[#0F2044] text-white font-bold py-3.5 rounded-xl hover:bg-[#1E3A5F] transition-all hover:shadow-lg text-sm">
                   Check my coverage →
                 </button>
@@ -339,7 +339,7 @@ export default function LandingPage() {
                     </div>
                   ))}
                 </div>
-                <Link href="/register">
+                <Link href="/onboarding">
                   <button className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all ${p.featured ? "bg-amber-400 text-[#0F2044] hover:bg-amber-300 hover:shadow-lg" : "bg-[#0F2044] text-white hover:bg-[#1E3A5F] hover:shadow-md"}`}>
                     {p.cta}
                   </button>
@@ -531,7 +531,7 @@ export default function LandingPage() {
                     className="w-full py-3.5 bg-[#0F2044] text-white font-bold text-sm rounded-xl hover:bg-[#1E3A5F] transition disabled:opacity-40 disabled:cursor-not-allowed">
                     {quoteLoading ? "Sending…" : "Request free callback →"}
                   </button>
-                  <p className="text-center text-xs text-slate-400">Or <Link href="/register" className="text-[#0F2044] font-semibold hover:underline">sign up directly</Link> — takes 3 minutes.</p>
+                  <p className="text-center text-xs text-slate-400">Or <Link href="/onboarding" className="text-[#0F2044] font-semibold hover:underline">sign up directly</Link> — takes 3 minutes.</p>
                 </form>
               )}
             </div>
@@ -544,7 +544,7 @@ export default function LandingPage() {
         <div className="max-w-xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="text-3xl font-extrabold text-white tracking-tight mb-3">Ready to protect your income?</h2>
           <p className="text-blue-300 mb-8 leading-relaxed">Join 14,200+ gig workers who get paid automatically when disruptions hit.</p>
-          <Link href="/register">
+          <Link href="/onboarding">
             <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
               className="bg-amber-400 text-[#0F2044] font-bold text-base px-10 py-4 rounded-xl hover:bg-amber-300 transition-all hover:shadow-2xl">
               Get protected in 3 minutes →
@@ -564,7 +564,7 @@ export default function LandingPage() {
           </div>
           <div className="flex items-center gap-6 text-xs text-slate-600">
             <Link href="/login" className="hover:text-slate-400 transition-colors">Login</Link>
-            <Link href="/register" className="hover:text-slate-400 transition-colors">Register</Link>
+            <Link href="/onboarding" className="hover:text-slate-400 transition-colors">Register</Link>
             <Link href="/terms" className="hover:text-slate-400 transition-colors">Terms</Link>
             <Link href="/support" className="hover:text-slate-400 transition-colors">Support</Link>
             <span>© 2026 GigArmor</span>
