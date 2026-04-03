@@ -115,3 +115,19 @@ def mark_as_read(
         msg.status = SupportStatus.READ
         db.commit()
     return {"success": True}
+
+
+# ── Worker: list own messages (by email) ──────────────────────────────────────
+
+@router.get("/my-messages", response_model=List[SupportMessageOut])
+def get_my_messages(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    messages = (
+        db.query(SupportMessage)
+        .filter(SupportMessage.email == current_user.email)
+        .order_by(SupportMessage.created_at.desc())
+        .all()
+    )
+    return messages

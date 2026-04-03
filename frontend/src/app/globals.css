@@ -5,7 +5,7 @@
 @layer base {
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { background: #F8FAFC; color: #111827; -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
-  body { background: #F8FAFC; min-height: 100vh; overflow-x: hidden; font-family: var(--font-sans), system-ui, sans-serif; }
+  body { background: #F8FAFC; min-height: 100vh; overflow-x: hidden; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
   ::selection { background: #0F2044; color: #ffffff; }
   ::-webkit-scrollbar { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: #F1F5F9; }
@@ -45,7 +45,7 @@
   .stat-num-lg { font-size: clamp(2.5rem,5vw,4rem); line-height: 0.85; letter-spacing: -0.05em; font-weight: 800; color: #111827; }
 
   /* ── FIELDS ─────────────────────────────────────────── */
-  .field { width: 100%; background: #ffffff; border: 1.5px solid #E2E8F0; border-radius: 10px; padding: 0.8125rem 1rem; color: #111827; font-family: var(--font-sans), sans-serif; font-size: 0.9375rem; outline: none; transition: border-color 0.18s ease, box-shadow 0.18s ease; }
+  .field { width: 100%; background: #ffffff; border: 1.5px solid #E2E8F0; border-radius: 10px; padding: 0.8125rem 1rem; color: #111827; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.9375rem; outline: none; transition: border-color 0.18s ease, box-shadow 0.18s ease; }
   .field:hover:not(:focus) { border-color: #CBD5E1; }
   .field:focus { border-color: #0F2044; box-shadow: 0 0 0 3px rgba(15,32,68,0.08); }
   .field::placeholder { color: #CBD5E1; }

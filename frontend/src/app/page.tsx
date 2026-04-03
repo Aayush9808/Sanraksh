@@ -149,7 +149,7 @@ export default function LandingPage() {
             <span className="font-bold text-slate-900 text-lg tracking-tight">GigArmor</span>
           </Link>
           <nav className="hidden md:flex items-center gap-6">
-            {[["#how", "How it works"], ["#plans", "Plans"], ["#about", "About"], ["#faq", "FAQ"]].map(([href, label]) => (
+            {[["#how", "How it works"], ["#plans", "Plans"], ["#about", "About"], ["#faq", "FAQ"], ["#help", "Customer Care"]].map(([href, label]) => (
               <a key={href} href={href} className="text-slate-500 hover:text-slate-900 text-sm font-medium transition-colors">{label}</a>
             ))}
             <Link href="/support" className="text-slate-500 hover:text-slate-900 text-sm font-medium transition-colors">Support</Link>
@@ -535,6 +535,62 @@ export default function LandingPage() {
                 </form>
               )}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CUSTOMER CARE */}
+      <section id="help" className="py-20 bg-slate-50 border-t border-slate-100">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <div className="lbl mb-3">We&apos;re here for you</div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Customer Care &amp; Support</h2>
+            <p className="text-slate-400 mt-3 max-w-lg mx-auto">Have a question about your coverage, payout, or account? Reach out any time — no login required.</p>
+          </div>
+          {/* Contact channels */}
+          <div className="grid sm:grid-cols-3 gap-5 mb-12">
+            {[
+              { icon: "📧", title: "Email Support", value: "support@gigarmor.in", sub: "We reply within 24 hours", href: "mailto:support@gigarmor.in" },
+              { icon: "📞", title: "Request a Callback", value: "Free callback in 2 hours", sub: "Hindi · Tamil · Telugu · English", href: "#quote" },
+              { icon: "💬", title: "Live Chat Support", value: "Visit our Support Center", sub: "FAQs, guides & contact form", href: "/support" },
+            ].map((c, i) => (
+              <motion.a key={c.title} href={c.href} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ delay: i * 0.08 }} whileHover={{ y: -3 }}
+                className="block bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-[#0F2044]/20 transition-all group cursor-pointer">
+                <span className="text-3xl block mb-4">{c.icon}</span>
+                <h3 className="font-bold text-slate-900 text-base mb-1 group-hover:text-[#0F2044] transition-colors">{c.title}</h3>
+                <p className="text-[#0F2044] font-semibold text-sm mb-1">{c.value}</p>
+                <p className="text-slate-400 text-xs">{c.sub}</p>
+              </motion.a>
+            ))}
+          </div>
+          {/* Quick help topics */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+            {[
+              { icon: "₹", label: "Payout not received?", desc: "Check your payout status and troubleshoot delays." },
+              { icon: "🛡️", label: "Policy questions", desc: "Plan coverage, upgrades, cancellations & renewals." },
+              { icon: "👤", label: "Account & login help", desc: "Can't log in? Lost access? We'll help you recover." },
+              { icon: "⚙️", label: "Technical issues", desc: "App bugs, errors, or something not working right." },
+            ].map((t, i) => (
+              <motion.div key={t.label} initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ delay: i * 0.06 }}
+                className="bg-white border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-all">
+                <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-lg mb-3">{t.icon}</div>
+                <h4 className="font-bold text-slate-900 text-sm mb-1">{t.label}</h4>
+                <p className="text-slate-500 text-xs leading-relaxed">{t.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+          {/* CTA */}
+          <div className="text-center">
+            <Link href="/support">
+              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                className="bg-[#0F2044] text-white font-bold text-sm px-8 py-3.5 rounded-xl hover:bg-[#1E3A5F] transition-all hover:shadow-lg inline-flex items-center gap-2">
+                <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Go to Support Center →
+              </motion.button>
+            </Link>
+            <p className="text-slate-400 text-xs mt-3">No account needed · Available 7 days a week</p>
           </div>
         </div>
       </section>

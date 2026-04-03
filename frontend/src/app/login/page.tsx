@@ -93,6 +93,10 @@ export default function LoginPage() {
       if (typeof window !== "undefined") {
         localStorage.setItem("token", isAdmin ? "demo-admin-token" : "demo-worker-token");
         localStorage.setItem("role", isAdmin ? "admin" : "worker");
+        if (isWorker) {
+          const { getRandomWorker } = await import("@/lib/workerData");
+          localStorage.setItem("sim_worker", JSON.stringify(getRandomWorker()));
+        }
       }
       setLoading(false); router.push("/dashboard"); return;
     }
@@ -100,7 +104,15 @@ export default function LoginPage() {
       const r = await fetch(`${API_BASE}/api/v1/auth/verify-otp`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone, otp }) });
       if (r.ok) {
         const d = await r.json();
-        if (typeof window !== "undefined") { localStorage.setItem("token", d.access_token); localStorage.setItem("role", d.role || "worker"); }
+        if (typeof window !== "undefined") {
+          localStorage.setItem("token", d.access_token);
+          const userRole = d.role || "worker";
+          localStorage.setItem("role", userRole);
+          if (userRole === "worker") {
+            const { getRandomWorker } = await import("@/lib/workerData");
+            localStorage.setItem("sim_worker", JSON.stringify(getRandomWorker()));
+          }
+        }
         router.push("/dashboard");
       } else { setErr("Invalid OTP. Please try again."); }
     } catch { setErr("Connection failed. Please try again."); }
@@ -228,6 +240,42 @@ export default function LoginPage() {
           <div className="mt-8 pt-6 border-t border-slate-200 text-center">
             <span className="text-slate-400 text-sm">New to GigArmor? </span>
             <Link href="/register" className="text-[#0F2044] font-semibold text-sm hover:underline">Get protected →</Link>
+          </div>
+
+          {/* ── Support section ─────────────────────────────────── */}
+          <div className="mt-6 pt-6 border-t border-slate-100">
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                  <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </div>
+                <h3 className="font-bold text-slate-900 text-sm">Need help?</h3>
+              </div>
+              <p className="text-slate-500 text-xs leading-relaxed mb-4">
+                Having trouble logging in, lost access, or have questions about your policy? Our support team is here for you.
+              </p>
+              <div className="space-y-2.5 mb-4">
+                {[
+                  { icon: "📧", label: "Email us", desc: "support@gigarmor.in", href: "mailto:support@gigarmor.in" },
+                  { icon: "💬", label: "Live support", desc: "Get help in minutes", href: "/support" },
+                  { icon: "📖", label: "FAQs & guides", desc: "Common questions answered", href: "/support" },
+                ].map(item => (
+                  <Link key={item.label} href={item.href}
+                    className="flex items-center gap-3 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-[#0F2044]/30 hover:shadow-sm transition-all group">
+                    <span className="text-base flex-shrink-0">{item.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-slate-800 font-semibold text-xs group-hover:text-[#0F2044] transition-colors">{item.label}</div>
+                      <div className="text-slate-400 text-[11px] truncate">{item.desc}</div>
+                    </div>
+                    <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="text-slate-300 group-hover:text-[#0F2044] transition-colors flex-shrink-0"><path d="M9 18l6-6-6-6"/></svg>
+                  </Link>
+                ))}
+              </div>
+              <div className="flex items-center gap-2 px-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-emerald-600 text-[11px] font-semibold">Support team online · Replies within 24 hours</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
