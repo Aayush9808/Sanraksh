@@ -72,8 +72,9 @@ function WorkerHome() {
           <h1 className="text-white font-extrabold text-xl tracking-tight">GigArmor {policy ? "Standard" : "—"}</h1>
           <p className="text-blue-200 text-sm mt-0.5">{policyNum} · Active till {endDate} · ₹{premium}/week</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <Link href="/dashboard/triggers"><button className="bg-amber-400 text-[#0F2044] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-amber-300 transition-all">Live triggers</button></Link>
+          <Link href="/dashboard/simulation"><button className="bg-white text-[#0F2044] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-blue-50 transition-all flex items-center gap-2">▶ Run Simulation</button></Link>
           <Link href="/dashboard/my-policy"><button className="bg-white/10 text-white font-semibold text-sm px-4 py-2.5 rounded-xl hover:bg-white/20 transition-all border border-white/20">View policy</button></Link>
         </div>
       </div>
