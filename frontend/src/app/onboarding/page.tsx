@@ -169,6 +169,8 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(1);
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isDemoMode, setIsDemoMode] = useState(false);
+  const [demoModal, setDemoModal] = useState(false);
 
   // Step 1 — pre-fill from register
   const [name, setName] = useState("");
@@ -547,6 +549,12 @@ export default function OnboardingPage() {
           <p className="text-slate-400 text-sm">in under 5 minutes.</p>
         </div>
         <StepBar step={step} />
+        {isDemoMode && (
+          <div className="mt-6 flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-xl">
+            <span className="text-sm">🎭</span>
+            <span className="text-xs font-bold text-amber-700">Demo mode active</span>
+          </div>
+        )}
         <div className="mt-auto bg-amber-50 border border-amber-200 rounded-xl p-4">
           <div className="text-amber-700 text-xs font-bold uppercase tracking-wide mb-1">No upfront cost</div>
           <p className="text-amber-600 text-xs leading-relaxed">Premium deducted only when your coverage triggers. Register for free.</p>
@@ -624,6 +632,19 @@ export default function OnboardingPage() {
                     className="w-full mt-6 py-3.5 bg-[#0F2044] text-white font-bold text-sm rounded-xl hover:bg-[#1E3A5F] transition">
                     Continue →
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setName("Aayush Kumar");
+                      setPhone("9998887776");
+                      setCity("Mumbai");
+                      setIsDemoMode(true);
+                      setErr("");
+                    }}
+                    className="w-full mt-2 py-3 border border-slate-300 rounded-xl text-sm font-semibold text-slate-500 hover:bg-slate-50 hover:border-slate-400 transition flex items-center justify-center gap-2"
+                  >
+                    <span>🎭</span> Use Demo Data
+                  </button>
                   <p className="text-center text-slate-400 text-sm mt-5">
                     Already registered? <Link href="/login" className="text-[#0F2044] font-semibold hover:underline">Sign in →</Link>
                   </p>
@@ -693,6 +714,57 @@ export default function OnboardingPage() {
                   <p className="text-xs text-slate-400 text-center mt-4">
                     🔒 We never store your Aadhaar number. Only used for identity verification.
                   </p>
+
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setAadhaar("1234");
+                      setIsDemoMode(true);
+                      setDemoModal(true);
+                    }}
+                    className="w-full mt-3 py-2.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-500 hover:bg-slate-50 hover:border-slate-400 transition flex items-center justify-center gap-2"
+                  >
+                    <span>🎭</span> Use Demo Verification
+                  </button>
+
+                  {/* Demo modal */}
+                  <AnimatePresence>
+                    {demoModal && (
+                      <motion.div
+                        key="demo-modal"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
+                      >
+                        <motion.div
+                          initial={{ scale: 0.92, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 0.92, opacity: 0 }}
+                          className="bg-white rounded-2xl p-7 max-w-sm w-full shadow-2xl text-center"
+                        >
+                          <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center mx-auto mb-4 text-2xl">🎭</div>
+                          <h3 className="text-lg font-extrabold text-slate-900 mb-2">Demo Mode</h3>
+                          <p className="text-slate-500 text-sm leading-relaxed mb-5">
+                            This is a simulated verification. No real UIDAI check is performed. The Aadhaar last-4 digits are pre-filled with <strong>1234</strong>.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              setDemoModal(false);
+                              setAadhaarState("verifying");
+                              await sleep(1500);
+                              setAadhaarState("verified");
+                              setErr("");
+                            }}
+                            className="w-full py-3 bg-[#0F2044] text-white font-bold text-sm rounded-xl hover:bg-[#1E3A5F] transition"
+                          >
+                            Got it — run demo verification
+                          </button>
+                        </motion.div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </form>
               )}
 
@@ -772,6 +844,24 @@ export default function OnboardingPage() {
                   }} className="w-full mt-3 text-center text-sm text-[#0F2044] font-semibold hover:underline">
                     Resend OTP
                   </button>
+
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const demoOtp = "123456";
+                      setOtp(demoOtp);
+                      setIsDemoMode(true);
+                      setLoading(true);
+                      setErr("");
+                      await sleep(600);
+                      setOtpVerified(true);
+                      setLoading(false);
+                      setTimeout(() => next(), 400);
+                    }}
+                    className="w-full mt-2 py-2.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-500 hover:bg-slate-50 hover:border-slate-400 transition flex items-center justify-center gap-2"
+                  >
+                    <span>🎭</span> Use Demo OTP
+                  </button>
                 </form>
               )}
 
@@ -783,6 +873,12 @@ export default function OnboardingPage() {
                     <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1">Link your platforms</h2>
                     <p className="text-slate-400 text-sm">Select all platforms you work on. We'll fetch your earnings data.</p>
                   </div>
+
+                  {isDemoMode && (
+                    <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs font-semibold text-amber-700 mb-4">
+                      <span>🎭</span> Demo Mode — select any platforms to continue
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-2 gap-3 mb-5">
                     {PLATFORMS.map(p => {
@@ -808,6 +904,16 @@ export default function OnboardingPage() {
                     <div className="p-3 bg-[#0F2044]/5 rounded-xl text-xs text-slate-600 font-medium mb-4">
                       {platforms.length} platform{platforms.length > 1 ? "s" : ""} selected
                     </div>
+                  )}
+
+                  {isDemoMode && platforms.length === 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setPlatforms(["swiggy", "blinkit", "zomato"])}
+                      className="w-full mb-4 py-2.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-500 hover:bg-slate-50 hover:border-slate-400 transition flex items-center justify-center gap-2"
+                    >
+                      <span>🎭</span> Auto-select demo platforms
+                    </button>
                   )}
 
                   {err && <p className="text-red-500 text-sm mb-3">{err}</p>}
@@ -838,6 +944,17 @@ export default function OnboardingPage() {
                     <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Weekly earnings band</label>
                     {!earningsBand && !premiumResult && (
                       <p className="text-xs text-amber-600 font-medium mb-2">Adjust your inputs to recalculate premium</p>
+                    )}
+                    {isDemoMode && (
+                      <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-xl mb-3">
+                        <span className="text-lg flex-shrink-0">🎭</span>
+                        <div>
+                          <div className="text-xs font-bold text-blue-700 uppercase tracking-wider mb-0.5">Dynamic Pricing (Demo)</div>
+                          <p className="text-blue-700 text-xs leading-relaxed">
+                            This premium is dynamically calculated based on your inputs. This is a simulated demo view.
+                          </p>
+                        </div>
+                      </div>
                     )}
                     <div className="space-y-2">
                       {EARNINGS_BANDS.map(b => (

@@ -130,6 +130,18 @@ export default function RegisterPage() {
                   </span>
                 ) : "Continue to onboarding →"}
               </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setName("Aayush Kumar");
+                  setPhone("9998887776");
+                  setErr("");
+                }}
+                className="w-full mt-2 py-3 border border-slate-300 rounded-xl text-sm font-semibold text-slate-500 hover:bg-slate-50 hover:border-slate-400 transition flex items-center justify-center gap-2"
+              >
+                <span>🎭</span> Use Demo Credentials
+              </button>
             </form>
           </motion.div>
 
