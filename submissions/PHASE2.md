@@ -39,7 +39,7 @@
 | Insurance Policy Management | ✅ Done | `/dashboard/my-policy` — active policy, coverage, claim history |
 | Dynamic Premium Calculation | ✅ Done | Formula-computed ₹10–₹60/wk, unique per worker, no fixed plans |
 | Claims Management | ✅ Done | Parametric auto-claims, fraud scoring, admin review queue |
-| 2-minute Demo Video | ✅ Done | [Watch on Google Drive](https://drive.google.com/file/d/1CvnhmhemT_G60ETTXPxhS2chgMhp3N_m/view) |
+| 2-minute Demo Video | ✅ Done | [Watch on Google Drive](https://drive.google.com/file/d/13Da4EZ095TpRNOiH5tKCPI6aW5yaznAH/view) |
 
 **Additional features implemented beyond requirements:**
 - 🎭 **Demo Mode** — judges complete the full onboarding in 30 seconds, no real data needed
