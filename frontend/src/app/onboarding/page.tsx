@@ -7,7 +7,6 @@ import { API_BASE, API_V1_BASE } from "@/lib/config";
 import { gigWorkers } from "@/lib/workerData";
 import type { GigWorker } from "@/lib/workerData";
 import { evaluateWorker } from "@/lib/underwritingEngine";
-import { calculatePremium as calcPremiumEngine } from "@/lib/pricingEngine";
 import { saveSession } from "@/lib/workerSession";
 import { getCurrentUser } from "@/lib/userStore";
 import { logStep, logError } from "@/lib/debugLogger";
@@ -244,64 +243,51 @@ export default function OnboardingPage() {
     setPlatforms(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
   }
 
-  // ── Premium calculation (local, always works) ─────────────────────────────
+  // ── Earnings lookup (display only, not used for price calculation) ─────────
   const EARNINGS_TO_NUM: Record<string, number> = {
     under_2000: 1000, "2000_4000": 3000, "4000_7000": 5500,
     "7000_12000": 9500, above_12000: 14000,
   };
 
-  function calcLocalPremium() {
-    const METRO = ["Mumbai", "Delhi", "Bengaluru", "Hyderabad", "Chennai", "Kolkata"];
-    const TIER2 = ["Pune", "Ahmedabad"];
-    const cityRisk = METRO.includes(city) ? 3 : TIER2.includes(city) ? 2 : 1;
-    const platformCount = platforms.length;
-    const weeklyEarnings = EARNINGS_TO_NUM[earningsBand] ?? 5500;
-    const premium = Math.round(50 + (cityRisk * 20) + (platformCount * 15) + (weeklyEarnings * 0.01));
-    const riskLabel = premium > 150 ? "High" : premium > 100 ? "Medium" : "Low";
-    return {
-      final_premium: premium,
-      coverage_per_day: Math.round(weeklyEarnings / 7 * 0.4),
-      recommended_plan: premium > 150 ? "pro" : premium > 100 ? "standard" : "lite",
-      risk_level: riskLabel,
-      risk_score: premium > 150 ? 0.75 : premium > 100 ? 0.45 : 0.2,
-      season: "normal",
-      factors: [
-        { factor: "Base premium", adjustment: 50 },
-        { factor: "City risk (×20)", adjustment: cityRisk * 20 },
-        { factor: "Platforms (×15 each)", adjustment: platformCount * 15 },
-        { factor: "Earnings (×0.01)", adjustment: Math.round(weeklyEarnings * 0.01) },
-      ],
-    };
-  }
-
+  // ── Premium calculation — backend is single source of truth ──────────────
   async function handleCalculatePremium() {
     setLoading(true);
+    setErr("");
     await sleep(800);
-    // Try API first, fall back to local engine
     let result = null;
     try {
       const res = await fetch(`${API_V1_BASE}/premium/calculate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          city, platform: platforms[0] || "swiggy",
+          city,
+          platform: platforms[0] || "swiggy",
+          platform_count: platforms.length,
           weekly_earnings_band: earningsBand,
-          tenure_months: 0, claims_last_30_days: 0,
+          tenure_months: 0,
+          claims_last_30_days: 0,
         }),
       });
-      if (res.ok) result = await res.json();
+      if (res.ok) {
+        result = await res.json();
+        console.log("Frontend Received:", result.final_premium);
+      }
     } catch {}
-    if (!result) result = calcLocalPremium();
+    if (!result) {
+      setLoading(false);
+      setErr("Unable to calculate premium. Check your connection and try again.");
+      return;
+    }
     setPremiumResult(result);
     setSelectedPlan(result.recommended_plan || "standard");
     if (typeof window !== "undefined") {
-      const earningsNum = EARNINGS_TO_NUM[earningsBand] ?? 5500;
       localStorage.setItem("sanraksh_premium", JSON.stringify({
         premium: result.final_premium,
+        coverage: result.coverage_per_day,
         risk: result.risk_level,
         city,
         platforms,
-        earnings: earningsNum,
+        earnings: EARNINGS_TO_NUM[earningsBand] ?? 5500,
       }));
     }
     setLoading(false);
@@ -396,17 +382,17 @@ export default function OnboardingPage() {
       };
 
       const underwritingResult = evaluateWorker(worker);
-      const engineResult = calcPremiumEngine(worker, underwritingResult);
 
-      const planPrice = premiumResult?.final_premium ?? engineResult.finalPremium;
-      const coveragePerDay = premiumResult?.coverage_per_day ?? Math.round(avgDailyIncome * 0.3);
+      // Backend is single source of truth — use API-returned values only
+      const planPrice = premiumResult!.final_premium;
+      const coveragePerDay = premiumResult!.coverage_per_day; // = premium * 15
 
       const currentUser = getCurrentUser();
       const sessionPayload = {
         userId: currentUser?.id ?? `phone-${phone.slice(-6)}`,
         worker,
         underwritingResult,
-        premiumResult: engineResult,
+        premiumResult: { finalPremium: planPrice, coveragePerDay },
         policy: {
           plan: "Personalised Plan",
           weeklyPremium: planPrice,
@@ -426,7 +412,8 @@ export default function OnboardingPage() {
         const policyObj = {
           id: `POLICY_${Date.now()}`,
           premium: planPrice,
-          risk: premiumResult?.risk_level ?? storedPremium?.risk ?? "Medium",
+          coverage: coveragePerDay,      // = premium * 15 (from backend)
+          risk: premiumResult!.risk_level,
           dailyPayout: coveragePerDay,
           platforms,
           city,

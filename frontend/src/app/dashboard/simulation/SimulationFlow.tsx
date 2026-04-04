@@ -37,8 +37,8 @@ interface LiveEvent {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const DEMO_POLICY = {
-  premium: 49,
-  dailyPayout: 450,
+  premium: 25,
+  dailyPayout: 375,
   risk: "Low",
   city: "Pune",
   platforms: ["Swiggy", "Zomato"],

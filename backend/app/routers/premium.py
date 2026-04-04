@@ -39,6 +39,15 @@ SEASONAL: Dict[str, float] = {
     "winter":   0.0,  # Oct–Feb: neutral
 }
 
+# Midpoint earnings per band (₹/week) — used in canonical formula
+EARNINGS_MIDPOINT: Dict[str, float] = {
+    "under_2000":  1000.0,
+    "2000_4000":   3000.0,
+    "4000_7000":   5500.0,
+    "7000_12000":  9500.0,
+    "above_12000": 14000.0,
+}
+
 def _current_season() -> str:
     m = datetime.utcnow().month
     if 6 <= m <= 9:  return "monsoon"
@@ -80,6 +89,7 @@ def _no_claim_bonus(claims_in_last_30: int) -> float:
 class PremiumCalculationRequest(BaseModel):
     city: str = Field(..., min_length=2)
     platform: str = Field(default="swiggy")
+    platform_count: Optional[int] = Field(default=1, ge=1, le=10)
     weekly_earnings_band: str = Field(default="4000_7000")
     tenure_months: int = Field(default=0, ge=0, le=120)
     claims_last_30_days: int = Field(default=0, ge=0)
@@ -95,6 +105,12 @@ class FactorDetail(BaseModel):
 
 
 class PremiumCalculationResponse(BaseModel):
+    # Canonical fields (source of truth)
+    premium: float
+    coverage: float
+    risk: str
+    breakdown: Dict[str, float]
+    # Legacy aliases (backward compat with frontend)
     base_premium: float
     factors: List[FactorDetail]
     final_premium: float
@@ -111,107 +127,91 @@ class PremiumCalculationResponse(BaseModel):
 @router.post("/calculate", response_model=PremiumCalculationResponse)
 async def calculate_premium(req: PremiumCalculationRequest):
     """
-    AI-powered premium calculation with full factor breakdown.
-    Explains every adjustment so the worker understands their price.
+    Canonical premium calculation — single source of truth.
+    Formula: 10 + (cityRisk*6) + (min(platforms,4)*4) + (earnings/2000)
+    Hard capped: ₹10 – ₹60. Coverage = premium * 15.
     """
     import uuid
 
-    base = 40.0  # Anchor: ₹40/week baseline
-    factors: List[FactorDetail] = []
-
-    # 1. City risk (weather, flood, traffic density)
+    # ── Inputs ──────────────────────────────────────────────────────────────
     city_risk = CITY_RISK.get(req.city, 0.50)
-    city_adj = round(city_risk * 18, 2)  # Max +₹13.5 for highest-risk city
-    factors.append(FactorDetail(
-        factor="City Risk",
-        base=0.0, adjustment=city_adj,
-        explanation=f"{req.city} has a {int(city_risk*100)}% historical disruption rate based on 24-month IMD/CPCB event data. Higher frequency means higher exposure.",
-        confidence=0.88,
-    ))
-
-    # 2. Platform reliability risk
-    plat_risk = PLATFORM_RISK.get(req.platform.lower(), 0.07)
-    plat_adj = round(plat_risk * 25, 2)  # Max +₹2.25
-    factors.append(FactorDetail(
-        factor="Platform Stability",
-        base=0.0, adjustment=plat_adj,
-        explanation=f"{req.platform.title()} has a {int(plat_risk*100)}% monthly uptime-degradation probability. Platforms with frequent outages cost more to insure.",
-        confidence=0.76,
-    ))
-
-    # 3. Season
+    platform_count = min(req.platform_count or 1, 4)
+    earnings = EARNINGS_MIDPOINT.get(req.weekly_earnings_band, 5500.0)
     season = _current_season()
-    season_adj = SEASONAL[season]
-    factors.append(FactorDetail(
-        factor="Seasonal Adjustment",
-        base=0.0, adjustment=season_adj,
-        explanation=f"Current season: {season.title()}. {'Monsoon significantly increases rain/flood trigger probability.' if season == 'monsoon' else 'Lower disruption risk this season — passing the saving to you.' if season == 'summer' else 'Neutral season — no seasonal surcharge.'}",
-        confidence=0.92,
-    ))
 
-    # 4. Earnings scale
-    earn_mult = _earnings_multiplier(req.weekly_earnings_band)
-    earn_adj = round((earn_mult - 1.0) * 15, 2)
-    coverage = _coverage_from_earnings(req.weekly_earnings_band)
-    band_label = req.weekly_earnings_band.replace("_", "–₹").replace("above", "Above ₹").replace("under", "Under ₹")
-    factors.append(FactorDetail(
-        factor="Earnings Coverage Scale",
-        base=0.0, adjustment=earn_adj,
-        explanation=f"Your earnings band ({band_label}/week) determines your daily coverage (₹{int(coverage)}/day). Higher coverage requires proportionally higher premium.",
-        confidence=0.95,
-    ))
+    # ── Canonical formula ────────────────────────────────────────────────────
+    base = 10.0
+    city_component    = round(city_risk * 6, 2)
+    platform_component = round(platform_count * 4, 2)
+    earnings_component = round(earnings / 2000, 2)
 
-    # 5. Loyalty discount (negative)
-    loyalty_disc = _loyalty_discount(req.tenure_months)
-    if loyalty_disc > 0:
-        factors.append(FactorDetail(
-            factor="Loyalty Discount",
-            base=0.0, adjustment=-loyalty_disc,
-            explanation=f"You've been with Sanraksh for {req.tenure_months} months. Long-term members get a loyalty discount as a thank-you.",
-            confidence=1.0,
-        ))
+    raw = base + city_component + platform_component + earnings_component
+    premium = int(max(10.0, min(60.0, round(raw))))
+    coverage = round(premium * 15, 2)
 
-    # 6. No-claim bonus (negative)
-    ncb = _no_claim_bonus(req.claims_last_30_days)
-    if ncb > 0:
-        factors.append(FactorDetail(
-            factor="No-Claim Bonus",
-            base=0.0, adjustment=-ncb,
-            explanation="No claims in the past 30 days. Safe behaviour is rewarded — your track record keeps premiums lower.",
-            confidence=1.0,
-        ))
-
-    total_adj = sum(f.adjustment for f in factors)
-    raw_premium = base + total_adj
-    final = round(max(35.0, min(raw_premium, 95.0)), 2)
-
-    # Composite risk score (0–1)
-    risk_score = round(min(1.0, city_risk * 0.5 + plat_risk * 3 + (0.15 if season == "monsoon" else 0)), 2)
-    risk_level = "High" if risk_score > 0.6 else ("Medium" if risk_score > 0.35 else "Low")
-
-    # ROI breakeven
-    breakeven = round(final / (coverage / 7), 1)
-
-    # Plan recommendation
-    if final <= 45 and risk_score < 0.4:
-        plan = "Sanraksh Lite (₹35/week)"
-        plan_reason = f"Your risk profile is low and earnings are modest. Lite gives you essential rain + outage coverage without overpaying."
-    elif final <= 65:
-        plan = "Sanraksh Standard (₹49/week)"
-        plan_reason = f"Standard is the best value for your profile — covers all 7 trigger types with ₹{int(coverage)} daily payout and no claim forms."
+    # ── Risk label ───────────────────────────────────────────────────────────
+    if premium <= 20:
+        risk = "Low"
+    elif premium <= 40:
+        risk = "Medium"
     else:
-        plan = "Sanraksh Pro (₹79/week)"
-        plan_reason = f"Your city and platform risk score ({int(risk_score*100)}%) puts you in the high-exposure tier. Pro gives maximum coverage and priority payouts."
+        risk = "High"
+
+    # ── Debug log ────────────────────────────────────────────────────────────
+    print(f"Backend Premium: {premium} | city={req.city}({city_risk}) "
+          f"platforms={platform_count} earnings={earnings} raw={raw:.2f}")
+
+    # ── Breakdown (must sum to premium) ─────────────────────────────────────
+    breakdown: Dict[str, float] = {
+        "base": base,
+        "city_risk": city_component,
+        "platforms": platform_component,
+        "earnings_factor": earnings_component,
+    }
+
+    # ── Legacy factors for backward-compat ──────────────────────────────────
+    factors: List[FactorDetail] = [
+        FactorDetail(factor="Base", base=base, adjustment=0.0,
+                     explanation="Base premium ₹10/week", confidence=1.0),
+        FactorDetail(factor="City Risk", base=0.0, adjustment=city_component,
+                     explanation=f"{req.city} has {int(city_risk*100)}% historical disruption rate.",
+                     confidence=0.88),
+        FactorDetail(factor="Platform Coverage", base=0.0, adjustment=platform_component,
+                     explanation=f"{platform_count} platform(s) — ₹4 per platform (max 4).",
+                     confidence=0.90),
+        FactorDetail(factor="Earnings Scale", base=0.0, adjustment=earnings_component,
+                     explanation=f"Weekly earnings ₹{int(earnings)} ÷ 2000 = ₹{earnings_component}.",
+                     confidence=0.95),
+    ]
+
+    risk_score = round(min(1.0, city_risk * 0.5 + (platform_count / 4) * 0.2 + (earnings / 14000) * 0.3), 2)
+    breakeven  = round(premium / (coverage / 7), 1)
+
+    if premium <= 20:
+        plan = "lite"
+        plan_reason = f"Low risk profile — Lite covers rain + outage at ₹{premium}/week."
+    elif premium <= 40:
+        plan = "standard"
+        plan_reason = f"Standard covers all 7 trigger types with ₹{int(coverage)} daily payout."
+    else:
+        plan = "pro"
+        plan_reason = f"High exposure — Pro gives maximum coverage at ₹{premium}/week."
 
     return PremiumCalculationResponse(
+        # Canonical
+        premium=float(premium),
+        coverage=coverage,
+        risk=risk,
+        breakdown=breakdown,
+        # Legacy aliases
         base_premium=base,
         factors=factors,
-        final_premium=final,
+        final_premium=float(premium),
         coverage_per_day=coverage,
         weekly_roi_breakeven_days=breakeven,
         recommended_plan=plan,
         plan_reasoning=plan_reason,
-        risk_level=risk_level,
+        risk_level=risk,
         risk_score=risk_score,
         season=season.title(),
         calculation_id=str(uuid.uuid4())[:8].upper(),

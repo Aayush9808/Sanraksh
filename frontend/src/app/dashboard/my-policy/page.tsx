@@ -22,9 +22,9 @@ const TRIGGER_ITEMS = [
 
 const DEMO_POLICY_DATA = {
   id: "DEMO-001",
-  premium: 49,
+  premium: 25,
   risk: "Low",
-  dailyPayout: 450,
+  dailyPayout: 375,
   platforms: ["Swiggy", "Zomato"],
   city: "Pune",
   status: "Active",

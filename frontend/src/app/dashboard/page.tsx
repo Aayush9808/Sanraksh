@@ -13,8 +13,8 @@ import { logStep, logWarn, logStorageState } from "@/lib/debugLogger";
 
 const DEMO_POLICY = {
   id: "DEMO-001",
-  premium: 49,
-  dailyPayout: 450,
+  premium: 25,
+  dailyPayout: 375,
   risk: "Low",
   city: "Pune",
   platforms: ["Swiggy", "Zomato"],
