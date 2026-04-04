@@ -26,14 +26,40 @@
 <br/><br/>
 
 <!-- QUICK LINKS -->
-<p>
-<a href="https://sanraksh.vercel.app"><img src="https://img.shields.io/badge/%F0%9F%8C%90%20Live%20Demo-Visit-0d3a6e?style=flat-square" /></a>&nbsp;
-<a href="LOCAL_SETUP.md"><img src="https://img.shields.io/badge/%F0%9F%9B%A0%EF%B8%8F%20Local%20Setup-Run%20Locally-1a56a0?style=flat-square" /></a>&nbsp;
-<a href="submissions/PHASE1.md"><img src="https://img.shields.io/badge/%F0%9F%93%8B%20Phase%201-Submission-0f2044?style=flat-square" /></a>&nbsp;
-<a href="submissions/PHASE2.md"><img src="https://img.shields.io/badge/%E2%9A%99%EF%B8%8F%20Phase%202-Submission-0f2044?style=flat-square" /></a>&nbsp;
-<a href="https://drive.google.com/file/d/1CvnhmhemT_G60ETTXPxhS2chgMhp3N_m/view"><img src="https://img.shields.io/badge/%F0%9F%8E%AC%20Demo%20Video-Watch-ef4444?style=flat-square" /></a>&nbsp;
-<a href="#api-reference"><img src="https://img.shields.io/badge/%F0%9F%93%A1%20API%20Docs-Reference-009688?style=flat-square" /></a>
-</p>
+<table>
+<tr>
+<td align="center" width="16%">
+<a href="https://sanraksh.vercel.app">
+<img src="https://img.shields.io/badge/🌐%20LIVE%20DEMO-sanraksh.vercel.app-ffffff?style=for-the-badge&labelColor=0d3a6e" />
+</a>
+</td>
+<td align="center" width="16%">
+<a href="LOCAL_SETUP.md">
+<img src="https://img.shields.io/badge/🛠️%20LOCAL%20SETUP-Run%20Locally-ffffff?style=for-the-badge&labelColor=1a56a0" />
+</a>
+</td>
+<td align="center" width="16%">
+<a href="submissions/PHASE1.md">
+<img src="https://img.shields.io/badge/📋%20PHASE%201-Submission-ffffff?style=for-the-badge&labelColor=7c3aed" />
+</a>
+</td>
+<td align="center" width="16%">
+<a href="submissions/PHASE2.md">
+<img src="https://img.shields.io/badge/⚙️%20PHASE%202-Submission-ffffff?style=for-the-badge&labelColor=7c3aed" />
+</a>
+</td>
+<td align="center" width="16%">
+<a href="https://drive.google.com/file/d/1CvnhmhemT_G60ETTXPxhS2chgMhp3N_m/view">
+<img src="https://img.shields.io/badge/🎬%20DEMO%20VIDEO-Watch%20Now-ffffff?style=for-the-badge&labelColor=dc2626" />
+</a>
+</td>
+<td align="center" width="16%">
+<a href="#api-reference">
+<img src="https://img.shields.io/badge/📡%20API%20DOCS-Reference-ffffff?style=for-the-badge&labelColor=059669" />
+</a>
+</td>
+</tr>
+</table>
 
 </div>
 
