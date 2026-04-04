@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { API_BASE } from "@/lib/config";
 import { logStep } from "@/lib/debugLogger";
+import { getUsers, saveUser } from "@/lib/userStore";
 
 function OtpInput({ value, onChange, onFill }: { value: string; onChange: (v: string) => void; onFill: (completed: string) => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -98,6 +99,14 @@ export default function LoginPage() {
           const { getRandomWorker } = await import("@/lib/workerData");
           localStorage.setItem("sim_worker", JSON.stringify(getRandomWorker()));
         }
+        // Ensure getCurrentUser() works on dashboard
+        const demoName = isAdmin ? "Demo Admin" : "Demo Worker";
+        const matched = getUsers().find(u => u.email === `${phone}@sanraksh.local`);
+        if (matched) {
+          saveUser(matched);
+        } else {
+          saveUser({ id: `demo-${phone}`, name: demoName, email: `${phone}@sanraksh.local`, createdAt: new Date().toISOString() });
+        }
       }
       logStep("Login Success (demo OTP)", { phone, role: isAdmin ? "admin" : "worker" });
       setLoading(false); router.push(isWorker ? "/dashboard?mode=demo" : "/dashboard"); return;
@@ -113,6 +122,13 @@ export default function LoginPage() {
           if (userRole === "worker") {
             const { getRandomWorker } = await import("@/lib/workerData");
             localStorage.setItem("sim_worker", JSON.stringify(getRandomWorker()));
+          }
+          // Ensure getCurrentUser() works on dashboard
+          const matched = getUsers().find(u => u.email === `${phone}@sanraksh.local`);
+          if (matched) {
+            saveUser(matched);
+          } else {
+            saveUser({ id: d.user_id ?? crypto.randomUUID(), name: d.name ?? "Worker", email: `${phone}@sanraksh.local`, createdAt: new Date().toISOString() });
           }
         }
         router.push("/dashboard");

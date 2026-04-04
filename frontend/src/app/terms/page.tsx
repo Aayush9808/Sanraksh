@@ -1,36 +1,6 @@
 "use client";
 import Link from "next/link";
 
-const PLANS = [
-  {
-    name: "Sanraksh Lite",
-    price: "₹29/week",
-    triggers: ["Heavy rain (≥ 8 mm/hr in your zone)", "Platform outage (≥ 2 hours)"],
-    payout: "₹280 per qualifying event",
-    cap: "Up to 3 events/week",
-    waitPeriod: "24 hours after policy activation",
-    exclusions: ["Self-reported incidents without data confirmation", "Events outside registered zone"],
-  },
-  {
-    name: "Sanraksh Standard",
-    price: "₹49/week",
-    triggers: ["Heavy rain (≥ 6 mm/hr)", "Platform outage (≥ 1.5 hours)", "Government-declared curfew", "AQI > 300 (Severe)"],
-    payout: "₹420 per qualifying event",
-    cap: "Up to 5 events/week",
-    waitPeriod: "12 hours after policy activation",
-    exclusions: ["Events not corroborated by official data feeds", "Duplicate claims in same event window"],
-  },
-  {
-    name: "Sanraksh Pro",
-    price: "₹79/week",
-    triggers: ["Heavy rain (≥ 5 mm/hr)", "Platform outage (≥ 1 hour)", "Curfew", "AQI > 250", "Heat wave (≥ 42°C)", "Cyclone / extreme weather advisory"],
-    payout: "₹840 per qualifying event",
-    cap: "Up to 7 events/week",
-    waitPeriod: "Instant — 0-hour wait",
-    exclusions: ["Fraudulent GPS spoofing", "Claims submitted after 7-day event window"],
-  },
-];
-
 const SECTIONS = [
   {
     title: "1. Introduction",
@@ -109,7 +79,7 @@ export default function TermsPage() {
             Legal document
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">Terms & Conditions</h1>
-          <p className="text-slate-500">Last updated: March 2026 · Effective from plan activation</p>
+          <p className="text-slate-500">Last updated: March 2026 · Effective from coverage activation</p>
         </div>
 
         {/* Intro callout */}
@@ -119,59 +89,26 @@ export default function TermsPage() {
           </p>
         </div>
 
-        {/* Plan comparison */}
+        {/* Dynamic coverage model */}
         <div className="mb-12">
-          <h2 className="text-xl font-bold text-slate-900 mb-6">Plan Coverage Details</h2>
-          <div className="grid md:grid-cols-3 gap-5">
-            {PLANS.map((plan, i) => (
-              <div key={plan.name} className={`rounded-2xl border p-5 ${i === 1 ? "border-[#0F2044] bg-[#0F2044]/5 shadow-md" : "border-slate-200 bg-slate-50"}`}>
-                <div className="flex items-start justify-between gap-2 mb-4">
-                  <div>
-                    <h3 className="font-bold text-slate-900">{plan.name}</h3>
-                    <span className="text-2xl font-extrabold text-[#0F2044]">{plan.price}</span>
-                  </div>
-                  {i === 1 && <span className="text-[10px] font-bold bg-amber-400 text-[#0F2044] px-2 py-0.5 rounded-full uppercase">Popular</span>}
-                </div>
-                <div className="space-y-3 text-sm">
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Triggers covered</p>
-                    <ul className="space-y-1">
-                      {plan.triggers.map(t => (
-                        <li key={t} className="flex gap-2 text-slate-700">
-                          <span className="text-emerald-500 font-bold mt-0.5 shrink-0">✓</span>
-                          <span>{t}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="pt-3 border-t border-slate-200 space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">Payout per event</span>
-                      <span className="font-bold text-slate-900">{plan.payout}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">Weekly cap</span>
-                      <span className="font-bold text-slate-900">{plan.cap}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">Wait period</span>
-                      <span className="font-bold text-slate-900">{plan.waitPeriod}</span>
-                    </div>
-                  </div>
-                  <div className="pt-3 border-t border-slate-200">
-                    <p className="text-xs font-bold uppercase tracking-wider text-red-500 mb-1.5">Not covered</p>
-                    <ul className="space-y-1">
-                      {plan.exclusions.map(e => (
-                        <li key={e} className="flex gap-2 text-slate-500 text-xs">
-                          <span className="text-red-400 font-bold shrink-0">✕</span>
-                          <span>{e}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <h2 className="text-xl font-bold text-slate-900 mb-4">Dynamic Coverage Model</h2>
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 mb-5">
+            <p className="text-slate-700 leading-relaxed">
+              Sanraksh uses AI-based dynamic pricing. Your premium and coverage are calculated in real-time based on
+              your location risk, platform activity, and reported earnings — there are no fixed plans.
+            </p>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5">
+              <div className="text-xs font-bold uppercase tracking-wider text-blue-600 mb-1">Weekly premium range</div>
+              <div className="text-3xl font-extrabold text-[#0F2044] mb-1">₹10 – ₹60</div>
+              <p className="text-sm text-slate-600">Calculated from city risk, number of platforms, and weekly earnings. Deducted only when a qualifying trigger occurs.</p>
+            </div>
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+              <div className="text-xs font-bold uppercase tracking-wider text-emerald-600 mb-1">Daily payout range</div>
+              <div className="text-3xl font-extrabold text-[#0F2044] mb-1">₹100 – ₹1,200</div>
+              <p className="text-sm text-slate-600">Set by your earnings profile. Automatically credited to your bank account within 2–4 hours of a confirmed event.</p>
+            </div>
           </div>
         </div>
 

@@ -55,27 +55,6 @@ function FaqItem({ q, a }: { q: string; a: string }) {
   );
 }
 
-const PLANS = [
-  {
-    name: "Sanraksh Lite", tag: "1 platform", price: "₹29", period: "week",
-    desc: "Protect your primary gig income stream",
-    features: ["1 platform (Swiggy, Zomato, Uber, etc.)", "₹200/day weather & rain cover", "₹200/incident app outage cover", "SMS + email alerts", "Weekly auto-debit on trigger"],
-    cta: "Start Lite →", featured: false,
-  },
-  {
-    name: "Sanraksh Standard", tag: "3 platforms · Most popular", price: "₹49", period: "week",
-    desc: "Complete protection for active gig workers",
-    features: ["3 platforms covered", "₹280/day weather & curfew cover", "₹200/incident app outage", "Bandh & strike protection", "Instant payout (< 4 hrs)", "WhatsApp + SMS alerts"],
-    cta: "Start Standard →", featured: true,
-  },
-  {
-    name: "Sanraksh Pro", tag: "All platforms", price: "₹79", period: "week",
-    desc: "Total protection across every platform",
-    features: ["All 8 platforms covered", "₹350/day max income cover", "AQI, flood & cyclone triggers", "Instant payout (< 2 hrs)", "Dedicated support manager", "Family notification alerts"],
-    cta: "Start Pro →", featured: false,
-  },
-];
-
 const FAQS = [
   { q: "How does automatic payout work?", a: "Sanraksh monitors weather APIs, platform status, and government alerts 24/7. When a qualifying event hits your registered zone, payouts trigger automatically — no claim required." },
   { q: "When do I receive the money?", a: "Your payout is initiated within 2–4 hours of a qualifying trigger being confirmed. Money goes directly to your registered bank account via IMPS." },
@@ -304,50 +283,50 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* PLANS */}
-      <section id="plans" className="py-20 bg-white border-t border-slate-100">
+      {/* DYNAMIC PRICING */}
+      <section id="pricing" className="py-20 bg-white border-t border-slate-100">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-14">
-            <div className="lbl mb-3">Flexible coverage</div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Choose your protection</h2>
-            <p className="text-slate-400 mt-3 max-w-md mx-auto">No upfront payment. Premium deducted only when disruptions trigger your coverage.</p>
+            <div className="lbl mb-3">AI-powered dynamic pricing</div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">Coverage built around you</h2>
+            <p className="text-slate-400 mt-3 max-w-lg mx-auto">Your premium is calculated in real-time based on your location, platform activity, and earnings history — not a fixed plan.</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-6 items-stretch">
-            {PLANS.map((p, i) => (
-              <motion.div key={p.name} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }} transition={{ delay: i * 0.1 }} whileHover={{ y: -4 }}
-                className={`relative rounded-2xl p-7 flex flex-col gap-5 border ${p.featured ? "bg-[#0F2044] border-[#1E3A5F] shadow-2xl shadow-[#0F2044]/20" : "bg-white border-slate-200 shadow-sm"}`}>
-                {p.featured && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                    <span className="bg-amber-400 text-[#0F2044] text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wide">Most Popular</span>
-                  </div>
-                )}
-                <div>
-                  <span className={`text-xs font-bold uppercase tracking-wider ${p.featured ? "text-blue-300" : "text-slate-400"}`}>{p.tag}</span>
-                  <h3 className={`text-xl font-bold mt-1 mb-1 ${p.featured ? "text-white" : "text-slate-900"}`}>{p.name}</h3>
-                  <p className={`text-sm ${p.featured ? "text-blue-200" : "text-slate-500"}`}>{p.desc}</p>
-                </div>
-                <div className="flex items-end gap-1">
-                  <span className={`text-4xl font-extrabold tracking-tight ${p.featured ? "text-white" : "text-slate-900"}`}>{p.price}</span>
-                  <span className={`text-sm mb-1 ${p.featured ? "text-blue-300" : "text-slate-400"}`}>/{p.period}</span>
-                </div>
-                <div className="flex flex-col gap-2.5 flex-1">
-                  {p.features.map((f, fi) => (
-                    <div key={fi} className="flex items-start gap-2.5">
-                      <span className={`flex-shrink-0 font-bold mt-0.5 ${p.featured ? "text-amber-400" : "text-emerald-500"}`}>✓</span>
-                      <span className={`text-sm ${p.featured ? "text-blue-100" : "text-slate-600"}`}>{f}</span>
-                    </div>
-                  ))}
-                </div>
-                <Link href="/onboarding">
-                  <button className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all ${p.featured ? "bg-amber-400 text-[#0F2044] hover:bg-amber-300 hover:shadow-lg" : "bg-[#0F2044] text-white hover:bg-[#1E3A5F] hover:shadow-md"}`}>
-                    {p.cta}
-                  </button>
-                </Link>
+          <div className="grid md:grid-cols-3 gap-6 mb-10">
+            {[
+              { icon: "📍", title: "City risk factor", desc: "Weather patterns, curfew frequency, and historical disruptions in your registered city affect your premium.", color: "bg-blue-50 border-blue-200" },
+              { icon: "📱", title: "Platform coverage", desc: "More platforms you work on, more coverage you get. Premium scales with the number of platforms you register.", color: "bg-amber-50 border-amber-200" },
+              { icon: "💰", title: "Earnings-based", desc: "Your reported weekly earnings set your coverage ceiling, ensuring payouts match your actual income loss.", color: "bg-emerald-50 border-emerald-200" },
+            ].map((item, i) => (
+              <motion.div key={item.title} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                className={`rounded-2xl border p-6 flex flex-col gap-3 ${item.color}`}>
+                <div className="text-3xl">{item.icon}</div>
+                <h3 className="text-base font-bold text-slate-900">{item.title}</h3>
+                <p className="text-sm text-slate-600 leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}
           </div>
-          <p className="text-center text-xs text-slate-400 mt-8 leading-relaxed">All plans include automatic trigger detection · direct bank transfer · zone monitoring · email & SMS alerts</p>
+          <div className="bg-[#0F2044] rounded-3xl p-8 text-white text-center">
+            <div className="text-blue-300 text-xs font-bold uppercase tracking-widest mb-3">Typical range</div>
+            <div className="flex items-center justify-center gap-8 flex-wrap mb-4">
+              <div>
+                <div className="text-4xl font-extrabold tracking-tight">₹10–₹60</div>
+                <div className="text-blue-300 text-sm mt-1">weekly premium</div>
+              </div>
+              <div className="w-px h-12 bg-white/20 hidden sm:block" />
+              <div>
+                <div className="text-4xl font-extrabold tracking-tight">₹100–₹1,200</div>
+                <div className="text-blue-300 text-sm mt-1">per qualifying day</div>
+              </div>
+            </div>
+            <p className="text-blue-200 text-sm max-w-md mx-auto mb-6">No upfront payment. Premium is only deducted when a qualifying disruption triggers your coverage.</p>
+            <Link href="/onboarding">
+              <button className="bg-amber-400 text-[#0F2044] font-bold px-8 py-3.5 rounded-xl hover:bg-amber-300 hover:shadow-lg transition-all text-sm">
+                Get my personalised quote →
+              </button>
+            </Link>
+          </div>
+          <p className="text-center text-xs text-slate-400 mt-6 leading-relaxed">Automatic trigger detection · direct bank transfer · zone monitoring · email & SMS alerts</p>
         </div>
       </section>
 
