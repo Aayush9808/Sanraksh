@@ -28,35 +28,29 @@
 <!-- QUICK LINKS -->
 <table>
 <tr>
-<td align="center" width="16%">
-<a href="https://sanraksh.vercel.app">
-<img src="https://img.shields.io/badge/🌐%20LIVE%20DEMO-sanraksh.vercel.app-ffffff?style=for-the-badge&labelColor=0d3a6e" />
-</a>
+<td align="center">
+<h3><a href="https://sanraksh.vercel.app">🌐<br/>Live Demo</a></h3>
+<sub>sanraksh.vercel.app</sub>
 </td>
-<td align="center" width="16%">
-<a href="LOCAL_SETUP.md">
-<img src="https://img.shields.io/badge/🛠️%20LOCAL%20SETUP-Run%20Locally-ffffff?style=for-the-badge&labelColor=1a56a0" />
-</a>
+<td align="center">
+<h3><a href="LOCAL_SETUP.md">🛠️<br/>Local Setup</a></h3>
+<sub>Run the full stack locally</sub>
 </td>
-<td align="center" width="16%">
-<a href="submissions/PHASE1.md">
-<img src="https://img.shields.io/badge/📋%20PHASE%201-Submission-ffffff?style=for-the-badge&labelColor=7c3aed" />
-</a>
+<td align="center">
+<h3><a href="submissions/PHASE1.md">📋<br/>Phase 1</a></h3>
+<sub>Seed submission</sub>
 </td>
-<td align="center" width="16%">
-<a href="submissions/PHASE2.md">
-<img src="https://img.shields.io/badge/⚙️%20PHASE%202-Submission-ffffff?style=for-the-badge&labelColor=7c3aed" />
-</a>
+<td align="center">
+<h3><a href="submissions/PHASE2.md">⚙️<br/>Phase 2</a></h3>
+<sub>Build &amp; Ship submission</sub>
 </td>
-<td align="center" width="16%">
-<a href="https://drive.google.com/file/d/1CvnhmhemT_G60ETTXPxhS2chgMhp3N_m/view">
-<img src="https://img.shields.io/badge/🎬%20DEMO%20VIDEO-Watch%20Now-ffffff?style=for-the-badge&labelColor=dc2626" />
-</a>
+<td align="center">
+<h3><a href="https://drive.google.com/file/d/1CvnhmhemT_G60ETTXPxhS2chgMhp3N_m/view">🎬<br/>Demo Video</a></h3>
+<sub>Watch on Google Drive</sub>
 </td>
-<td align="center" width="16%">
-<a href="#api-reference">
-<img src="https://img.shields.io/badge/📡%20API%20DOCS-Reference-ffffff?style=for-the-badge&labelColor=059669" />
-</a>
+<td align="center">
+<h3><a href="#api-reference">📡<br/>API Docs</a></h3>
+<sub>Endpoint reference</sub>
 </td>
 </tr>
 </table>
