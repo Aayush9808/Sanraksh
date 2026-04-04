@@ -25,6 +25,13 @@
 
 <br/><br/>
 
+<!-- PHASE 2 CTA BANNER -->
+<a href="submissions/PHASE2.md">
+<img width="100%" src="https://img.shields.io/badge/-%E2%9A%99%EF%B8%8F%20%20CLICK%20HERE%20%E2%80%94%20VIEW%20PHASE%202%20SUBMISSION%20%20%E2%9A%99%EF%B8%8F-f59e0b?style=for-the-badge&logoColor=white" />
+</a>
+
+<br/><br/>
+
 <!-- QUICK LINKS -->
 <table>
 <tr>
