@@ -249,13 +249,56 @@ export default function OnboardingPage() {
     "7000_12000": 9500, above_12000: 14000,
   };
 
-  // ── Premium calculation — backend is single source of truth ──────────────
+  // ── Local fallback premium calculation (used if backend is unreachable) ───
+  function calcLocalPremium() {
+    const CITY_RISK_LOCAL: Record<string, number> = {
+      Mumbai: 0.75, Chennai: 0.60, Delhi: 0.65, Kolkata: 0.45,
+      Bengaluru: 0.55, Bangalore: 0.55, Hyderabad: 0.48, Pune: 0.52,
+      Ahmedabad: 0.40, Jaipur: 0.35, Surat: 0.38,
+    };
+    const EARNINGS_MID: Record<string, number> = {
+      under_2000: 1000, "2000_4000": 3000, "4000_7000": 5500,
+      "7000_12000": 9500, above_12000: 14000,
+    };
+    const COVERAGE_MAP: Record<string, number> = {
+      under_2000: 450, "2000_4000": 600, "4000_7000": 800,
+      "7000_12000": 1000, above_12000: 1200,
+    };
+    const cityRisk = CITY_RISK_LOCAL[city] ?? 0.50;
+    const platformCount = Math.max(platforms.length, 1);
+    const earningsMid = EARNINGS_MID[earningsBand] ?? 5500;
+    const cityAdj = parseFloat((cityRisk * 6).toFixed(2));
+    const platformAdj = Math.min(platformCount, 4) * 4;
+    const earningsAdj = parseFloat((earningsMid / 2000).toFixed(2));
+    const raw = 10 + cityAdj + platformAdj + earningsAdj;
+    const premium = Math.max(10, Math.min(60, Math.round(raw)));
+    const coverage = COVERAGE_MAP[earningsBand] ?? 800;
+    const risk = premium <= 20 ? "Low" : premium <= 40 ? "Medium" : "High";
+    return {
+      premium, final_premium: premium, base_premium: 10,
+      coverage, coverage_per_day: coverage,
+      risk, risk_level: risk, risk_score: cityRisk,
+      recommended_plan: premium <= 20 ? "basic" : premium <= 40 ? "standard" : "premium",
+      plan_reasoning: `${risk} risk profile — ${premium <= 20 ? "Basic" : premium <= 40 ? "Standard" : "Premium"} plan recommended.`,
+      season: "Summer", calculation_id: "LOCAL_CALC",
+      breakdown: { base: 10, city_risk: cityAdj, platforms: platformAdj, earnings_factor: earningsAdj },
+      factors: [
+        { factor: "Base", base: 10, adjustment: 0, explanation: "Base premium ₹10/week", confidence: 1.0 },
+        { factor: "City Risk", base: 0, adjustment: cityAdj, explanation: `${city} disruption risk factor.`, confidence: 0.85 },
+        { factor: "Platform Coverage", base: 0, adjustment: platformAdj, explanation: `${platformCount} platform(s) — ₹4 per platform (max 4).`, confidence: 0.9 },
+        { factor: "Earnings Scale", base: 0, adjustment: earningsAdj, explanation: `Weekly earnings ₹${earningsMid} ÷ 2000 = ₹${earningsAdj}.`, confidence: 0.95 },
+      ],
+    };
+  }
+
+  // ── Premium calculation — backend first, local fallback if unreachable ────
   async function handleCalculatePremium() {
     setLoading(true);
     setErr("");
     await sleep(800);
     let result = null;
     try {
+      console.log("Calling premium API:", `${API_V1_BASE}/premium/calculate`);
       const res = await fetch(`${API_V1_BASE}/premium/calculate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -270,13 +313,17 @@ export default function OnboardingPage() {
       });
       if (res.ok) {
         result = await res.json();
-        console.log("Frontend Received:", result.final_premium);
+        console.log("Backend premium received:", result.final_premium);
+      } else {
+        console.error("API error status:", res.status, await res.text());
       }
-    } catch {}
+    } catch (err) {
+      console.error("API fetch error:", err);
+    }
+    // Fallback: calculate locally if backend unreachable
     if (!result) {
-      setLoading(false);
-      setErr("Unable to calculate premium. Check your connection and try again.");
-      return;
+      console.warn("Backend unavailable — using local premium calculation");
+      result = calcLocalPremium();
     }
     setPremiumResult(result);
     setSelectedPlan(result.recommended_plan || "standard");
