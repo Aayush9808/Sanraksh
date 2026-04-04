@@ -4,8 +4,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { API_BASE } from "@/lib/config";
-import { getUsers, saveUser } from "@/lib/userStore";
-import { logStep, logWarn } from "@/lib/debugLogger";
+import { logStep } from "@/lib/debugLogger";
 
 function OtpInput({ value, onChange, onFill }: { value: string; onChange: (v: string) => void; onFill: (completed: string) => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -68,29 +67,11 @@ function Spinner() {
 
 export default function LoginPage() {
   const router = useRouter();
-  const [step, setStep] = useState<"email" | "phone" | "otp">("email");
-  const [email, setEmail] = useState("");
+  const [step, setStep] = useState<"phone" | "otp">("phone");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
-
-  function handleEmailLogin(e: React.FormEvent) {
-    e.preventDefault();
-    const trimmed = email.trim().toLowerCase();
-    if (!trimmed) { setErr("Please enter your email."); return; }
-    setErr("");
-    const match = getUsers().find(u => u.email.toLowerCase() === trimmed);
-    if (match) {
-      // Re-set as current user and go to dashboard
-      saveUser(match);
-      logStep("Login Success (email)", { userId: match.id, name: match.name, email: match.email });
-      router.push("/dashboard");
-    } else {
-      logWarn("Login Failed (email)", { attemptedEmail: trimmed });
-      setErr("No account found with that email. Please sign up first.");
-    }
-  }
 
   async function sendOtp(e: React.FormEvent) {
     e.preventDefault();
@@ -191,43 +172,8 @@ export default function LoginPage() {
           </div>
 
           <AnimatePresence mode="wait">
-            {step === "email" ? (
-              <motion.div key="email" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
-                <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1.5">Welcome back</h1>
-                <p className="text-slate-400 text-sm mb-7">Sign in with your registered email address.</p>
-
-                <form onSubmit={handleEmailLogin} className="space-y-4">
-                  <div>
-                    <label className="field-label">Email address</label>
-                    <input type="email" placeholder="you@example.com" autoFocus
-                      className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 outline-none focus:border-[#0F2044] focus:ring-2 focus:ring-[#0F2044]/10 bg-white transition"
-                      value={email} onChange={e => { setEmail(e.target.value); setErr(""); }} />
-                  </div>
-                  <AnimatePresence>
-                    {err && <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-red-500 text-sm">{err}</motion.p>}
-                  </AnimatePresence>
-                  <button type="submit" disabled={loading || !email.trim()}
-                    className="btn-navy w-full py-3.5 disabled:opacity-40 disabled:cursor-not-allowed">
-                    Sign in →
-                  </button>
-                </form>
-
-                <div className="mt-5 text-center">
-                  <button onClick={() => { setErr(""); setStep("phone"); }}
-                    className="text-sm text-[#0F2044] font-semibold hover:underline">
-                    Sign in with mobile OTP instead →
-                  </button>
-                </div>
-
-                <p className="text-center text-slate-400 text-sm mt-4">
-                  No account? <Link href="/register" className="text-[#0F2044] font-semibold hover:underline">Sign up →</Link>
-                </p>
-              </motion.div>
-            ) : step === "phone" ? (
+            {step === "phone" ? (
               <motion.div key="phone" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
-                <button onClick={() => { setErr(""); setStep("email"); }} className="flex items-center gap-1.5 text-slate-400 hover:text-slate-700 text-sm font-medium mb-7 transition-colors">
-                  ← Back
-                </button>
                 <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1.5">Welcome back</h1>
                 <p className="text-slate-400 text-sm mb-7">Sign in with your registered mobile number.</p>
 
@@ -264,6 +210,9 @@ export default function LoginPage() {
                     ))}
                   </div>
                 </div>
+                <p className="text-center text-slate-400 text-sm mt-4">
+                  No account? <Link href="/register" className="text-[#0F2044] font-semibold hover:underline">Sign up →</Link>
+                </p>
               </motion.div>
             ) : (
               <motion.div key="otp" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.25 }}>

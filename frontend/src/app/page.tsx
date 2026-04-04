@@ -78,10 +78,10 @@ const PLANS = [
 
 const FAQS = [
   { q: "How does automatic payout work?", a: "Sanraksh monitors weather APIs, platform status, and government alerts 24/7. When a qualifying event hits your registered zone, payouts trigger automatically — no claim required." },
-  { q: "When do I receive the money?", a: "Standard Shield: within 4 hours of trigger. Max Shield: within 2 hours. Money goes directly to your registered bank account via IMPS." },
+  { q: "When do I receive the money?", a: "Your payout is initiated within 2–4 hours of a qualifying trigger being confirmed. Money goes directly to your registered bank account via IMPS." },
   { q: "What events trigger a payout?", a: "Heavy rainfall, platform app outages (>30 min), government curfews, flooding alerts, extreme heat, poor AQI days, and declared bandhs or strikes in your registered city." },
   { q: "Is there any waiting period?", a: "No. Coverage activates the moment you complete registration. You are protected from day one, immediately." },
-  { q: "Can I switch plans later?", a: "Yes. You can upgrade or change your plan at any time from your dashboard. Changes take effect immediately." },
+  { q: "Can I change my coverage later?", a: "Yes. You can adjust your coverage at any time from your dashboard. Changes take effect immediately in the next coverage cycle." },
   { q: "Which platforms are supported?", a: "Swiggy, Zomato, Uber, Ola, Dunzo, Blinkit, Porter, and Rapido. More platforms added regularly." },
 ];
 
@@ -149,7 +149,7 @@ export default function LandingPage() {
             <span className="font-bold text-slate-900 text-lg tracking-tight">Sanraksh</span>
           </Link>
           <nav className="hidden md:flex items-center gap-6">
-            {[["#how", "How it works"], ["#plans", "Plans"], ["#about", "About"], ["#faq", "FAQ"], ["#help", "Customer Care"]].map(([href, label]) => (
+            {[["#how", "How it works"], ["#pricing", "Pricing"], ["#about", "About"], ["#faq", "FAQ"]].map(([href, label]) => (
               <a key={href} href={href} className="text-slate-500 hover:text-slate-900 text-sm font-medium transition-colors">{label}</a>
             ))}
             <Link href="/support" className="text-slate-500 hover:text-slate-900 text-sm font-medium transition-colors">Support</Link>

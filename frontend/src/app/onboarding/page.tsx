@@ -939,8 +939,8 @@ export default function OnboardingPage() {
                 <form onSubmit={e => e.preventDefault()}>
                   <div className="mb-7">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Step 06 of 08</p>
-                    <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1">Confirm your plan</h2>
-                    <p className="text-slate-400 text-sm">This plan is personalised based on your earnings, location, and platform activity.</p>
+                    <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1">Confirm your coverage</h2>
+                    <p className="text-slate-400 text-sm">Your personalised protection based on earnings, location, and platform activity.</p>
                   </div>
 
                   {premiumResult ? (
