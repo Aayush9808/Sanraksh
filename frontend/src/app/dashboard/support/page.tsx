@@ -206,7 +206,6 @@ export default function WorkerSupportPage() {
                       { label: "Check my payout status", href: "/dashboard/triggers", icon: "⚡" },
                       { label: "Update my bank/UPI details", href: "/dashboard/profile", icon: "🏦" },
                       { label: "View my policy details", href: "/dashboard/my-policy", icon: "🛡️" },
-                      { label: "View premium history", href: "/dashboard/my-premium", icon: "₹" },
                     ].map(a => (
                       <Link key={a.label} href={a.href}
                         className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-200 transition-all group">

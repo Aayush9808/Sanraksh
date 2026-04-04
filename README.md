@@ -31,6 +31,7 @@
 <td align="center"><a href="https://sanraksh.vercel.app"><b>🌐 Live Demo</b></a></td>
 <td align="center"><a href="submissions/PHASE1.md"><b>📋 Phase 1 Submission</b></a></td>
 <td align="center"><a href="submissions/PHASE2.md"><b>⚙️ Phase 2 Submission</b></a></td>
+<td align="center"><a href="LOCAL_SETUP.md"><b>🛠️ Local Setup</b></a></td>
 <td align="center"><a href="https://drive.google.com/file/d/1CvnhmhemT_G60ETTXPxhS2chgMhp3N_m/view"><b>🎬 Demo Video</b></a></td>
 <td align="center"><a href="#api-reference"><b>📡 API Docs</b></a></td>
 </tr>
@@ -117,7 +118,7 @@ Claim form:  None
 ## 🎯 The Problem We Solve
 
 ```
-  DISRUPTION                   TRADITIONAL               GIGARMOR
+  DISRUPTION                   TRADITIONAL               SANRAKSH
   HAPPENS                      INSURANCE                 RESPONSE
      │                             │                         │
      ▼                             ▼                         ▼
@@ -209,7 +210,7 @@ KPI cards · Claims feed · Disruption monitor · Risk zones · Simulation engin
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║                           GIGARMOR PLATFORM                                  ║
+║                           SANRAKSH PLATFORM                                  ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
 ║   ┌─────────────────────────────────────────────────────────────────────┐   ║
