@@ -43,7 +43,7 @@ function getLocalClaims(): Array<{ id: string; triggerLabel: string; date: strin
 
 function Counter({ end, prefix = "", suffix = "" }: { end: number; prefix?: string; suffix?: string }) {
   const [v, setV] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLSpanElement>(null);
   useEffect(() => {
     const obs = new IntersectionObserver(([e]) => {
       if (!e.isIntersecting) return;
@@ -54,7 +54,7 @@ function Counter({ end, prefix = "", suffix = "" }: { end: number; prefix?: stri
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
   }, [end]);
-  return <div ref={ref}>{prefix}{end >= 1000 ? Math.floor(v).toLocaleString() : Math.floor(v)}{suffix}</div>;
+  return <span ref={ref}>{prefix}{end >= 1000 ? Math.floor(v).toLocaleString() : Math.floor(v)}{suffix}</span>;
 }
 
 function StatusTag({ s }: { s: string }) {
@@ -129,7 +129,8 @@ function WorkerHome() {
 
   // Session data takes precedence over API data for computed fields
   const policyNum = policy?.policy_number as string || (session ? `POL-${session.worker.worker_id}` : activePolicy.id);
-  const premium = (policy?.weekly_premium as number) || session?.policy.weeklyPremium || activePolicy.premium;
+  // Single source of truth: stored policy > session > API response > demo fallback
+  const premium = activePolicy.premium || session?.policy.weeklyPremium || (policy?.weekly_premium as number) || 0;
   const planName = session?.policy.plan || (policy ? "Personalised Plan" : "Personalised Plan");
   const endDate = policy?.end_date
     ? new Date(policy.end_date as string).toLocaleDateString("en-IN",{month:"short",year:"numeric"})
@@ -178,7 +179,6 @@ function WorkerHome() {
           { label: "Total earned", val: totalEarned, prefix: "₹", suffix: "", amber: true },
           { label: "Total claims", val: totalClaims, prefix: "", suffix: "", amber: false },
           { label: "Active triggers", val: triggers.length, prefix: "", suffix: " now", amber: false },
-          { label: "Weekly premium", val: premium, prefix: "₹", suffix: "/wk", amber: false },
         ].map((k, i) => (
           <motion.div key={k.label} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}
             className="panel p-4 stat-card">
@@ -188,6 +188,15 @@ function WorkerHome() {
             </div>
           </motion.div>
         ))}
+        {/* Premium card — separate to ensure clean typography */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 3 * 0.07 }}
+          className="panel p-4 stat-card">
+          <div className="lbl mb-2">Weekly premium</div>
+          <div className="font-extrabold text-2xl tracking-tight text-slate-900" style={{ letterSpacing: "-0.03em", lineHeight: 1 }}>
+            ₹{premium}
+          </div>
+          <div className="text-xs text-slate-400 font-medium mt-1">per week</div>
+        </motion.div>
       </div>
 
       <div className="grid md:grid-cols-[1fr_300px] gap-5">

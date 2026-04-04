@@ -75,7 +75,24 @@ export default function MyPremiumPage() {
           claims_last_30_days: 0,
         }),
       });
-      if (res.ok) { setResult(await res.json()); setFromSession(false); }
+      if (res.ok) {
+        const data = await res.json();
+        setResult(data);
+        setFromSession(false);
+        // Keep sanraksh_policy in sync so Overview/My Policy show the same value
+        if (typeof window !== "undefined") {
+          try {
+            const existing = JSON.parse(localStorage.getItem("sanraksh_policy") || "{}");
+            localStorage.setItem("sanraksh_policy", JSON.stringify({
+              ...existing,
+              premium: data.final_premium,
+              coverage: data.coverage_per_day,
+              dailyPayout: data.coverage_per_day,
+              risk: data.risk_level,
+            }));
+          } catch {}
+        }
+      }
     } catch {}
     setLoading(false);
   }
