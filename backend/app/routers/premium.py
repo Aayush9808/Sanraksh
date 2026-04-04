@@ -1,6 +1,6 @@
 """
 Premium Calculator Router - AI-Powered Dynamic Pricing
-Full factor breakdown for the GigArmor intelligent pricing engine.
+Full factor breakdown for the GigInsur intelligent pricing engine.
 """
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
@@ -167,7 +167,7 @@ async def calculate_premium(req: PremiumCalculationRequest):
         factors.append(FactorDetail(
             factor="Loyalty Discount",
             base=0.0, adjustment=-loyalty_disc,
-            explanation=f"You've been with GigArmor for {req.tenure_months} months. Long-term members get a loyalty discount as a thank-you.",
+            explanation=f"You've been with GigInsur for {req.tenure_months} months. Long-term members get a loyalty discount as a thank-you.",
             confidence=1.0,
         ))
 
@@ -194,13 +194,13 @@ async def calculate_premium(req: PremiumCalculationRequest):
 
     # Plan recommendation
     if final <= 45 and risk_score < 0.4:
-        plan = "GigArmor Lite (₹35/week)"
+        plan = "GigInsur Lite (₹35/week)"
         plan_reason = f"Your risk profile is low and earnings are modest. Lite gives you essential rain + outage coverage without overpaying."
     elif final <= 65:
-        plan = "GigArmor Standard (₹49/week)"
+        plan = "GigInsur Standard (₹49/week)"
         plan_reason = f"Standard is the best value for your profile — covers all 7 trigger types with ₹{int(coverage)} daily payout and no claim forms."
     else:
-        plan = "GigArmor Pro (₹79/week)"
+        plan = "GigInsur Pro (₹79/week)"
         plan_reason = f"Your city and platform risk score ({int(risk_score*100)}%) puts you in the high-exposure tier. Pro gives maximum coverage and priority payouts."
 
     return PremiumCalculationResponse(

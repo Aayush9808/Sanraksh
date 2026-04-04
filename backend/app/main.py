@@ -1,5 +1,5 @@
 """
-GigArmor - Main FastAPI Application
+GigInsur - Main FastAPI Application
 AI-Powered Parametric Insurance for Gig Workers
 """
 
@@ -24,7 +24,7 @@ Base.metadata.create_all(bind=engine)
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="GigArmor API",
+    title="GigInsur API",
     description="AI-Powered Parametric Insurance for Gig Economy Workers",
     version="1.0.0",
     docs_url="/docs",
@@ -87,7 +87,7 @@ def _seed(db):
     for w in workers_data:
         u = User(
             id=str(uuid.uuid4()), phone=w["phone"], name=w["name"],
-            email=f"{w['name'].lower().replace(' ', '.')}@demo.gigarmor.in",
+            email=f"{w['name'].lower().replace(' ', '.')}@demo.giginsur.in",
             delivery_platform=w["platform"], work_city=w["city"], work_zone=w["zone"],
             kyc_status=w["kyc"], risk_score=w["risk"], is_active=True,
         )
@@ -202,7 +202,7 @@ def _seed(db):
 async def root():
     """Root endpoint"""
     return {
-        "message": "GigArmor API - Protecting India's Gig Workers",
+        "message": "GigInsur API - Protecting India's Gig Workers",
         "version": "1.0.0",
         "status": "operational",
         "docs": "/docs",
@@ -223,7 +223,7 @@ async def health_check():
 @app.on_event("startup")
 async def startup_event():
     """Startup event handler"""
-    logger.info("🚀 GigArmor API starting up...")
+    logger.info("🚀 GigInsur API starting up...")
     db = SessionLocal()
     try:
         _seed(db)
@@ -235,7 +235,7 @@ async def startup_event():
 @app.on_event("shutdown")
 async def shutdown_event():
     """Shutdown event handler"""
-    logger.info("👋 GigArmor API shutting down...")
+    logger.info("👋 GigInsur API shutting down...")
 
 
 # Global exception handler

@@ -14,18 +14,18 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     
     # Database
-    DATABASE_URL: str = "sqlite:///./gigarmor.db"
+    DATABASE_URL: str = "sqlite:///./giginsur.db"
     
     # Redis
     REDIS_URL: str = "redis://localhost:6379"
     
     # Security
-    SECRET_KEY: str = "gigarmor-dev-secret-key-2026-hackathon-do-not-use-in-prod"
+    SECRET_KEY: str = "giginsur-dev-secret-key-2026-hackathon-do-not-use-in-prod"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
     # CORS
-    CORS_ORIGINS: str = "http://localhost:3000,https://gigarmor.vercel.app,https://*.vercel.app"
+    CORS_ORIGINS: str = "http://localhost:3000,https://giginsur.vercel.app,https://*.vercel.app"
     
     # Weather APIs
     OPENWEATHER_API_KEY: str = ""
@@ -45,7 +45,7 @@ class Settings(BaseSettings):
     
     # SendGrid
     SENDGRID_API_KEY: str = ""
-    FROM_EMAIL: str = "noreply@gigarmor.app"
+    FROM_EMAIL: str = "noreply@giginsur.app"
     
     # Insurance Configuration
     BASE_PREMIUM_WEEKLY: float = 40.0
