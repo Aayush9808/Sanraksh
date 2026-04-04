@@ -1,5 +1,5 @@
 /**
- * GigInsuR Debug Logger
+ * Sanraksh Debug Logger
  * Structured console logging for end-to-end flow verification.
  * All output is console-only — no UI side-effects.
  */
@@ -53,13 +53,13 @@ export function logWarn(message: string, data?: unknown): void {
 }
 
 /**
- * Dumps all GigInsuR localStorage keys to the console.
+ * Dumps all Sanraksh localStorage keys to the console.
  * Call on app load to verify persistence state.
  */
 export function logStorageState(): void {
   if (typeof window === "undefined") return;
 
-  const KEYS = ["giginsur_users", "giginsur_current_user", "giginsur_session", "token", "role"];
+  const KEYS = ["sanraksh_users", "sanraksh_current_user", "sanraksh_session", "token", "role"];
   const state: Record<string, unknown> = {};
 
   for (const key of KEYS) {

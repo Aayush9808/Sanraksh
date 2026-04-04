@@ -1,8 +1,8 @@
 <div align="center">
 
-<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&height=180&color=0:0f172a,50:0ea5e9,100:2563eb&text=GigArmor&fontSize=54&fontColor=ffffff&animation=twinkling&fontAlignY=36&desc=AI-Powered%20Parametric%20Income%20Protection%20for%20Gig%20Workers&descAlignY=58&descSize=18" />
+<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&height=180&color=0:0f172a,50:0ea5e9,100:2563eb&text=Sanraksh&fontSize=54&fontColor=ffffff&animation=twinkling&fontAlignY=36&desc=AI-Powered%20Parametric%20Income%20Protection%20for%20Gig%20Workers&descAlignY=58&descSize=18" />
 
-# 🛡️ GigArmor
+# 🛡️ Sanraksh
 ### AI-Powered Parametric Income Protection for India’s Gig Workers
 
 <img src="https://readme-typing-svg.herokuapp.com?font=Inter&weight=700&size=22&pause=1000&color=22D3EE&center=true&vCenter=true&width=900&lines=Built+for+Guidewire+DEVTrails+2026;Loss+of+Income+Only+(Weekly+Model);AI+Risk+Scoring+%2B+Parametric+Auto-Claims+%2B+Instant+Payout+Simulation" alt="typing banner" />
@@ -14,7 +14,7 @@
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
-[![Vercel](https://img.shields.io/badge/Deploy-Vercel-black?style=for-the-badge&logo=vercel)](https://gigarmor.vercel.app)
+[![Vercel](https://img.shields.io/badge/Deploy-Vercel-black?style=for-the-badge&logo=vercel)](https://sanraksh.vercel.app)
 
 </div>
 
@@ -22,8 +22,8 @@
 
 ## 🔗 Submission Links
 
-- **Live Demo (Web):** https://gigarmor.vercel.app
-- **Repository:** https://github.com/Aayush9808/GigArmor
+- **Live Demo (Web):** https://sanraksh.vercel.app
+- **Repository:** https://github.com/Aayush9808/Sanraksh
 - **2-Minute Strategy Video (Phase 1):** https://drive.google.com/file/d/1CvnhmhemT_G60ETTXPxhS2chgMhp3N_m/view?usp=drivesdk
 
 ---
@@ -83,7 +83,7 @@ This repository is structured to satisfy **Phase 1: Ideation & Foundation** with
 
 ## 🧪 Requirement-to-Implementation Mapping
 
-| Hackathon Requirement | GigArmor Implementation | Status |
+| Hackathon Requirement | Sanraksh Implementation | Status |
 |---|---|---|
 | AI-powered risk assessment | Worker-level weekly premium scoring from zone + platform + activity | ✅ |
 | Weekly pricing model | Premium generated and displayed in weekly format across worker dashboard | ✅ |
@@ -98,7 +98,7 @@ This repository is structured to satisfy **Phase 1: Ideation & Foundation** with
 
 ## 🏢 Product-Grade Positioning (How to Present)
 
-When presenting to evaluators, position GigArmor as a production-style insurtech platform with three layers:
+When presenting to evaluators, position Sanraksh as a production-style insurtech platform with three layers:
 
 1. **Risk Intelligence Layer**
 	- dynamic weekly pricing,
@@ -135,7 +135,7 @@ India’s platform delivery workers face direct wage volatility from disruptions
 
 ### Critical Constraint Compliance
 
-GigArmor is designed for **loss of income only**.
+Sanraksh is designed for **loss of income only**.
 
 - ✅ Included: income interruption due to external disruptions
 - ❌ Excluded: accident cover, health cover, life cover, vehicle repair
@@ -144,7 +144,7 @@ GigArmor is designed for **loss of income only**.
 
 ## 🧠 Solution Summary
 
-GigArmor is an AI-powered parametric insurance platform that:
+Sanraksh is an AI-powered parametric insurance platform that:
 
 1. prices risk weekly using zone/platform/activity signals,
 2. monitors disruption conditions in real-time,
@@ -224,7 +224,7 @@ All triggers are modeled as **income interruption events only**.
 
 ## 🧱 Adversarial Defense & Anti-Spoofing Strategy (Threat Defense)
 
-To address **adversarial threat scenarios** (GPS spoofing + synthetic claim rings), GigArmor uses a defense-in-depth model.
+To address **adversarial threat scenarios** (GPS spoofing + synthetic claim rings), Sanraksh uses a defense-in-depth model.
 
 ### 1) Differentiation: genuine worker vs spoofed actor
 
@@ -249,7 +249,7 @@ Claims with coherent multi-signal behavior are treated as genuine; inconsistent 
 
 ### 3) UX Balance: fraud control without harming honest workers
 
-GigArmor uses **risk-tier routing**:
+Sanraksh uses **risk-tier routing**:
 
 - **Low risk:** instant auto-approval and payout
 - **Medium risk:** soft-friction validation (extra signal checks)
@@ -368,8 +368,8 @@ Roadmap: [docs/PHASE2_EXECUTION_ROADMAP.md](docs/PHASE2_EXECUTION_ROADMAP.md)
 ### Run
 
 ```bash
-git clone https://github.com/Aayush9808/GigArmor.git
-cd GigArmor
+git clone https://github.com/Aayush9808/Sanraksh.git
+cd Sanraksh
 docker compose up -d --build
 ```
 
@@ -472,6 +472,6 @@ Built for **Guidewire DEVTrails 2026** with a focus on practical insurtech outco
 
 <div align="center">
 
-### 🚀 GigArmor — From disruption to payout, automatically.
+### 🚀 Sanraksh — From disruption to payout, automatically.
 
 </div>

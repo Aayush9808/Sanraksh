@@ -1,6 +1,6 @@
 <div align="center">
 
-<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&height=180&color=0:0f172a,50:f59e0b,100:ef4444&text=GigArmor+Phase+2&fontSize=48&fontColor=ffffff&animation=twinkling&fontAlignY=36&desc=From+Prototype+to+Production%3A+Real+APIs%2C+Live+Data%2C+Working+Automation&descAlignY=58&descSize=16" />
+<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&height=180&color=0:0f172a,50:f59e0b,100:ef4444&text=Sanraksh+Phase+2&fontSize=48&fontColor=ffffff&animation=twinkling&fontAlignY=36&desc=From+Prototype+to+Production%3A+Real+APIs%2C+Live+Data%2C+Working+Automation&descAlignY=58&descSize=16" />
 
 # ⚙️ Phase 2 — Build & Automate
 ### Full-Stack Implementation · Real APIs · Working Automation Engine
@@ -12,8 +12,8 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
 [![SQLite](https://img.shields.io/badge/SQLite-Database-003B57?style=for-the-badge&logo=sqlite)](https://sqlite.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
-[![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/Aayush9808/GigArmor/actions)
-[![Vercel](https://img.shields.io/badge/Deploy-Vercel-black?style=for-the-badge&logo=vercel)](https://gigarmor.vercel.app)
+[![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/Aayush9808/Sanraksh/actions)
+[![Vercel](https://img.shields.io/badge/Deploy-Vercel-black?style=for-the-badge&logo=vercel)](https://sanraksh.vercel.app)
 
 </div>
 
@@ -21,8 +21,8 @@
 
 ## 🔗 Phase 2 Submission Links
 
-- **Live Demo:** https://gigarmor.vercel.app
-- **Repository:** https://github.com/Aayush9808/GigArmor
+- **Live Demo:** https://sanraksh.vercel.app
+- **Repository:** https://github.com/Aayush9808/Sanraksh
 - **Phase 1 Submission:** [submissions/PHASE1.md](./PHASE1.md)
 
 ---
@@ -150,7 +150,7 @@ flowchart TD
     A[Worker / Admin Browser] --> B[Next.js 14 Frontend\nVercel CDN]
     B -->|JWT in header| C[FastAPI Backend\nPort 8000]
     C --> D[SQLAlchemy ORM]
-    D --> E[(SQLite DB\ngigarmor.db)]
+    D --> E[(SQLite DB\nsanraksh.db)]
     C --> F[Auth Router\nJWT + In-memory OTP]
     C --> G[Premium Router\nAI 6-factor pricing]
     C --> H[Phase2 Router\nAutomation Engine]
@@ -176,8 +176,8 @@ All 16 pass on CI against a PostgreSQL test container.
 ## 🚀 Run Phase 2 Locally
 
 ```bash
-git clone https://github.com/Aayush9808/GigArmor.git
-cd GigArmor/gigshield-dev
+git clone https://github.com/Aayush9808/Sanraksh.git
+cd Sanraksh/gigshield-dev
 
 # Backend (no Docker needed)
 cd backend

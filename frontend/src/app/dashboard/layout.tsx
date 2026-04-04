@@ -65,10 +65,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="px-5 py-5 border-b border-slate-200 flex-shrink-0">
         <Link href="/" className="flex items-center gap-2.5" onClick={() => setSidebarOpen(false)}>
           <div className="w-8 h-8 rounded-lg bg-[#0F2044] flex items-center justify-center flex-shrink-0">
-            <span className="text-white font-black text-xs">GA</span>
+            <span className="text-white font-black text-xs">SR</span>
           </div>
           <div>
-            <div className="font-bold text-slate-900 text-sm leading-tight">GigInsu₹</div>
+            <div className="font-bold text-slate-900 text-sm leading-tight">Sanraksh</div>
             <div className="text-xs text-slate-400 font-medium capitalize">{role} portal</div>
           </div>
         </Link>
@@ -120,7 +120,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 rounded-xl bg-[#0F2044] flex items-center justify-center">
-            <span className="text-white font-black text-sm">GA</span>
+            <span className="text-white font-black text-sm">SR</span>
           </div>
           <div className="w-5 h-5 border-2 border-[#0F2044] border-t-transparent rounded-full animate-spin" />
         </div>
@@ -162,7 +162,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </button>
 
           <div className="flex items-center gap-2 text-sm flex-1 min-w-0">
-            <span className="text-slate-400 font-medium truncate hidden sm:block">GigInsu₹</span>
+            <span className="text-slate-400 font-medium truncate hidden sm:block">Sanraksh</span>
             <span className="text-slate-300 hidden sm:block">/</span>
             <span className="font-semibold text-slate-900 truncate">{activeItem.label}</span>
           </div>

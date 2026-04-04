@@ -2,9 +2,9 @@
 import { useState } from "react";
 
 const POLICY_TYPES = [
-  { id:"STD", name:"GigInsu₹ Standard", premium:"₹49/week", workers:11480, payouts_ytd:48200, events:6, status:"active" },
-  { id:"PRO", name:"GigInsu₹ Pro",      premium:"₹79/week", workers:2340,  payouts_ytd:18600, events:9, status:"active" },
-  { id:"LITE",name:"GigInsu₹ Lite",     premium:"₹29/week", workers:380,   payouts_ytd:4800,  events:3, status:"active" },
+  { id:"STD", name:"Sanraksh Standard", premium:"₹49/week", workers:11480, payouts_ytd:48200, events:6, status:"active" },
+  { id:"PRO", name:"Sanraksh Pro",      premium:"₹79/week", workers:2340,  payouts_ytd:18600, events:9, status:"active" },
+  { id:"LITE",name:"Sanraksh Lite",     premium:"₹29/week", workers:380,   payouts_ytd:4800,  events:3, status:"active" },
 ];
 const RULES = [
   { id:"R1", event:"Heavy Rain",   threshold:"IMD Orange/Red Alert",   payout:"₹280/day",  cap:"₹840/7-day",   active:true  },

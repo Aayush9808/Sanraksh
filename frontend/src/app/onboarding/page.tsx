@@ -171,16 +171,25 @@ export default function OnboardingPage() {
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Route guard — must have a registered account to access onboarding
-  useEffect(() => {
-    if (!getCurrentUser()) {
-      router.replace("/register");
-    }
-  }, []);
-
-  // Step 1
+  // Step 1 — pre-fill from register
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+
+  // Route guard — must have a registered account to access onboarding
+  // Also pre-fills name + phone from the just-registered user
+  useEffect(() => {
+    const user = getCurrentUser();
+    if (!user) {
+      router.replace("/register");
+      return;
+    }
+    if (user.name) setName(user.name);
+    // email is stored as `phone@sanraksh.local` — extract the phone part
+    if (user.email) {
+      const extracted = user.email.split("@")[0];
+      if (/^\d{10}$/.test(extracted)) setPhone(extracted);
+    }
+  }, []);
   const [city, setCity] = useState("");
 
   // Step 2
@@ -287,7 +296,7 @@ export default function OnboardingPage() {
     setSelectedPlan(result.recommended_plan || "standard");
     if (typeof window !== "undefined") {
       const earningsNum = EARNINGS_TO_NUM[earningsBand] ?? 5500;
-      localStorage.setItem("giginsur_premium", JSON.stringify({
+      localStorage.setItem("sanraksh_premium", JSON.stringify({
         premium: result.final_premium,
         risk: result.risk_level,
         city,
@@ -304,7 +313,7 @@ export default function OnboardingPage() {
   function handleRecalculate() {
     setPremiumResult(null);
     setEarningsBand("");
-    if (typeof window !== "undefined") localStorage.removeItem("giginsur_premium");
+    if (typeof window !== "undefined") localStorage.removeItem("sanraksh_premium");
     setTimeout(() => earningsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
   }
 
@@ -412,7 +421,7 @@ export default function OnboardingPage() {
       // ── Generate and persist the policy object ─────────────────────────
       if (typeof window !== "undefined") {
         const storedPremium = (() => {
-          try { return JSON.parse(localStorage.getItem("giginsur_premium") || "null"); } catch { return null; }
+          try { return JSON.parse(localStorage.getItem("sanraksh_premium") || "null"); } catch { return null; }
         })();
         const policyObj = {
           id: `POLICY_${Date.now()}`,
@@ -432,7 +441,7 @@ export default function OnboardingPage() {
           ],
           payoutRule: "Auto payout when trigger conditions met",
         };
-        localStorage.setItem("giginsur_policy", JSON.stringify(policyObj));
+        localStorage.setItem("sanraksh_policy", JSON.stringify(policyObj));
       }
 
       logStep("Onboarding Complete — Worker Profile", {
@@ -482,9 +491,9 @@ export default function OnboardingPage() {
       <div className="hidden lg:flex flex-col w-72 flex-shrink-0 bg-white border-r border-slate-200 px-8 py-10">
         <Link href="/" className="flex items-center gap-2.5 mb-10">
           <div className="w-8 h-8 rounded-lg bg-[#0F2044] flex items-center justify-center">
-            <span className="text-white font-black text-sm">GI</span>
+            <span className="text-white font-black text-sm">SR</span>
           </div>
-          <span className="font-bold text-slate-900 text-lg">GigInsu₹</span>
+          <span className="font-bold text-slate-900 text-lg">Sanraksh</span>
         </Link>
         <div className="mb-8">
           <h2 className="font-extrabold text-slate-900 text-xl tracking-tight mb-1">Get protected</h2>
@@ -505,9 +514,9 @@ export default function OnboardingPage() {
           <div className="lg:hidden flex items-center justify-between mb-6">
             <Link href="/" className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-[#0F2044] flex items-center justify-center">
-                <span className="text-white font-black text-sm">GI</span>
+                <span className="text-white font-black text-sm">SR</span>
               </div>
-              <span className="font-bold text-slate-900">GigInsu₹</span>
+              <span className="font-bold text-slate-900">Sanraksh</span>
             </Link>
             <span className="text-sm text-slate-400">Step {step}/8</span>
           </div>
@@ -942,8 +951,8 @@ export default function OnboardingPage() {
 
                   <button type="submit" onClick={() => {
                     if (typeof window !== "undefined") {
-                      localStorage.setItem("giginsur_plan", selectedPlan);
-                      localStorage.setItem("giginsur_plan_confirmed", "true");
+                      localStorage.setItem("sanraksh_plan", selectedPlan);
+                      localStorage.setItem("sanraksh_plan_confirmed", "true");
                     }
                     next();
                   }}

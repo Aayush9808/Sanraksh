@@ -23,12 +23,19 @@ export interface WorkerSession {
 
 // ─── Storage key ─────────────────────────────────────────────────────────────
 
-const SESSION_KEY = "giginsur_session";
+const SESSION_KEY = "sanraksh_session";
 
-// ─── Backward-compat migration (gigarmor → giginsur) ─────────────────────────
+// ─── Backward-compat migration (giginsur / gigarmor → sanraksh) ──────────────
 
 if (typeof window !== "undefined") {
   try {
+    // giginsur → sanraksh
+    const giSession = localStorage.getItem("giginsur_session");
+    if (giSession && !localStorage.getItem(SESSION_KEY)) {
+      localStorage.setItem(SESSION_KEY, giSession);
+      localStorage.removeItem("giginsur_session");
+    }
+    // gigarmor → sanraksh (legacy)
     const old = localStorage.getItem("gigarmor_session");
     if (old && !localStorage.getItem(SESSION_KEY)) {
       localStorage.setItem(SESSION_KEY, old);

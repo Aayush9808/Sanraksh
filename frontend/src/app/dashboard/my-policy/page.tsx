@@ -91,7 +91,7 @@ export default function MyPolicyPage() {
     // Load stored policy (generated at onboarding completion)
     if (typeof window !== "undefined") {
       try {
-        const raw = localStorage.getItem("giginsur_policy");
+        const raw = localStorage.getItem("sanraksh_policy");
         if (raw) setStoredPolicy(JSON.parse(raw));
         else setStoredPolicy(DEMO_POLICY_DATA as StoredPolicy);
       } catch { setStoredPolicy(DEMO_POLICY_DATA as StoredPolicy); }
@@ -173,7 +173,7 @@ export default function MyPolicyPage() {
         {/* Policy card */}
         <div className="panel p-5">
           <p className="lbl mb-3">Policy details</p>
-          <div className="text-slate-800 font-bold text-lg mb-0.5">GigInsu₹ Personalised Plan</div>
+          <div className="text-slate-800 font-bold text-lg mb-0.5">Sanraksh Personalised Plan</div>
           <p className="lbl mb-4 font-mono text-xs">{policyId}</p>
           <div className="space-y-2.5">
             <div className="flex justify-between text-sm">

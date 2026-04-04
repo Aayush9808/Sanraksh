@@ -47,7 +47,7 @@ const DEMO_POLICY = {
 function getActivePolicy() {
   if (typeof window === "undefined") return DEMO_POLICY;
   try {
-    const raw = localStorage.getItem("giginsur_policy");
+    const raw = localStorage.getItem("sanraksh_policy");
     if (raw) return { ...DEMO_POLICY, ...JSON.parse(raw) };
   } catch {}
   return DEMO_POLICY;
@@ -55,12 +55,12 @@ function getActivePolicy() {
 
 function getClaimsHistory(): ClaimRecord[] {
   if (typeof window === "undefined") return [];
-  try { return JSON.parse(localStorage.getItem("giginsur_claims") || "[]"); } catch { return []; }
+  try { return JSON.parse(localStorage.getItem("sanraksh_claims") || "[]"); } catch { return []; }
 }
 
 function saveClaimsHistory(records: ClaimRecord[]) {
   if (typeof window === "undefined") return;
-  localStorage.setItem("giginsur_claims", JSON.stringify(records.slice(0, 10)));
+  localStorage.setItem("sanraksh_claims", JSON.stringify(records.slice(0, 10)));
 }
 
 const TRIGGERS = [
@@ -156,7 +156,7 @@ export default function SimulationFlow() {
     if (!getCurrentUser()) { router.replace("/login"); return; }
     setPolicy(getActivePolicy());
     setHistory(getClaimsHistory());
-    setIsDemo(!localStorage.getItem("giginsur_policy"));
+    setIsDemo(!localStorage.getItem("sanraksh_policy"));
   }, []);
 
   // Auto engine loop — fires every 8 s while enabled

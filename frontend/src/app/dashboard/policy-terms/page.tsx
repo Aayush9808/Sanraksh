@@ -89,7 +89,7 @@ export default function PolicyTermsPage() {
         <p className="lbl mb-2">General provisions</p>
         <ul className="space-y-2 text-sm text-slate-500 leading-relaxed">
           <li>• All trigger decisions use independent, publicly verifiable data sources</li>
-          <li>• GigInsu₹ holds no discretion in payout decisions — outcomes are entirely algorithmic</li>
+          <li>• Sanraksh holds no discretion in payout decisions — outcomes are entirely algorithmic</li>
           <li>• Disputes must be raised within 14 days of the relevant trigger event</li>
           <li>• Policy is governed by Indian Contract Act, 1872 · IRDAI parametric guidelines 2024</li>
         </ul>

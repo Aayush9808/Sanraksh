@@ -1,6 +1,6 @@
 # ML Models Directory
 
-This directory stores trained machine learning models used by the GigArmor platform.
+This directory stores trained machine learning models used by the Sanraksh platform.
 
 ## Current Models
 

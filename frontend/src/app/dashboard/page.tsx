@@ -26,7 +26,7 @@ function getActivePolicy(forceDemoMode = false): ActivePolicyType {
   if (forceDemoMode) return DEMO_POLICY;
   if (typeof window === "undefined") return DEMO_POLICY;
   try {
-    const raw = localStorage.getItem("giginsur_policy");
+    const raw = localStorage.getItem("sanraksh_policy");
     if (raw) return { ...DEMO_POLICY, ...JSON.parse(raw) };
   } catch {}
   return DEMO_POLICY;
@@ -36,7 +36,7 @@ function getActivePolicy(forceDemoMode = false): ActivePolicyType {
 
 function getLocalClaims(): Array<{ id: string; triggerLabel: string; date: string; payout: number; status: string }> {
   if (typeof window === "undefined") return [];
-  try { return JSON.parse(localStorage.getItem("giginsur_claims") || "[]"); } catch { return []; }
+  try { return JSON.parse(localStorage.getItem("sanraksh_claims") || "[]"); } catch { return []; }
 }
 
 // ─── COUNTER ──────────────────────────────────────────────────────────────────
@@ -94,7 +94,7 @@ function WorkerHome() {
 
   useEffect(() => {
     const mode = new URLSearchParams(window.location.search).get("mode");
-    const forceDemo = mode === "demo" || !localStorage.getItem("giginsur_policy");
+    const forceDemo = mode === "demo" || !localStorage.getItem("sanraksh_policy");
     setIsDemoMode(forceDemo);
     setActivePolicy(getActivePolicy(forceDemo));
 
@@ -146,7 +146,7 @@ function WorkerHome() {
         <div>
           <p className="text-blue-300 text-xs font-semibold uppercase tracking-wider mb-1">Your coverage</p>
           <h1 className="text-white font-extrabold text-xl tracking-tight flex items-center gap-2">
-            GigInsu₹ {planName}
+            Sanraksh {planName}
             {riskTier && (
               <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: riskColor + "33", color: riskColor }}>
                 {riskTier} risk

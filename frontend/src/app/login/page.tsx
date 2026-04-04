@@ -147,9 +147,9 @@ export default function LoginPage() {
       <div className="hidden lg:flex flex-col justify-between w-[400px] flex-shrink-0 bg-[#0F2044] px-10 py-12">
         <Link href="/" className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center">
-            <span className="text-white font-black text-sm">GA</span>
+            <span className="text-white font-black text-sm">SR</span>
           </div>
-          <span className="text-white font-bold text-lg">GigInsu₹</span>
+          <span className="text-white font-bold text-lg">Sanraksh</span>
         </Link>
         <div>
           <h2 className="text-white font-extrabold text-3xl leading-tight tracking-tight mb-4">Income protection for gig workers.</h2>
@@ -184,9 +184,9 @@ export default function LoginPage() {
           <div className="lg:hidden flex items-center gap-2 mb-8">
             <Link href="/" className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-[#0F2044] flex items-center justify-center">
-                <span className="text-white font-black text-sm">GA</span>
+                <span className="text-white font-black text-sm">SR</span>
               </div>
-              <span className="text-slate-900 font-bold text-lg">GigInsu₹</span>
+              <span className="text-slate-900 font-bold text-lg">Sanraksh</span>
             </Link>
           </div>
 
@@ -294,7 +294,7 @@ export default function LoginPage() {
           </AnimatePresence>
 
           <div className="mt-8 pt-6 border-t border-slate-200 text-center">
-            <span className="text-slate-400 text-sm">New to GigInsu₹? </span>
+            <span className="text-slate-400 text-sm">New to Sanraksh? </span>
             <Link href="/register" className="text-[#0F2044] font-semibold text-sm hover:underline">Get protected →</Link>
           </div>
 
@@ -312,7 +312,7 @@ export default function LoginPage() {
               </p>
               <div className="space-y-2.5 mb-4">
                 {[
-                  { icon: "📧", label: "Email us", desc: "support@giginsur.in", href: "mailto:support@giginsur.in" },
+                  { icon: "📧", label: "Email us", desc: "support@sanraksh.in", href: "mailto:support@sanraksh.in" },
                   { icon: "💬", label: "Live support", desc: "Get help in minutes", href: "/support" },
                   { icon: "📖", label: "FAQs & guides", desc: "Common questions answered", href: "/support" },
                 ].map(item => (

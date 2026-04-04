@@ -29,7 +29,7 @@ export default function RegisterPage() {
       const newUser = {
         id: crypto.randomUUID(),
         name: name.trim(),
-        email: `${phone}@giginsur.local`,
+        email: `${phone}@sanraksh.local`,
         createdAt: new Date().toISOString(),
       };
       saveUser(newUser);
@@ -47,9 +47,9 @@ export default function RegisterPage() {
       <div className="hidden lg:flex flex-col w-[320px] flex-shrink-0 bg-white border-r border-slate-200 px-8 py-10">
         <Link href="/" className="flex items-center gap-2 mb-10">
           <div className="w-8 h-8 rounded-lg bg-[#0F2044] flex items-center justify-center">
-              <span className="text-white font-black text-sm">GI</span>
+              <span className="text-white font-black text-sm">SR</span>
           </div>
-          <span className="font-bold text-slate-900 text-lg">GigInsu₹</span>
+          <span className="font-bold text-slate-900 text-lg">Sanraksh</span>
         </Link>
         <div className="flex-1">
           <h2 className="font-extrabold text-slate-900 text-xl tracking-tight mb-1">Get protected</h2>
@@ -84,9 +84,9 @@ export default function RegisterPage() {
           <div className="lg:hidden flex items-center justify-between mb-8">
             <Link href="/" className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-[#0F2044] flex items-center justify-center">
-                <span className="text-white font-black text-sm">GI</span>
+                <span className="text-white font-black text-sm">SR</span>
               </div>
-              <span className="font-bold text-slate-900">GigInsu₹</span>
+              <span className="font-bold text-slate-900">Sanraksh</span>
             </Link>
           </div>
 

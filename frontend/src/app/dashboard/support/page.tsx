@@ -119,7 +119,7 @@ export default function WorkerSupportPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: "Worker",
-          email: "worker@giginsur.in",
+          email: "worker@sanraksh.in",
           category,
           message: message.trim(),
         }),
@@ -130,7 +130,7 @@ export default function WorkerSupportPage() {
       // Refresh tickets
       setTimeout(() => loadTickets(), 500);
     } catch {
-      setFormError("Failed to submit. Please try again or email support@giginsur.in.");
+      setFormError("Failed to submit. Please try again or email support@sanraksh.in.");
     } finally {
       setSending(false);
     }
@@ -158,7 +158,7 @@ export default function WorkerSupportPage() {
       {/* Quick contact bar */}
       <div className="grid sm:grid-cols-3 gap-3 mb-6">
         {[
-          { icon: "📧", label: "Email us", value: "support@giginsur.in", href: "mailto:support@giginsur.in" },
+          { icon: "📧", label: "Email us", value: "support@sanraksh.in", href: "mailto:support@sanraksh.in" },
           { icon: "📞", label: "Request callback", value: "Free · within 2 hours", href: "#new-ticket" },
           { icon: "🕐", label: "Response time", value: "< 24 hours", href: "#" },
         ].map(c => (
@@ -398,7 +398,7 @@ export default function WorkerSupportPage() {
                     </button>
 
                     <p className="text-center text-xs text-slate-400">
-                      Or email us directly at <a href="mailto:support@giginsur.in" className="text-[#0F2044] font-semibold hover:underline">support@giginsur.in</a>
+                      Or email us directly at <a href="mailto:support@sanraksh.in" className="text-[#0F2044] font-semibold hover:underline">support@sanraksh.in</a>
                     </p>
                   </form>
                 )}

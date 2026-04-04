@@ -1,8 +1,8 @@
-# GigArmor Architecture
+# Sanraksh Architecture
 
 ## System Overview
 
-GigArmor is a parametric insurance platform designed specifically for India's gig economy delivery partners. The system uses AI/ML for dynamic pricing, fraud detection, and hyper-local risk assessment.
+Sanraksh is a parametric insurance platform designed specifically for India's gig economy delivery partners. The system uses AI/ML for dynamic pricing, fraud detection, and hyper-local risk assessment.
 
 ## High-Level Architecture
 

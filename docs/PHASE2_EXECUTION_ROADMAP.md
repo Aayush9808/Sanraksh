@@ -3,7 +3,7 @@
 ## Objective
 Deliver a production-style automation layer over Phase 1 so disruption events trigger real claim routing, fraud-aware decisions, and payout orchestration at scale.
 
-## Build Plan (Owner: GigArmor Engineering)
+## Build Plan (Owner: Sanraksh Engineering)
 
 - [x] Implement disruption-to-claims automation API
 - [x] Add fraud-aware routing buckets: `AUTO_PAY`, `REVIEW`, `REJECT`

@@ -9,14 +9,26 @@ export interface User {
 
 // ─── Storage keys ─────────────────────────────────────────────────────────────
 
-const USERS_KEY = "giginsur_users";
-const CURRENT_USER_KEY = "giginsur_current_user";
+const USERS_KEY = "sanraksh_users";
+const CURRENT_USER_KEY = "sanraksh_current_user";
 
-// ─── Backward-compat migration (gigarmor → giginsur) ─────────────────────────
+// ─── Backward-compat migration (giginsur / gigarmor → sanraksh) ──────────────
 
 function migrateOldKeys(): void {
   if (typeof window === "undefined") return;
   try {
+    // giginsur → sanraksh
+    const giUsers = localStorage.getItem("giginsur_users");
+    if (giUsers && !localStorage.getItem(USERS_KEY)) {
+      localStorage.setItem(USERS_KEY, giUsers);
+      localStorage.removeItem("giginsur_users");
+    }
+    const giCurrent = localStorage.getItem("giginsur_current_user");
+    if (giCurrent && !localStorage.getItem(CURRENT_USER_KEY)) {
+      localStorage.setItem(CURRENT_USER_KEY, giCurrent);
+      localStorage.removeItem("giginsur_current_user");
+    }
+    // gigarmor → sanraksh (legacy)
     const oldUsers = localStorage.getItem("gigarmor_users");
     if (oldUsers && !localStorage.getItem(USERS_KEY)) {
       localStorage.setItem(USERS_KEY, oldUsers);

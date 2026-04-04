@@ -5,14 +5,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { API_V1_BASE } from "@/lib/config";
 
 const FAQS = [
-  { q: "How does automatic payout work?", a: "GigInsu₹ monitors weather APIs, platform status, and government alerts 24/7. When a qualifying event hits your registered zone, the payout triggers automatically — no claim required. Money arrives in your UPI account within 24–72 hours." },
+  { q: "How does automatic payout work?", a: "Sanraksh monitors weather APIs, platform status, and government alerts 24/7. When a qualifying event hits your registered zone, the payout triggers automatically — no claim required. Money arrives in your UPI account within 24–72 hours." },
   { q: "I didn't receive my payout. What do I do?", a: "First, confirm the event occurred in your registered zone and exceeded the trigger threshold for your plan. If it did, check that your UPI ID is correct in your profile. If the issue persists, use the contact form below with your phone number and the event date." },
   { q: "How do I change my registered zone?", a: "Go to Dashboard → My Policy → Edit Profile. Zone changes take effect from the next billing week, not mid-week." },
   { q: "Can I pause or cancel my policy?", a: "Yes. Go to Dashboard → My Policy → Cancel Policy. Cancellation takes effect at end of the current week. You'll continue to be covered until then." },
-  { q: "Is this real insurance?", a: "GigInsu₹ is a parametric income protection product, not a traditional insurance policy. It does not require IRDAI registration as it is an indemnity-based income support product. Coverage details are outlined in our Terms & Conditions." },
+  { q: "Is this real insurance?", a: "Sanraksh is a parametric income protection product, not a traditional insurance policy. It does not require IRDAI registration as it is an indemnity-based income support product. Coverage details are outlined in our Terms & Conditions." },
   { q: "What platforms are supported?", a: "Swiggy, Zomato, Uber Eats, Ola, Blinkit, Dunzo, Zepto, and Rapido. More platforms are added regularly." },
-  { q: "What if I work on multiple platforms?", a: "You can register all platforms during sign-up. GigInsu₹ calculates zone risk across all your platforms and pays out if any qualifying event hits your zone." },
-  { q: "How is fraud detected?", a: "GigInsu₹ uses AI models that analyze GPS jump patterns, device reuse across accounts, route feasibility, and peer-event correlation. Legitimate claims are never affected — the system only flags coordinated fraud rings." },
+  { q: "What if I work on multiple platforms?", a: "You can register all platforms during sign-up. Sanraksh calculates zone risk across all your platforms and pays out if any qualifying event hits your zone." },
+  { q: "How is fraud detected?", a: "Sanraksh uses AI models that analyze GPS jump patterns, device reuse across accounts, route feasibility, and peer-event correlation. Legitimate claims are never affected — the system only flags coordinated fraud rings." },
 ];
 
 const CATEGORIES = [
@@ -64,7 +64,7 @@ export default function SupportPage() {
       if (!res.ok) throw new Error("Server error");
       setSent(true);
     } catch {
-      setError("Failed to send. Please email us at support@giginsur.in directly.");
+      setError("Failed to send. Please email us at support@sanraksh.in directly.");
     } finally {
       setLoading(false);
     }
@@ -77,9 +77,9 @@ export default function SupportPage() {
         <div className="max-w-5xl mx-auto w-full flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-[#0F2044] flex items-center justify-center">
-              <span className="text-white font-black text-xs">GA</span>
+              <span className="text-white font-black text-xs">SR</span>
             </div>
-            <span className="font-bold text-slate-900 tracking-tight">GigInsu₹</span>
+            <span className="font-bold text-slate-900 tracking-tight">Sanraksh</span>
           </Link>
           <Link href="/" className="text-sm text-slate-500 hover:text-slate-900 font-medium transition-colors">← Back to home</Link>
         </div>
@@ -98,7 +98,7 @@ export default function SupportPage() {
         {/* Quick info cards */}
         <div className="grid sm:grid-cols-3 gap-4 mb-12">
           {[
-            { icon: "📧", title: "Email support", desc: "support@giginsur.in", sub: "Response within 24 hours" },
+            { icon: "📧", title: "Email support", desc: "support@sanraksh.in", sub: "Response within 24 hours" },
             { icon: "💬", title: "In-app message", desc: "Dashboard → Profile → Help", sub: "Fastest for active policy issues" },
             { icon: "📞", title: "Callback request", desc: "Leave your number below", sub: "We call back in 2–4 hours" },
           ].map(c => (
@@ -182,9 +182,9 @@ export default function SupportPage() {
       <footer className="border-t border-slate-200 mt-12 py-6 px-4 sm:px-6 text-center text-slate-400 text-sm">
         <Link href="/terms" className="hover:text-slate-700 transition-colors">Terms & Conditions</Link>
         <span className="mx-3">·</span>
-        <Link href="/" className="hover:text-slate-700 transition-colors">GigInsu₹ Home</Link>
+        <Link href="/" className="hover:text-slate-700 transition-colors">Sanraksh Home</Link>
         <span className="mx-3">·</span>
-        <span>© 2026 GigInsu₹</span>
+        <span>© 2026 Sanraksh</span>
       </footer>
     </div>
   );

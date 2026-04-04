@@ -53,7 +53,7 @@ export function Step4Policy() {
             {/* Header stripe */}
             <div className="bg-[#0F2044] px-5 py-4 flex items-center justify-between">
               <div>
-                <p className="text-blue-300 text-xs font-semibold uppercase tracking-wider">GigInsu₹</p>
+                <p className="text-blue-300 text-xs font-semibold uppercase tracking-wider">Sanraksh</p>
                 <p className="text-white font-extrabold text-lg">Parametric Income Protection</p>
               </div>
               <span className="bg-emerald-400 text-white text-xs font-bold px-3 py-1 rounded-full">ACTIVE</span>

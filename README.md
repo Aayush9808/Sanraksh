@@ -1,7 +1,7 @@
 <div align="center">
 
 <!-- HERO BANNER -->
-<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&height=220&color=0:0f172a,30:0c1f3f,60:0d3a6e,100:1a56a0&text=GigArmor&fontSize=72&fontColor=ffffff&animation=twinkling&fontAlignY=40&desc=AI-Powered%20Parametric%20Income%20Protection%20for%20India%E2%80%99s%20Gig%20Workers&descAlignY=62&descSize=19&descColor=94c3f5" />
+<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&height=220&color=0:0f172a,30:0c1f3f,60:0d3a6e,100:1a56a0&text=Sanraksh&fontSize=72&fontColor=ffffff&animation=twinkling&fontAlignY=40&desc=AI-Powered%20Parametric%20Income%20Protection%20for%20India%E2%80%99s%20Gig%20Workers&descAlignY=62&descSize=19&descColor=94c3f5" />
 
 <!-- ANIMATED HEADLINE -->
 <img src="https://readme-typing-svg.herokuapp.com?font=Inter&weight=800&size=22&pause=1200&color=38BDF8&center=true&vCenter=true&width=960&lines=Guidewire+DEVTrails+2026+%E2%80%94+Loss+of+Income+Insurance+Reimagined;Zero+Mock+Data+%E2%80%94+Every+Number+From+a+Live+API;Parametric+Auto-Claims+%7C+AI+Fraud+Scoring+%7C+Instant+Payout;6-Factor+AI+Premium+Engine+%7C+Full+CI%2FCD+Pipeline" alt="Typing SVG" />
@@ -18,8 +18,8 @@
 <br/>
 
 <!-- DEPLOY + CI BADGES -->
-<a href="https://gigarmor.vercel.app"><img src="https://img.shields.io/badge/%F0%9F%8C%90%20Live%20Demo-gigarmor.vercel.app-000000?style=for-the-badge&logo=vercel" /></a>
-<a href="https://github.com/Aayush9808/GigArmor/actions"><img src="https://github.com/Aayush9808/GigArmor/actions/workflows/ci.yml/badge.svg" /></a>
+<a href="https://sanraksh.vercel.app"><img src="https://img.shields.io/badge/%F0%9F%8C%90%20Live%20Demo-sanraksh.vercel.app-000000?style=for-the-badge&logo=vercel" /></a>
+<a href="https://github.com/Aayush9808/Sanraksh/actions"><img src="https://github.com/Aayush9808/Sanraksh/actions/workflows/ci.yml/badge.svg" /></a>
 <img src="https://img.shields.io/badge/Tests-Passing-22c55e?style=for-the-badge&logo=pytest&logoColor=white" />
 <img src="https://img.shields.io/badge/Zero%20Mock%20Data-100%25%20Real%20APIs-f59e0b?style=for-the-badge" />
 
@@ -28,7 +28,7 @@
 <!-- QUICK NAV -->
 <table>
 <tr>
-<td align="center"><a href="https://gigarmor.vercel.app"><b>🌐 Live Demo</b></a></td>
+<td align="center"><a href="https://sanraksh.vercel.app"><b>🌐 Live Demo</b></a></td>
 <td align="center"><a href="submissions/PHASE1.md"><b>📋 Phase 1 Submission</b></a></td>
 <td align="center"><a href="submissions/PHASE2.md"><b>⚙️ Phase 2 Submission</b></a></td>
 <td align="center"><a href="https://drive.google.com/file/d/1CvnhmhemT_G60ETTXPxhS2chgMhp3N_m/view"><b>🎬 Demo Video</b></a></td>
@@ -47,7 +47,7 @@
 <td>
 
 **Product**
-- [What is GigArmor?](#what-is-gigarmor)
+- [What is Sanraksh?](#what-is-sanraksh)
 - [The Problem We Solve](#the-problem-we-solve)
 - [Key Features](#key-features)
 - [Live Demo & Credentials](#live-demo--credentials)
@@ -76,13 +76,13 @@
 
 ---
 
-## 🛡️ What is GigArmor?
+## 🛡️ What is Sanraksh?
 
 <table>
 <tr>
 <td width="60%">
 
-GigArmor is a **parametric income-protection platform** for India's **7.7 million gig delivery workers**. Built for Guidewire DEVTrails 2026.
+Sanraksh is a **parametric income-protection platform** for India's **7.7 million gig delivery workers**. Built for Guidewire DEVTrails 2026.
 
 Traditional insurance breaks for gig workers:
 - ❌ No fixed salary → actuarial models fail
@@ -90,7 +90,7 @@ Traditional insurance breaks for gig workers:
 - ❌ Claim forms → weeks of delay
 - ❌ Opaque pricing → workers distrust it
 
-**GigArmor flips every one of these.**
+**Sanraksh flips every one of these.**
 
 </td>
 <td width="40%" align="center">
@@ -180,7 +180,7 @@ KPI cards · Claims feed · Disruption monitor · Risk zones · Simulation engin
 
 ## 🌐 Live Demo & Credentials
 
-> **Live at:** [https://gigarmor.vercel.app](https://gigarmor.vercel.app)
+> **Live at:** [https://sanraksh.vercel.app](https://sanraksh.vercel.app)
 
 <table>
 <tr>
@@ -413,7 +413,7 @@ KPI cards · Claims feed · Disruption monitor · Risk zones · Simulation engin
 | Platform Stability | Monthly uptime-degradation probability | +₹2.25 | 76% |
 | Seasonal Adjustment | Current monsoon/summer/winter season | ±₹7.0 | 92% |
 | Earnings Coverage Scale | Weekly earnings band → coverage amount | ±₹4.5 | 95% |
-| Loyalty Discount | Tenure with GigArmor (months) | −₹6.0 | 100% |
+| Loyalty Discount | Tenure with Sanraksh (months) | −₹6.0 | 100% |
 | No-Claim Bonus | Claims in last 30 days | −₹2.5 | 100% |
 
 ### Fraud Detection Architecture
@@ -504,7 +504,7 @@ score > 0.70 → REJECT        ( 9.1% of claims)
                           ▼
                ┌─────────────────┐
                │ Vercel Deploy   │
-               │ gigarmor.vercel │
+               │ sanraksh.vercel │
                │    .app  ✓      │
                └─────────────────┘
 ```
@@ -515,7 +515,7 @@ score > 0.70 → REJECT        ( 9.1% of claims)
 
 ```bash
 # 1. Clone
-git clone https://github.com/Aayush9808/GigArmor.git && cd GigArmor
+git clone https://github.com/Aayush9808/Sanraksh.git && cd Sanraksh
 
 # 2. Backend (Python 3.11+, no Docker needed)
 cd backend
@@ -535,7 +535,7 @@ npm install && npm run dev
 ## 📦 Repository Structure
 
 ```
-GigArmor/
+Sanraksh/
 │
 ├── frontend/                        # Next.js 14 · TypeScript · Tailwind
 │   └── src/app/
@@ -583,8 +583,8 @@ GigArmor/
 
 | Resource | URL |
 |----------|-----|
-| 🌐 Live Demo | https://gigarmor.vercel.app |
-| 📦 GitHub | https://github.com/Aayush9808/GigArmor |
+| 🌐 Live Demo | https://sanraksh.vercel.app |
+| 📦 GitHub | https://github.com/Aayush9808/Sanraksh |
 | 🎬 Phase 1 Video | https://drive.google.com/file/d/1CvnhmhemT_G60ETTXPxhS2chgMhp3N_m/view |
 | 📡 API Docs (local) | http://localhost:8000/docs |
 | 📋 Phase 1 Submission | [submissions/PHASE1.md](submissions/PHASE1.md) |
