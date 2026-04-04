@@ -1,7 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { API_BASE, API_V1_BASE } from "@/lib/config";
+import { loadSession, loadSessionForUser } from "@/lib/workerSession";
+import { getCurrentUser } from "@/lib/userStore";
 
 interface Factor {
   factor: string;
@@ -50,11 +53,13 @@ function ConfidenceBar({ v }: { v: number }) {
 }
 
 export default function MyPremiumPage() {
+  const router = useRouter();
   const [result, setResult] = useState<PremiumResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [earningsBand, setEarningsBand] = useState("4000_7000");
   const [tenure, setTenure] = useState(0);
   const [profile, setProfile] = useState<{ city: string; platform: string } | null>(null);
+  const [fromSession, setFromSession] = useState(false);
 
   async function calculate(city: string, platform: string, band: string, months: number) {
     setLoading(true);
@@ -70,12 +75,44 @@ export default function MyPremiumPage() {
           claims_last_30_days: 0,
         }),
       });
-      if (res.ok) setResult(await res.json());
+      if (res.ok) { setResult(await res.json()); setFromSession(false); }
     } catch {}
     setLoading(false);
   }
 
   useEffect(() => {
+    if (!getCurrentUser()) { router.replace("/login"); return; }
+    // First, try to load computed session from onboarding engines
+    const currentUser = getCurrentUser()!;
+    const session = loadSessionForUser(currentUser.id);
+    if (session) {
+      setFromSession(true);
+      setEarningsBand(session.rawEarningsBand || "4000_7000");
+      setProfile({ city: session.worker.city, platform: session.worker.platform });
+      // Map engine PremiumResult to API PremiumResult shape for display
+      const pr = session.premiumResult;
+      setResult({
+        base_premium: pr.basePremium,
+        final_premium: pr.finalPremium,
+        coverage_per_day: session.policy.coveragePerDay,
+        weekly_roi_breakeven_days: pr.finalPremium > 0 ? session.policy.coveragePerDay / pr.finalPremium * 7 : 0,
+        recommended_plan: session.policy.plan.toLowerCase(),
+        plan_reasoning: `Recommended for ${session.underwritingResult.riskTier} risk workers in ${session.worker.city}.`,
+        risk_level: session.underwritingResult.riskTier,
+        risk_score: session.underwritingResult.riskScore / 10,
+        season: "current",
+        factors: pr.breakdown.map((line, i) => ({
+          factor: line.replace(/[+\-₹\d.]+/g, "").trim() || `Factor ${i + 1}`,
+          adjustment: parseFloat(line.match(/[+\-]?₹?([\d.]+)/)?.[1] ?? "0") * (line.startsWith("-") ? -1 : 1),
+          explanation: line,
+          confidence: 0.85 - i * 0.05,
+        })),
+      });
+      setLoading(false);
+      return;
+    }
+
+    // Fallback to API
     const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
     fetch(`${API_BASE}/api/v1/workers/me`, { headers: { Authorization: `Bearer ${token}` } })
       .then(r => r.ok ? r.json() : null)
@@ -105,7 +142,14 @@ export default function MyPremiumPage() {
       {/* Header */}
       <div className="mb-6">
         <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Your coverage</p>
-        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">My Premium Breakdown</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">My Premium Breakdown</h1>
+          {fromSession && (
+            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+              Engine-computed
+            </span>
+          )}
+        </div>
         <p className="text-slate-500 text-sm mt-1">AI-calculated pricing based on your location, platform, and earnings.</p>
       </div>
 
@@ -161,8 +205,8 @@ export default function MyPremiumPage() {
           <div className="bg-white rounded-2xl border border-slate-200 p-5">
             <div className="flex items-start justify-between gap-4 mb-4">
               <div>
-                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Recommended plan</div>
-                <div className="text-lg font-extrabold text-slate-900 capitalize">{result.recommended_plan}</div>
+                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Plan type</div>
+                <div className="text-lg font-extrabold text-slate-900">Personalised Plan</div>
                 <p className="text-slate-500 text-sm mt-1">{result.plan_reasoning}</p>
               </div>
               <div className="flex-shrink-0 text-center">

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { API_BASE } from "@/lib/config";
+import { getUsers, saveUser } from "@/lib/userStore";
+import { logStep, logWarn } from "@/lib/debugLogger";
 
 function OtpInput({ value, onChange, onFill }: { value: string; onChange: (v: string) => void; onFill: (completed: string) => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -66,11 +68,29 @@ function Spinner() {
 
 export default function LoginPage() {
   const router = useRouter();
-  const [step, setStep] = useState<"phone" | "otp">("phone");
+  const [step, setStep] = useState<"email" | "phone" | "otp">("email");
+  const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
+
+  function handleEmailLogin(e: React.FormEvent) {
+    e.preventDefault();
+    const trimmed = email.trim().toLowerCase();
+    if (!trimmed) { setErr("Please enter your email."); return; }
+    setErr("");
+    const match = getUsers().find(u => u.email.toLowerCase() === trimmed);
+    if (match) {
+      // Re-set as current user and go to dashboard
+      saveUser(match);
+      logStep("Login Success (email)", { userId: match.id, name: match.name, email: match.email });
+      router.push("/dashboard");
+    } else {
+      logWarn("Login Failed (email)", { attemptedEmail: trimmed });
+      setErr("No account found with that email. Please sign up first.");
+    }
+  }
 
   async function sendOtp(e: React.FormEvent) {
     e.preventDefault();
@@ -98,7 +118,8 @@ export default function LoginPage() {
           localStorage.setItem("sim_worker", JSON.stringify(getRandomWorker()));
         }
       }
-      setLoading(false); router.push("/dashboard"); return;
+      logStep("Login Success (demo OTP)", { phone, role: isAdmin ? "admin" : "worker" });
+      setLoading(false); router.push(isWorker ? "/dashboard?mode=demo" : "/dashboard"); return;
     }
     try {
       const r = await fetch(`${API_BASE}/api/v1/auth/verify-otp`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone, otp }) });
@@ -128,7 +149,7 @@ export default function LoginPage() {
           <div className="w-8 h-8 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center">
             <span className="text-white font-black text-sm">GA</span>
           </div>
-          <span className="text-white font-bold text-lg">GigArmor</span>
+          <span className="text-white font-bold text-lg">GigInsu₹</span>
         </Link>
         <div>
           <h2 className="text-white font-extrabold text-3xl leading-tight tracking-tight mb-4">Income protection for gig workers.</h2>
@@ -165,13 +186,48 @@ export default function LoginPage() {
               <div className="w-8 h-8 rounded-lg bg-[#0F2044] flex items-center justify-center">
                 <span className="text-white font-black text-sm">GA</span>
               </div>
-              <span className="text-slate-900 font-bold text-lg">GigArmor</span>
+              <span className="text-slate-900 font-bold text-lg">GigInsu₹</span>
             </Link>
           </div>
 
           <AnimatePresence mode="wait">
-            {step === "phone" ? (
+            {step === "email" ? (
+              <motion.div key="email" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
+                <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1.5">Welcome back</h1>
+                <p className="text-slate-400 text-sm mb-7">Sign in with your registered email address.</p>
+
+                <form onSubmit={handleEmailLogin} className="space-y-4">
+                  <div>
+                    <label className="field-label">Email address</label>
+                    <input type="email" placeholder="you@example.com" autoFocus
+                      className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 outline-none focus:border-[#0F2044] focus:ring-2 focus:ring-[#0F2044]/10 bg-white transition"
+                      value={email} onChange={e => { setEmail(e.target.value); setErr(""); }} />
+                  </div>
+                  <AnimatePresence>
+                    {err && <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-red-500 text-sm">{err}</motion.p>}
+                  </AnimatePresence>
+                  <button type="submit" disabled={loading || !email.trim()}
+                    className="btn-navy w-full py-3.5 disabled:opacity-40 disabled:cursor-not-allowed">
+                    Sign in →
+                  </button>
+                </form>
+
+                <div className="mt-5 text-center">
+                  <button onClick={() => { setErr(""); setStep("phone"); }}
+                    className="text-sm text-[#0F2044] font-semibold hover:underline">
+                    Sign in with mobile OTP instead →
+                  </button>
+                </div>
+
+                <p className="text-center text-slate-400 text-sm mt-4">
+                  No account? <Link href="/register" className="text-[#0F2044] font-semibold hover:underline">Sign up →</Link>
+                </p>
+              </motion.div>
+            ) : step === "phone" ? (
               <motion.div key="phone" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.25 }}>
+                <button onClick={() => { setErr(""); setStep("email"); }} className="flex items-center gap-1.5 text-slate-400 hover:text-slate-700 text-sm font-medium mb-7 transition-colors">
+                  ← Back
+                </button>
                 <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1.5">Welcome back</h1>
                 <p className="text-slate-400 text-sm mb-7">Sign in with your registered mobile number.</p>
 
@@ -238,7 +294,7 @@ export default function LoginPage() {
           </AnimatePresence>
 
           <div className="mt-8 pt-6 border-t border-slate-200 text-center">
-            <span className="text-slate-400 text-sm">New to GigArmor? </span>
+            <span className="text-slate-400 text-sm">New to GigInsu₹? </span>
             <Link href="/register" className="text-[#0F2044] font-semibold text-sm hover:underline">Get protected →</Link>
           </div>
 
@@ -256,7 +312,7 @@ export default function LoginPage() {
               </p>
               <div className="space-y-2.5 mb-4">
                 {[
-                  { icon: "📧", label: "Email us", desc: "support@gigarmor.in", href: "mailto:support@gigarmor.in" },
+                  { icon: "📧", label: "Email us", desc: "support@giginsur.in", href: "mailto:support@giginsur.in" },
                   { icon: "💬", label: "Live support", desc: "Get help in minutes", href: "/support" },
                   { icon: "📖", label: "FAQs & guides", desc: "Common questions answered", href: "/support" },
                 ].map(item => (

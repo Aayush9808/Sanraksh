@@ -3,6 +3,8 @@ import { useState, useCallback, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { logout as clearUserStore } from "@/lib/userStore";
+import { logStep } from "@/lib/debugLogger";
 
 const WORKER_NAV = [
   { href: "/dashboard",              label: "Overview",     icon: <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> },
@@ -48,9 +50,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [router]);
 
   const logout = useCallback(() => {
+    logStep("Logout", { role });
     if (typeof window !== "undefined") { localStorage.removeItem("token"); localStorage.removeItem("role"); }
+    clearUserStore();
     router.push("/login");
-  }, [router]);
+  }, [router, role]);
 
   const nav = role === "admin" ? ADMIN_NAV : WORKER_NAV;
   const activeItem = nav.find(n => n.href === pathname) || nav[0];
@@ -64,7 +68,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <span className="text-white font-black text-xs">GA</span>
           </div>
           <div>
-            <div className="font-bold text-slate-900 text-sm leading-tight">GigArmor</div>
+            <div className="font-bold text-slate-900 text-sm leading-tight">GigInsu₹</div>
             <div className="text-xs text-slate-400 font-medium capitalize">{role} portal</div>
           </div>
         </Link>
@@ -158,7 +162,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </button>
 
           <div className="flex items-center gap-2 text-sm flex-1 min-w-0">
-            <span className="text-slate-400 font-medium truncate hidden sm:block">GigArmor</span>
+            <span className="text-slate-400 font-medium truncate hidden sm:block">GigInsu₹</span>
             <span className="text-slate-300 hidden sm:block">/</span>
             <span className="font-semibold text-slate-900 truncate">{activeItem.label}</span>
           </div>

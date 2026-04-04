@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "GigArmor — Parametric Income Protection for Gig Workers",
+  title: "GigInsu₹ — Parametric Income Protection for Gig Workers",
   description: "Automatic payouts when disruption hits. No claims. No waiting.",
 };
 

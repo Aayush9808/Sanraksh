@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useDemoContext } from "@/lib/demoContext";
 import { processPayout, resetProcessedWorkers } from "@/lib/claimsEngine";
+import { logStep } from "@/lib/debugLogger";
 
 function sleep(ms: number) { return new Promise(r => setTimeout(r, ms)); }
 
@@ -74,6 +75,20 @@ export function Step6Claims() {
     resetProcessedWorkers();
     const result = processPayout(w, ur, tr);
     dispatch({ type: "SET_PAYOUT", result });
+    logStep("Simulation — Claim Processed", {
+      status: result.status,
+      payoutAmount: result.payoutAmount ?? null,
+      reason: result.reason ?? null,
+      workerId: w.worker_id,
+    });
+    if (result.status === "SUCCESS") {
+      logStep("Simulation — Payout", {
+        amount: `₹${result.payoutAmount}`,
+        method: "UPI",
+        worker: w.name,
+        trigger: tr.triggerType,
+      });
+    }
     appendLog(`Payout ${result.status}: ${result.status === "SUCCESS" ? `₹${result.payoutAmount} via UPI` : result.reason}`);
     setStatus("done");
   }

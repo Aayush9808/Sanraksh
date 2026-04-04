@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useDemoContext } from "@/lib/demoContext";
 import { checkTrigger } from "@/lib/triggerEngine";
 import type { TriggerResult } from "@/lib/triggerEngine";
+import { logStep } from "@/lib/debugLogger";
 
 function sleep(ms: number) { return new Promise(r => setTimeout(r, ms)); }
 
@@ -32,6 +33,13 @@ export function Step5Trigger() {
 
     const result = checkTrigger(state.worker.city as Parameters<typeof checkTrigger>[0]);
     dispatch({ type: "SET_TRIGGER", result });
+    logStep("Simulation — Trigger (natural)", {
+      city: result.city,
+      triggered: result.trigger,
+      type: result.triggerType ?? null,
+      value: result.value ?? null,
+      severity: result.severity ?? null,
+    });
     appendLog(`Trigger check complete — ${result.trigger ? `ACTIVE ⚡ (${result.triggerType}: ${result.value})` : "No trigger"}`);
     setStatus("done");
   }
@@ -53,6 +61,12 @@ export function Step5Trigger() {
       source:      city === "Delhi" ? "SIMULATED_CPCB" : "SIMULATED_WEATHER",
     };
     dispatch({ type: "SET_TRIGGER", result: forced });
+    logStep("Simulation — Trigger (forced)", {
+      city: forced.city,
+      type: forced.triggerType,
+      value: forced.value,
+      severity: forced.severity,
+    });
     appendLog(`Forced trigger injected — ${forced.triggerType}: ${forced.value} | ${forced.severity} severity`);
     setStatus("done");
   }

@@ -1,8 +1,45 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { API_BASE } from "@/lib/config";
+import { loadSession, loadSessionForUser } from "@/lib/workerSession";
+import type { WorkerSession } from "@/lib/workerSession";
+import { getCurrentUser } from "@/lib/userStore";
+import { logStep, logWarn, logStorageState } from "@/lib/debugLogger";
+
+// ─── DEMO / ACTIVE POLICY ────────────────────────────────────────────────────
+
+const DEMO_POLICY = {
+  id: "DEMO-001",
+  premium: 49,
+  dailyPayout: 450,
+  risk: "Low",
+  city: "Pune",
+  platforms: ["Swiggy", "Zomato"],
+  status: "Active",
+};
+type ActivePolicyType = typeof DEMO_POLICY;
+
+function getActivePolicy(forceDemoMode = false): ActivePolicyType {
+  if (forceDemoMode) return DEMO_POLICY;
+  if (typeof window === "undefined") return DEMO_POLICY;
+  try {
+    const raw = localStorage.getItem("giginsur_policy");
+    if (raw) return { ...DEMO_POLICY, ...JSON.parse(raw) };
+  } catch {}
+  return DEMO_POLICY;
+}
+
+// ─── LOCAL CLAIMS HELPER ──────────────────────────────────────────────────────
+
+function getLocalClaims(): Array<{ id: string; triggerLabel: string; date: string; payout: number; status: string }> {
+  if (typeof window === "undefined") return [];
+  try { return JSON.parse(localStorage.getItem("giginsur_claims") || "[]"); } catch { return []; }
+}
+
+// ─── COUNTER ──────────────────────────────────────────────────────────────────
 
 function Counter({ end, prefix = "", suffix = "" }: { end: number; prefix?: string; suffix?: string }) {
   const [v, setV] = useState(0);
@@ -48,20 +85,59 @@ function WorkerHome() {
   const [policy, setPolicy] = useState<Record<string,unknown>|null>(null);
   const [claims, setClaims] = useState<Record<string,unknown>[]>([]);
   const [triggers, setTriggers] = useState<Record<string,unknown>[]>([]);
+  const [session, setSession] = useState<WorkerSession | null>(null);
+  const [activePolicy, setActivePolicy] = useState<ActivePolicyType>(DEMO_POLICY);
+  const [isDemoMode, setIsDemoMode] = useState(false);
+  const [localTotalEarned, setLocalTotalEarned] = useState(0);
   const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
   const h = { Authorization: `Bearer ${token}` };
 
   useEffect(() => {
+    const mode = new URLSearchParams(window.location.search).get("mode");
+    const forceDemo = mode === "demo" || !localStorage.getItem("giginsur_policy");
+    setIsDemoMode(forceDemo);
+    setActivePolicy(getActivePolicy(forceDemo));
+
+    const currentUser = getCurrentUser();
+    const sess = currentUser ? loadSessionForUser(currentUser.id) : null;
+    setSession(sess);
+    logStep("Dashboard Load", {
+      user: currentUser ? { id: currentUser.id, name: currentUser.name, email: currentUser.email } : null,
+      sessionLinked: !!sess,
+      plan: sess?.policy.plan ?? null,
+      riskTier: sess?.underwritingResult.riskTier ?? null,
+    });
+    logStorageState();
+
+    // Pre-populate from localStorage simulation claims (overridden by API if available)
+    const localClaims = getLocalClaims();
+    const localTotal = localClaims.filter(c => c.status === "approved").reduce((s, c) => s + c.payout, 0);
+    setLocalTotalEarned(localTotal);
+    if (localClaims.length > 0) {
+      setClaims(localClaims.slice(0, 3).map(r => ({
+        event_type: r.triggerLabel,
+        claim_date: new Date(r.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" }),
+        amount: r.payout,
+        status: r.status,
+      })));
+    }
+
     fetch(`${API_BASE}/api/v1/workers/me/policy`, { headers: h }).then(r=>r.ok?r.json():null).then(d=>{ if(d?.has_policy && d.policy) setPolicy(d.policy); }).catch(()=>{});
     fetch(`${API_BASE}/api/v1/workers/me/claims`, { headers: h }).then(r=>r.ok?r.json():null).then(d=>{ if(Array.isArray(d)) setClaims(d.slice(0,3)); }).catch(()=>{});
     fetch(`${API_BASE}/api/v1/disruptions/active`, { headers: h }).then(r=>r.ok?r.json():null).then(d=>{ if(Array.isArray(d)) setTriggers(d.slice(0,3)); }).catch(()=>{});
   }, []);
 
-  const policyNum = policy?.policy_number as string || "POL-0000";
-  const premium = policy?.weekly_premium as number || 0;
-  const endDate = policy?.end_date ? new Date(policy.end_date as string).toLocaleDateString("en-IN",{month:"short",year:"numeric"}) : "—";
-  const totalEarned = policy?.total_paid as number || 0;
+  // Session data takes precedence over API data for computed fields
+  const policyNum = policy?.policy_number as string || (session ? `POL-${session.worker.worker_id}` : activePolicy.id);
+  const premium = (policy?.weekly_premium as number) || session?.policy.weeklyPremium || activePolicy.premium;
+  const planName = session?.policy.plan || (policy ? "Personalised Plan" : "Personalised Plan");
+  const endDate = policy?.end_date
+    ? new Date(policy.end_date as string).toLocaleDateString("en-IN",{month:"short",year:"numeric"})
+    : new Date(Date.now() + 365*86400000).toLocaleDateString("en-IN",{month:"short",year:"numeric"});
+  const totalEarned = (policy?.total_paid as number || 0) + localTotalEarned;
   const totalClaims = policy?.claims_count as number || 0;
+  const riskTier = session?.underwritingResult.riskTier ?? (activePolicy.risk.toLowerCase() as "low" | "medium" | "high");
+  const riskColor = riskTier === "high" ? "#EF4444" : riskTier === "medium" ? "#F59E0B" : "#10B981";
 
   return (
     <div className="max-w-4xl">
@@ -69,8 +145,25 @@ function WorkerHome() {
       <div className="rounded-2xl bg-[#0F2044] p-5 mb-6 flex items-center justify-between flex-wrap gap-4">
         <div>
           <p className="text-blue-300 text-xs font-semibold uppercase tracking-wider mb-1">Your coverage</p>
-          <h1 className="text-white font-extrabold text-xl tracking-tight">GigArmor {policy ? "Standard" : "—"}</h1>
+          <h1 className="text-white font-extrabold text-xl tracking-tight flex items-center gap-2">
+            GigInsu₹ {planName}
+            {riskTier && (
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: riskColor + "33", color: riskColor }}>
+                {riskTier} risk
+              </span>
+            )}
+            {isDemoMode && (
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-400/20 border border-amber-400/30 text-amber-300">
+                Demo
+              </span>
+            )}
+          </h1>
           <p className="text-blue-200 text-sm mt-0.5">{policyNum} · Active till {endDate} · ₹{premium}/week</p>
+          {session && (
+            <p className="text-blue-300 text-xs mt-1">
+              Coverage: ₹{session.policy.coveragePerDay}/day · Risk score: {(session.underwritingResult.riskScore * 10).toFixed(0)}/10
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-3 flex-wrap">
           <Link href="/dashboard/triggers"><button className="bg-amber-400 text-[#0F2044] font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-amber-300 transition-all">Live triggers</button></Link>
@@ -311,8 +404,14 @@ function AdminHome() {
 
 // ─── MAIN EXPORT ──────────────────────────────────────────────────────────
 export default function DashboardPage() {
+  const router = useRouter();
   const [role, setRole] = useState("worker");
   useEffect(() => {
+    const user = getCurrentUser();
+    if (!user) {
+      logWarn("Dashboard — no current user, redirecting to /login");
+      router.replace("/login"); return;
+    }
     const r = typeof window !== "undefined" ? localStorage.getItem("role") : "";
     if (r) setRole(r);
   }, []);

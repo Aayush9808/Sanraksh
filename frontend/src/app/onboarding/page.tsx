@@ -4,6 +4,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { API_BASE, API_V1_BASE } from "@/lib/config";
+import { gigWorkers } from "@/lib/workerData";
+import type { GigWorker } from "@/lib/workerData";
+import { evaluateWorker } from "@/lib/underwritingEngine";
+import { calculatePremium as calcPremiumEngine } from "@/lib/pricingEngine";
+import { saveSession } from "@/lib/workerSession";
+import { getCurrentUser } from "@/lib/userStore";
+import { logStep, logError } from "@/lib/debugLogger";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -38,6 +45,24 @@ const STEP_NAMES = [
   "Payment",
   "Get Started",
 ];
+
+// ─── Engine mappings ──────────────────────────────────────────────────────────
+
+const CITY_MAP: Record<string, GigWorker["city"]> = {
+  Mumbai: "Mumbai", Delhi: "Delhi", Bengaluru: "Bangalore",
+  Hyderabad: "Hyderabad", Pune: "Pune",
+  Chennai: "Mumbai", Kolkata: "Delhi", Ahmedabad: "Mumbai",
+};
+
+const PLATFORM_MAP: Record<string, GigWorker["platform"]> = {
+  swiggy: "Swiggy", zomato: "Zomato", blinkit: "Blinkit", porter: "Porter",
+  dunzo: "Swiggy", zepto: "Blinkit", rapido: "Ola", other: "Swiggy",
+};
+
+const DAILY_INCOME: Record<string, number> = {
+  under_2000: 285, "2000_4000": 428, "4000_7000": 785,
+  "7000_12000": 1357, above_12000: 2143,
+};
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -146,6 +171,13 @@ export default function OnboardingPage() {
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Route guard — must have a registered account to access onboarding
+  useEffect(() => {
+    if (!getCurrentUser()) {
+      router.replace("/register");
+    }
+  }, []);
+
   // Step 1
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -162,8 +194,7 @@ export default function OnboardingPage() {
 
   // Step 4
   const [platforms, setPlatforms] = useState<string[]>([]);
-  const [fetchingPlatform, setFetchingPlatform] = useState<string | null>(null);
-  const [platformEarnings, setPlatformEarnings] = useState<Record<string, number>>({});
+  const [premiumToast, setPremiumToast] = useState(false);
   const [platformsDone, setPlatformsDone] = useState(false);
 
   // Step 5
@@ -179,9 +210,14 @@ export default function OnboardingPage() {
 
   // Step 7
   const [paymentState, setPaymentState] = useState<"idle" | "processing" | "success">("idle");
+  const [paymentMethod, setPaymentMethod] = useState<"upi" | "card" | "wallet">("upi");
+  const [upiId, setUpiId] = useState("");
 
   // Step 8
   const [registering, setRegistering] = useState(false);
+
+  // Refs
+  const earningsRef = useRef<HTMLDivElement>(null);
 
   // ── Send OTP on entering step 3 ────────────────────────────────────────────
   useEffect(() => {
@@ -195,46 +231,81 @@ export default function OnboardingPage() {
     }
   }, [step, otpSent, phone]);
 
-  // ── Simulate platform earnings fetch on step 4 ─────────────────────────────
-  async function fetchPlatformEarnings(id: string) {
-    setFetchingPlatform(id);
-    await sleep(1200 + Math.random() * 600);
-    setPlatformEarnings(prev => ({ ...prev, [id]: simulateEarnings(id) }));
-    setFetchingPlatform(null);
-  }
-
   function togglePlatform(id: string) {
-    if (platforms.includes(id)) {
-      setPlatforms(p => p.filter(x => x !== id));
-      setPlatformEarnings(prev => { const n = { ...prev }; delete n[id]; return n; });
-    } else {
-      setPlatforms(p => [...p, id]);
-      fetchPlatformEarnings(id);
-    }
+    setPlatforms(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
   }
 
-  // ── Premium calculation ────────────────────────────────────────────────────
-  async function calculatePremium() {
+  // ── Premium calculation (local, always works) ─────────────────────────────
+  const EARNINGS_TO_NUM: Record<string, number> = {
+    under_2000: 1000, "2000_4000": 3000, "4000_7000": 5500,
+    "7000_12000": 9500, above_12000: 14000,
+  };
+
+  function calcLocalPremium() {
+    const METRO = ["Mumbai", "Delhi", "Bengaluru", "Hyderabad", "Chennai", "Kolkata"];
+    const TIER2 = ["Pune", "Ahmedabad"];
+    const cityRisk = METRO.includes(city) ? 3 : TIER2.includes(city) ? 2 : 1;
+    const platformCount = platforms.length;
+    const weeklyEarnings = EARNINGS_TO_NUM[earningsBand] ?? 5500;
+    const premium = Math.round(50 + (cityRisk * 20) + (platformCount * 15) + (weeklyEarnings * 0.01));
+    const riskLabel = premium > 150 ? "High" : premium > 100 ? "Medium" : "Low";
+    return {
+      final_premium: premium,
+      coverage_per_day: Math.round(weeklyEarnings / 7 * 0.4),
+      recommended_plan: premium > 150 ? "pro" : premium > 100 ? "standard" : "lite",
+      risk_level: riskLabel,
+      risk_score: premium > 150 ? 0.75 : premium > 100 ? 0.45 : 0.2,
+      season: "normal",
+      factors: [
+        { factor: "Base premium", adjustment: 50 },
+        { factor: "City risk (×20)", adjustment: cityRisk * 20 },
+        { factor: "Platforms (×15 each)", adjustment: platformCount * 15 },
+        { factor: "Earnings (×0.01)", adjustment: Math.round(weeklyEarnings * 0.01) },
+      ],
+    };
+  }
+
+  async function handleCalculatePremium() {
     setLoading(true);
+    await sleep(800);
+    // Try API first, fall back to local engine
+    let result = null;
     try {
       const res = await fetch(`${API_V1_BASE}/premium/calculate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          city,
-          platform: platforms[0] || "swiggy",
+          city, platform: platforms[0] || "swiggy",
           weekly_earnings_band: earningsBand,
-          tenure_months: 0,
-          claims_last_30_days: 0,
+          tenure_months: 0, claims_last_30_days: 0,
         }),
       });
-      if (res.ok) {
-        const data = await res.json();
-        setPremiumResult(data);
-        setSelectedPlan(data.recommended_plan || "standard");
-      }
+      if (res.ok) result = await res.json();
     } catch {}
+    if (!result) result = calcLocalPremium();
+    setPremiumResult(result);
+    setSelectedPlan(result.recommended_plan || "standard");
+    if (typeof window !== "undefined") {
+      const earningsNum = EARNINGS_TO_NUM[earningsBand] ?? 5500;
+      localStorage.setItem("giginsur_premium", JSON.stringify({
+        premium: result.final_premium,
+        risk: result.risk_level,
+        city,
+        platforms,
+        earnings: earningsNum,
+      }));
+    }
     setLoading(false);
+    setPremiumToast(true);
+    setTimeout(() => { setPremiumToast(false); next(); }, 1200);
+  }
+
+  // ── Recalculate premium ────────────────────────────────────────────────────
+  function handleRecalculate() {
+    setPremiumResult(null);
+    setEarningsBand("");
+    if (typeof window !== "undefined") localStorage.removeItem("giginsur_premium");
+    setTimeout(() => earningsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
   }
 
   // ── Payment simulation ─────────────────────────────────────────────────────
@@ -290,8 +361,102 @@ export default function OnboardingPage() {
         localStorage.setItem("role", "worker");
       }
     }
+
+    // ── Run insurance engines & persist session ────────────────────────────
+    try {
+      const mappedCity = CITY_MAP[city] ?? "Mumbai";
+      const mappedPlatform = PLATFORM_MAP[platforms[0] ?? "swiggy"] ?? "Swiggy";
+      const avgDailyIncome = DAILY_INCOME[earningsBand] ?? 785;
+      const daysActive = 22;
+
+      // Use a matching worker from the dataset as a realistic base
+      const base =
+        gigWorkers.find(w => w.city === mappedCity && w.platform === mappedPlatform) ??
+        gigWorkers[0];
+
+      const worker: GigWorker = {
+        ...base,
+        worker_id: `USR-${phone.slice(-6)}`,
+        name,
+        city: mappedCity,
+        platform: mappedPlatform,
+        avg_daily_income: avgDailyIncome,
+        days_active_last_30: daysActive,
+        hours_per_day: 8,
+        total_earnings_last_30_days: avgDailyIncome * daysActive,
+      };
+
+      const underwritingResult = evaluateWorker(worker);
+      const engineResult = calcPremiumEngine(worker, underwritingResult);
+
+      const planPrice = premiumResult?.final_premium ?? engineResult.finalPremium;
+      const coveragePerDay = premiumResult?.coverage_per_day ?? Math.round(avgDailyIncome * 0.3);
+
+      const currentUser = getCurrentUser();
+      const sessionPayload = {
+        userId: currentUser?.id ?? `phone-${phone.slice(-6)}`,
+        worker,
+        underwritingResult,
+        premiumResult: engineResult,
+        policy: {
+          plan: "Personalised Plan",
+          weeklyPremium: planPrice,
+          coveragePerDay,
+          triggersCovered: ["Heavy Rain", "Poor AQI", "Platform Outage", "Cyclone Alert"],
+          issuedAt: new Date().toISOString(),
+        },
+        rawEarningsBand: earningsBand,
+      };
+      saveSession(sessionPayload);
+
+      // ── Generate and persist the policy object ─────────────────────────
+      if (typeof window !== "undefined") {
+        const storedPremium = (() => {
+          try { return JSON.parse(localStorage.getItem("giginsur_premium") || "null"); } catch { return null; }
+        })();
+        const policyObj = {
+          id: `POLICY_${Date.now()}`,
+          premium: planPrice,
+          risk: premiumResult?.risk_level ?? storedPremium?.risk ?? "Medium",
+          dailyPayout: coveragePerDay,
+          platforms,
+          city,
+          status: "Active",
+          startDate: new Date().toISOString(),
+          triggers: [
+            "Low demand (earnings drop below threshold)",
+            "Heavy rain / flooding",
+            "Platform outage detected",
+            "AQI > 400 severe",
+            "Cyclone / extreme weather warning",
+          ],
+          payoutRule: "Auto payout when trigger conditions met",
+        };
+        localStorage.setItem("giginsur_policy", JSON.stringify(policyObj));
+      }
+
+      logStep("Onboarding Complete — Worker Profile", {
+        workerId: worker.worker_id,
+        name: worker.name,
+        city: worker.city,
+        platform: worker.platform,
+        earningsBand,
+      });
+      logStep("Onboarding Complete — Engine Output", {
+        riskTier: underwritingResult.riskTier,
+        riskScore: underwritingResult.riskScore,
+        eligible: underwritingResult.eligible,
+        finalPremium: engineResult.finalPremium,
+        plan: sessionPayload.policy.plan,
+        coveragePerDay,
+      });
+    } catch (e) {
+      logError("Engine failure during onboarding (non-fatal)", e);
+      // Engine failure is non-fatal — user still gets to the dashboard
+    }
+
     setRegistering(false);
-    router.push("/dashboard");
+    router.push("/dashboard?mode=user");
   }
 
   const next = () => { setErr(""); setStep(s => s + 1); };
@@ -305,14 +470,10 @@ export default function OnboardingPage() {
     return true;
   }
 
-  const PLAN_DETAILS: Record<string, { label: string; price: number; cover: number; desc: string }> = {
-    lite:     { label: "Lite",     price: 29, cover: 150, desc: "Basic rainfall & outage cover" },
-    standard: { label: "Standard", price: 49, cover: 280, desc: "Most popular — all major triggers" },
-    pro:      { label: "Pro",      price: 79, cover: 400, desc: "Max coverage including cyclone" },
-  };
-
   const riskColor = (rl: string) =>
-    rl === "high" || rl === "very_high" ? "#EF4444" : rl === "medium" ? "#F59E0B" : "#10B981";
+    rl === "High" || rl === "high" || rl === "high_risk" || rl === "very_high" ? "#EF4444"
+    : rl === "Medium" || rl === "medium" || rl === "moderate_risk" ? "#F59E0B"
+    : "#10B981";
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
@@ -321,9 +482,9 @@ export default function OnboardingPage() {
       <div className="hidden lg:flex flex-col w-72 flex-shrink-0 bg-white border-r border-slate-200 px-8 py-10">
         <Link href="/" className="flex items-center gap-2.5 mb-10">
           <div className="w-8 h-8 rounded-lg bg-[#0F2044] flex items-center justify-center">
-            <span className="text-white font-black text-sm">GA</span>
+            <span className="text-white font-black text-sm">GI</span>
           </div>
-          <span className="font-bold text-slate-900 text-lg">GigArmor</span>
+          <span className="font-bold text-slate-900 text-lg">GigInsu₹</span>
         </Link>
         <div className="mb-8">
           <h2 className="font-extrabold text-slate-900 text-xl tracking-tight mb-1">Get protected</h2>
@@ -344,9 +505,9 @@ export default function OnboardingPage() {
           <div className="lg:hidden flex items-center justify-between mb-6">
             <Link href="/" className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-[#0F2044] flex items-center justify-center">
-                <span className="text-white font-black text-sm">GA</span>
+                <span className="text-white font-black text-sm">GI</span>
               </div>
-              <span className="font-bold text-slate-900">GigArmor</span>
+              <span className="font-bold text-slate-900">GigInsu₹</span>
             </Link>
             <span className="text-sm text-slate-400">Step {step}/8</span>
           </div>
@@ -372,7 +533,7 @@ export default function OnboardingPage() {
 
               {/* ── STEP 1: Personal Info ─────────────────────────────────── */}
               {step === 1 && (
-                <div>
+                <form onSubmit={e => e.preventDefault()}>
                   <div className="mb-7">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Step 01 of 08</p>
                     <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1">Tell us about yourself</h2>
@@ -403,19 +564,19 @@ export default function OnboardingPage() {
                     </div>
                   </div>
                   {err && <p className="text-red-500 text-sm mt-3">{err}</p>}
-                  <button onClick={() => { if (validateStep1()) next(); }}
+                  <button type="submit" onClick={() => { if (validateStep1()) next(); }}
                     className="w-full mt-6 py-3.5 bg-[#0F2044] text-white font-bold text-sm rounded-xl hover:bg-[#1E3A5F] transition">
                     Continue →
                   </button>
                   <p className="text-center text-slate-400 text-sm mt-5">
                     Already registered? <Link href="/login" className="text-[#0F2044] font-semibold hover:underline">Sign in →</Link>
                   </p>
-                </div>
+                </form>
               )}
 
               {/* ── STEP 2: Aadhaar ──────────────────────────────────────── */}
               {step === 2 && (
-                <div>
+                <form onSubmit={e => e.preventDefault()}>
                   <div className="mb-7">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Step 02 of 08</p>
                     <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1">Aadhaar verification</h2>
@@ -452,10 +613,11 @@ export default function OnboardingPage() {
                   {err && <p className="text-red-500 text-sm mb-3">{err}</p>}
 
                   <div className="flex gap-3">
-                    <button onClick={back} className="flex-1 py-3.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">
+                    <button type="button" onClick={back} className="flex-1 py-3.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">
                       ← Back
                     </button>
                     <button
+                      type="submit"
                       disabled={aadhaar.length < 4 || aadhaarState === "verifying"}
                       onClick={async () => {
                         if (aadhaarState === "verified") { next(); return; }
@@ -475,12 +637,12 @@ export default function OnboardingPage() {
                   <p className="text-xs text-slate-400 text-center mt-4">
                     🔒 We never store your Aadhaar number. Only used for identity verification.
                   </p>
-                </div>
+                </form>
               )}
 
               {/* ── STEP 3: OTP ──────────────────────────────────────────── */}
               {step === 3 && (
-                <div>
+                <form onSubmit={e => e.preventDefault()}>
                   <div className="mb-7">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Step 03 of 08</p>
                     <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1">Verify your number</h2>
@@ -528,8 +690,8 @@ export default function OnboardingPage() {
                   {err && <p className="text-red-500 text-sm mb-3">{err}</p>}
 
                   <div className="flex gap-3">
-                    <button onClick={back} className="flex-1 py-3.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">← Back</button>
-                    <button onClick={async () => {
+                    <button type="button" onClick={back} className="flex-1 py-3.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">← Back</button>
+                    <button type="submit" onClick={async () => {
                       if (otp.length < 6) { setErr("Enter the complete 6-digit OTP."); return; }
                       setLoading(true); setErr("");
                       try {
@@ -549,17 +711,17 @@ export default function OnboardingPage() {
                     </button>
                   </div>
 
-                  <button onClick={() => {
+                  <button type="button" onClick={() => {
                     fetch(`${API_BASE}/api/v1/auth/send-otp`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ phone }) }).catch(() => {});
                   }} className="w-full mt-3 text-center text-sm text-[#0F2044] font-semibold hover:underline">
                     Resend OTP
                   </button>
-                </div>
+                </form>
               )}
 
               {/* ── STEP 4: Platform Linking ──────────────────────────────── */}
               {step === 4 && (
-                <div>
+                <form onSubmit={e => e.preventDefault()}>
                   <div className="mb-7">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Step 04 of 08</p>
                     <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1">Link your platforms</h2>
@@ -569,37 +731,18 @@ export default function OnboardingPage() {
                   <div className="grid grid-cols-2 gap-3 mb-5">
                     {PLATFORMS.map(p => {
                       const sel = platforms.includes(p.id);
-                      const fetching = fetchingPlatform === p.id;
-                      const earnings = platformEarnings[p.id];
                       return (
                         <button key={p.id} type="button" onClick={() => togglePlatform(p.id)}
-                          className={`relative flex flex-col gap-2 p-4 rounded-xl border-2 text-left transition-all ${
+                          className={`relative flex items-center gap-3 p-4 rounded-xl border-2 text-left transition-all ${
                             sel ? "border-[#0F2044] bg-blue-50" : "border-slate-200 bg-white hover:border-slate-300"
                           }`}>
-                          <div className="flex items-center gap-2 w-full">
-                            <span className="text-xl">{p.icon}</span>
-                            <span className={`font-bold text-sm flex-1 ${sel ? "text-[#0F2044]" : "text-slate-700"}`}>{p.label}</span>
-                            {sel && !fetching && !earnings && (
-                              <div className="w-5 h-5 rounded-full bg-[#0F2044] flex items-center justify-center flex-shrink-0">
-                                <span className="text-white text-[9px] font-black">✓</span>
-                              </div>
-                            )}
-                          </div>
-                          <AnimatePresence>
-                            {fetching && (
-                              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                                className="flex items-center gap-1.5 text-xs text-slate-400">
-                                <Spinner size={12} />
-                                <span>Fetching earnings…</span>
-                              </motion.div>
-                            )}
-                            {earnings && !fetching && (
-                              <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
-                                className="text-xs font-bold text-emerald-600">
-                                ₹{earnings.toLocaleString()}/week avg
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
+                          <span className="text-xl">{p.icon}</span>
+                          <span className={`font-bold text-sm flex-1 ${sel ? "text-[#0F2044]" : "text-slate-700"}`}>{p.label}</span>
+                          {sel && (
+                            <div className="w-5 h-5 rounded-full bg-[#0F2044] flex items-center justify-center flex-shrink-0">
+                              <span className="text-white text-[9px] font-black">✓</span>
+                            </div>
+                          )}
                         </button>
                       );
                     })}
@@ -607,42 +750,39 @@ export default function OnboardingPage() {
 
                   {platforms.length > 0 && (
                     <div className="p-3 bg-[#0F2044]/5 rounded-xl text-xs text-slate-600 font-medium mb-4">
-                      {platforms.length} platform{platforms.length > 1 ? "s" : ""} linked
-                      {Object.keys(platformEarnings).length > 0 && (
-                        <span className="text-emerald-600 font-bold ml-2">
-                          · Avg ₹{Math.round(Object.values(platformEarnings).reduce((a, b) => a + b, 0) / Object.values(platformEarnings).length).toLocaleString()}/week
-                        </span>
-                      )}
+                      {platforms.length} platform{platforms.length > 1 ? "s" : ""} selected
                     </div>
                   )}
 
                   {err && <p className="text-red-500 text-sm mb-3">{err}</p>}
 
                   <div className="flex gap-3">
-                    <button onClick={back} className="flex-1 py-3.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">← Back</button>
-                    <button onClick={() => {
+                    <button type="button" onClick={back} className="flex-1 py-3.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">← Back</button>
+                    <button type="submit" onClick={() => {
                       if (platforms.length === 0) { setErr("Select at least one platform."); return; }
-                      if (fetchingPlatform) { setErr("Please wait for earnings to load."); return; }
                       next();
-                    }} disabled={!!fetchingPlatform}
-                      className="flex-[2] py-3.5 bg-[#0F2044] text-white font-bold text-sm rounded-xl hover:bg-[#1E3A5F] transition disabled:opacity-40">
+                    }}
+                      className="flex-[2] py-3.5 bg-[#0F2044] text-white font-bold text-sm rounded-xl hover:bg-[#1E3A5F] transition">
                       Continue →
                     </button>
                   </div>
-                </div>
+                </form>
               )}
 
               {/* ── STEP 5: Premium Calculation ───────────────────────────── */}
               {step === 5 && (
-                <div>
+                <form onSubmit={e => e.preventDefault()}>
                   <div className="mb-7">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Step 05 of 08</p>
                     <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1">Your personalised premium</h2>
                     <p className="text-slate-400 text-sm">Our AI engine calculates your exact price based on location, platform, and earnings.</p>
                   </div>
 
-                  <div className="mb-5">
+                  <div className="mb-5" ref={earningsRef}>
                     <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Weekly earnings band</label>
+                    {!earningsBand && !premiumResult && (
+                      <p className="text-xs text-amber-600 font-medium mb-2">Adjust your inputs to recalculate premium</p>
+                    )}
                     <div className="space-y-2">
                       {EARNINGS_BANDS.map(b => (
                         <button key={b.id} type="button" onClick={() => setEarningsBand(b.id)}
@@ -671,9 +811,16 @@ export default function OnboardingPage() {
                         <div>
                           <div className="text-blue-300 text-xs font-bold mb-1">Risk level</div>
                           <div className="text-xl font-extrabold capitalize" style={{ color: riskColor(premiumResult.risk_level) }}>
-                            {premiumResult.risk_level.replace("_", " ")}
+                            {premiumResult.risk_level.replace(/_/g, " ")}
                           </div>
                         </div>
+                      </div>
+                      <div className="mt-1 mb-3 text-xs text-blue-200 bg-white/10 rounded-xl px-3 py-2">
+                        {premiumResult.risk_level === "High" || premiumResult.risk_level === "high_risk"
+                          ? "Your metro location and multiple active platforms increase exposure."
+                          : premiumResult.risk_level === "Medium" || premiumResult.risk_level === "moderate_risk"
+                          ? "Moderate risk — solid coverage at a competitive rate."
+                          : "Low risk profile — you qualify for our most affordable coverage."}
                       </div>
                       <div className="border-t border-white/10 pt-3">
                         <div className="text-blue-300 text-xs font-bold mb-2">Price breakdown</div>
@@ -695,130 +842,243 @@ export default function OnboardingPage() {
                     </div>
                   )}
 
+                  {premiumResult && (
+                    <button type="button" onClick={handleRecalculate}
+                      className="w-full mb-4 py-2.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-500 hover:bg-slate-50 hover:border-slate-400 transition flex items-center justify-center gap-1.5">
+                      <span>↺</span> Recalculate
+                    </button>
+                  )}
+
                   {err && <p className="text-red-500 text-sm mb-3">{err}</p>}
 
                   <div className="flex gap-3">
-                    <button onClick={back} className="flex-1 py-3.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">← Back</button>
+                    <button type="button" onClick={back} className="flex-1 py-3.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">← Back</button>
                     {!premiumResult ? (
-                      <button onClick={calculatePremium} disabled={loading}
+                      <button type="submit" onClick={handleCalculatePremium} disabled={loading}
                         className="flex-[2] py-3.5 bg-[#0F2044] text-white font-bold text-sm rounded-xl hover:bg-[#1E3A5F] transition disabled:opacity-40">
                         {loading ? <span className="flex items-center gap-2 justify-center"><Spinner />Calculating…</span> : "Calculate my premium →"}
                       </button>
                     ) : (
-                      <button onClick={next}
-                        className="flex-[2] py-3.5 bg-[#0F2044] text-white font-bold text-sm rounded-xl hover:bg-[#1E3A5F] transition">
-                        Choose plan →
-                      </button>
+                      <>
+                        {premiumToast && (
+                          <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
+                            className="flex-[2] py-3.5 bg-emerald-500 text-white font-bold text-sm rounded-xl text-center">
+                            ✓ Your personalised premium calculated
+                          </motion.div>
+                        )}
+                        {!premiumToast && (
+                          <button type="submit" onClick={next}
+                            className="flex-[2] py-3.5 bg-[#0F2044] text-white font-bold text-sm rounded-xl hover:bg-[#1E3A5F] transition">
+                            Choose plan →
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
-                </div>
+                </form>
               )}
 
-              {/* ── STEP 6: Plan Selection ────────────────────────────────── */}
+              {/* ── STEP 6: Confirm Plan ──────────────────────────────────── */}
               {step === 6 && (
-                <div>
+                <form onSubmit={e => e.preventDefault()}>
                   <div className="mb-7">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Step 06 of 08</p>
-                    <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1">Choose your plan</h2>
-                    {premiumResult && (
-                      <p className="text-sm text-emerald-600 font-semibold mt-1">
-                        AI recommends: <span className="capitalize">{premiumResult.recommended_plan}</span>
-                      </p>
-                    )}
+                    <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1">Confirm your plan</h2>
+                    <p className="text-slate-400 text-sm">This plan is personalised based on your earnings, location, and platform activity.</p>
                   </div>
 
-                  <div className="space-y-3 mb-5">
-                    {(["lite", "standard", "pro"] as const).map(pid => {
-                      const p = PLAN_DETAILS[pid];
-                      const sel = selectedPlan === pid;
-                      const recommended = premiumResult?.recommended_plan === pid;
-                      return (
-                        <button key={pid} type="button" onClick={() => setSelectedPlan(pid)}
-                          className={`relative w-full flex items-center gap-4 p-4 rounded-xl border-2 text-left transition-all ${
-                            sel ? "border-[#0F2044] bg-blue-50" : "border-slate-200 bg-white hover:border-slate-300"
-                          }`}>
-                          {recommended && (
-                            <span className="absolute -top-2.5 left-4 bg-amber-400 text-[#0F2044] text-[10px] font-black px-2 py-0.5 rounded-full">
-                              ✦ AI Recommended
-                            </span>
-                          )}
-                          <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold flex-shrink-0 ${sel ? "bg-[#0F2044] text-white" : "bg-slate-100 text-slate-500"}`}>
-                            {sel ? "✓" : p.label[0]}
+                  {premiumResult ? (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                      className="bg-[#0F2044] rounded-2xl p-5 text-white mb-5">
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <div className="text-blue-300 text-xs font-bold mb-1">Your personalised plan</div>
+                          <div className="text-3xl font-extrabold">
+                            ₹{premiumResult.final_premium.toFixed(0)}
+                            <span className="text-base font-normal text-blue-300">/week</span>
                           </div>
-                          <div className="flex-1">
-                            <div className={`font-bold ${sel ? "text-[#0F2044]" : "text-slate-800"}`}>{p.label}</div>
-                            <div className="text-slate-400 text-xs mt-0.5">{p.desc}</div>
-                            <div className="text-xs text-emerald-600 font-semibold mt-1">₹{p.cover}/day payout</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-blue-300 text-xs font-bold mb-1">Risk level</div>
+                          <div className="text-lg font-extrabold capitalize" style={{ color: riskColor(premiumResult.risk_level) }}>
+                            {premiumResult.risk_level.replace(/_/g, " ")}
                           </div>
-                          <div className={`text-right font-extrabold text-xl flex-shrink-0 ${sel ? "text-[#0F2044]" : "text-slate-700"}`}>
-                            ₹{p.price}<span className="text-xs font-normal text-slate-400">/wk</span>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 mb-4">
+                        <div className="bg-white/10 rounded-xl p-3">
+                          <div className="text-blue-300 text-xs font-bold mb-1">Daily payout</div>
+                          <div className="text-xl font-extrabold">₹{premiumResult.coverage_per_day.toFixed(0)}</div>
+                        </div>
+                        <div className="bg-white/10 rounded-xl p-3">
+                          <div className="text-blue-300 text-xs font-bold mb-1">Coverage type</div>
+                          <div className="text-xl font-extrabold">Personalised</div>
+                        </div>
+                      </div>
+                      <div className="border-t border-white/10 pt-3">
+                        <div className="text-blue-300 text-xs font-bold mb-2">Price breakdown</div>
+                        <div className="space-y-1">
+                          {premiumResult.factors.slice(0, 4).map(f => (
+                            <div key={f.factor} className="flex justify-between text-xs">
+                              <span className="text-blue-200">{f.factor}</span>
+                              <span className={f.adjustment >= 0 ? "text-red-300" : "text-emerald-300"}>
+                                {f.adjustment >= 0 ? `+₹${f.adjustment.toFixed(2)}` : `-₹${Math.abs(f.adjustment).toFixed(2)}`}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <div className="bg-slate-100 rounded-2xl p-5 mb-5 text-center text-slate-400 text-sm">
+                      No premium data found. Please go back and calculate your premium.
+                    </div>
+                  )}
 
-                  <div className="flex gap-3">
-                    <button onClick={back} className="flex-1 py-3.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">← Back</button>
-                    <button onClick={next}
-                      className="flex-[2] py-3.5 bg-[#0F2044] text-white font-bold text-sm rounded-xl hover:bg-[#1E3A5F] transition">
-                      Continue with {PLAN_DETAILS[selectedPlan]?.label} →
-                    </button>
-                  </div>
-                </div>
+                  <button type="button" onClick={back}
+                    className="w-full mb-3 py-2.5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-500 hover:bg-slate-50 hover:border-slate-400 transition flex items-center justify-center gap-1.5">
+                    <span>↺</span> Recalculate Premium
+                  </button>
+
+                  <button type="submit" onClick={() => {
+                    if (typeof window !== "undefined") {
+                      localStorage.setItem("giginsur_plan", selectedPlan);
+                      localStorage.setItem("giginsur_plan_confirmed", "true");
+                    }
+                    next();
+                  }}
+                    className="w-full py-3.5 bg-[#0F2044] text-white font-bold text-sm rounded-xl hover:bg-[#1E3A5F] transition">
+                    Continue to Payment →
+                  </button>
+                </form>
               )}
 
               {/* ── STEP 7: Payment ───────────────────────────────────────── */}
               {step === 7 && (
-                <div>
+                <form onSubmit={e => e.preventDefault()}>
                   <div className="mb-7">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Step 07 of 08</p>
-                    <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1">Payment setup</h2>
-                    <p className="text-slate-400 text-sm">First week: ₹{PLAN_DETAILS[selectedPlan]?.price}. Subsequent weeks auto-deducted only when triggered.</p>
+                    <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1">Secure your protection</h2>
+                    <p className="text-slate-400 text-sm">You only pay when coverage is triggered. No upfront risk.</p>
                   </div>
 
                   <AnimatePresence mode="wait">
                     {paymentState === "idle" && (
                       <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+
+                        {/* Payment method selector */}
+                        <div className="grid grid-cols-3 gap-2 mb-5">
+                          {([
+                            { id: "upi",    label: "UPI",    icon: "⚡", sub: "Recommended" },
+                            { id: "card",   label: "Card",   icon: "💳", sub: "" },
+                            { id: "wallet", label: "Wallet", icon: "👜", sub: "" },
+                          ] as const).map(m => (
+                            <button key={m.id} type="button" onClick={() => setPaymentMethod(m.id)}
+                              className={`flex flex-col items-center gap-1 py-3 px-2 rounded-xl border-2 text-xs font-semibold transition-all ${
+                                paymentMethod === m.id ? "border-[#0F2044] bg-blue-50 text-[#0F2044]" : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
+                              }`}>
+                              <span className="text-lg">{m.icon}</span>
+                              <span>{m.label}</span>
+                              {m.sub && <span className="text-[9px] font-bold text-emerald-600 uppercase tracking-wide">{m.sub}</span>}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* UPI input */}
+                        {paymentMethod === "upi" && (
+                          <div className="mb-5">
+                            <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">UPI ID</label>
+                            <input
+                              type="text"
+                              placeholder="name@upi"
+                              value={upiId}
+                              onChange={e => setUpiId(e.target.value)}
+                              className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 outline-none focus:border-[#0F2044] focus:ring-2 focus:ring-[#0F2044]/10 bg-white transition"
+                            />
+                            <p className="text-xs text-slate-400 mt-1">Demo: enter any UPI ID to continue</p>
+                          </div>
+                        )}
+
                         {/* Demo card */}
-                        <div className="bg-gradient-to-br from-[#0F2044] to-[#1E3A5F] rounded-2xl p-6 text-white mb-5 relative overflow-hidden">
-                          <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full translate-x-12 -translate-y-12" />
-                          <div className="text-xs font-bold text-blue-300 mb-4">DEMO CARD — for hackathon</div>
-                          <div className="font-mono text-xl tracking-widest mb-4">4242  4242  4242  4242</div>
-                          <div className="flex justify-between text-sm">
+                        {paymentMethod === "card" && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+                            whileHover={{ scale: 1.015, boxShadow: "0 8px 32px rgba(15,32,68,0.18)" }}
+                            className="bg-gradient-to-br from-[#0F2044] to-[#1E3A5F] rounded-2xl p-6 text-white mb-5 relative overflow-hidden cursor-default transition-shadow">
+                            <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full translate-x-16 -translate-y-16 pointer-events-none" />
+                            <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full -translate-x-8 translate-y-8 pointer-events-none" />
+                            <div className="inline-flex items-center gap-1.5 bg-white/10 border border-white/20 rounded-full px-2.5 py-1 text-[10px] font-bold text-blue-200 mb-4">
+                              <span>🔒</span> Demo mode — hackathon
+                            </div>
+                            <div className="font-mono text-xl tracking-widest mb-4">4242  ****  ****  4242</div>
+                            <div className="flex justify-between text-sm">
+                              <div>
+                                <div className="text-blue-300 text-xs">Cardholder</div>
+                                <div className="font-semibold">{name.toUpperCase() || "YOUR NAME"}</div>
+                              </div>
+                              <div className="text-right">
+                                <div className="text-blue-300 text-xs">Expires</div>
+                                <div className="font-mono font-semibold">12/28</div>
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
+
+                        {/* Wallet placeholder */}
+                        {paymentMethod === "wallet" && (
+                          <div className="mb-5 p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3">
+                            <span className="text-2xl">👜</span>
                             <div>
-                              <div className="text-blue-300 text-xs">Cardholder</div>
-                              <div className="font-semibold">{name.toUpperCase()}</div>
+                              <div className="font-semibold text-slate-800 text-sm">Paytm / PhonePe / Amazon Pay</div>
+                              <div className="text-xs text-slate-400 mt-0.5">Demo: click Activate to proceed</div>
                             </div>
-                            <div className="text-right">
-                              <div className="text-blue-300 text-xs">Expires</div>
-                              <div className="font-mono font-semibold">12/28</div>
+                          </div>
+                        )}
+
+                        {/* Payment summary */}
+                        <div className="bg-gradient-to-r from-slate-50 to-blue-50 rounded-xl p-4 border border-blue-100 mb-2">
+                          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Payment summary</div>
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span className="text-slate-500">Plan</span>
+                              <span className="font-semibold text-slate-800">Personalised Plan</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-slate-500">Weekly premium</span>
+                              <span className="font-bold text-slate-900">₹{premiumResult?.final_premium ?? "—"}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-slate-500">Daily cover</span>
+                              <span className="font-semibold text-emerald-600">₹{premiumResult?.coverage_per_day ?? "—"}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-slate-500">Risk level</span>
+                              <span className="font-semibold capitalize" style={{ color: premiumResult ? riskColor(premiumResult.risk_level) : "#64748B" }}>
+                                {premiumResult?.risk_level ?? "—"}
+                              </span>
+                            </div>
+                            <div className="border-t border-blue-100 pt-2 mt-2">
+                              <div className="flex items-center gap-2 text-xs text-emerald-700 font-semibold">
+                                <span>✓</span> No charge unless triggered
+                              </div>
                             </div>
                           </div>
                         </div>
 
-                        <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-5">
-                          <div className="flex justify-between text-sm mb-2">
-                            <span className="text-slate-500">Plan</span>
-                            <span className="font-semibold text-slate-800">{PLAN_DETAILS[selectedPlan]?.label}</span>
-                          </div>
-                          <div className="flex justify-between text-sm mb-2">
-                            <span className="text-slate-500">Amount</span>
-                            <span className="font-bold text-slate-900">₹{PLAN_DETAILS[selectedPlan]?.price}</span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-slate-500">Next charge</span>
-                            <span className="text-slate-400 text-xs">Only when triggered</span>
-                          </div>
-                        </div>
-
-                        <div className="flex gap-3">
-                          <button onClick={back} className="flex-1 py-3.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">← Back</button>
-                          <button onClick={processPayment}
-                            className="flex-[2] py-3.5 bg-[#0F2044] text-white font-bold text-sm rounded-xl hover:bg-[#1E3A5F] transition">
-                            Pay ₹{PLAN_DETAILS[selectedPlan]?.price} →
+                        <div className="flex gap-3 mt-5">
+                          <button type="button" onClick={back} className="flex-1 py-3.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition">← Back</button>
+                          <button type="submit" onClick={processPayment}
+                            className="flex-[2] py-3.5 bg-[#0F2044] text-white font-bold text-sm rounded-xl hover:bg-[#1E3A5F] transition flex items-center justify-center gap-2">
+                            <span>🔒</span> Activate Protection
                           </button>
                         </div>
+                        <p className="text-center text-xs text-slate-400 mt-3 flex items-center justify-center gap-3">
+                          <span>🔐 256-bit secure</span>
+                          <span>·</span>
+                          <span>No upfront cost</span>
+                          <span>·</span>
+                          <span>Cancel anytime</span>
+                        </p>
                       </motion.div>
                     )}
 
@@ -827,8 +1087,8 @@ export default function OnboardingPage() {
                         className="flex flex-col items-center justify-center py-16 gap-5">
                         <div className="w-16 h-16 rounded-full border-4 border-[#0F2044] border-t-transparent animate-spin" />
                         <div className="text-center">
-                          <p className="font-bold text-slate-900 text-lg">Processing payment…</p>
-                          <p className="text-slate-400 text-sm mt-1">Securing your ₹{PLAN_DETAILS[selectedPlan]?.price}</p>
+                          <p className="font-bold text-slate-900 text-lg">Activating protection…</p>
+                          <p className="text-slate-400 text-sm mt-1">Securing ₹{premiumResult?.final_premium ?? "—"}/week coverage</p>
                         </div>
                       </motion.div>
                     )}
@@ -844,8 +1104,9 @@ export default function OnboardingPage() {
                               initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.5, delay: 0.2 }} />
                           </svg>
                         </motion.div>
-                        <h3 className="font-extrabold text-slate-900 text-xl mb-1">Payment successful!</h3>
-                        <p className="text-slate-400 text-sm mb-6">₹{PLAN_DETAILS[selectedPlan]?.price} charged. Your coverage activates on signup.</p>
+                        <h3 className="font-extrabold text-slate-900 text-xl mb-1">You're Protected! 🎉</h3>
+                        <p className="text-slate-400 text-sm mb-2">₹{premiumResult?.final_premium ?? "—"}/week · ₹{premiumResult?.coverage_per_day ?? "—"}/day cover</p>
+                        <p className="text-xs text-emerald-600 font-semibold mb-6">Coverage activates immediately on account creation</p>
                         <button onClick={next}
                           className="w-full py-3.5 bg-[#0F2044] text-white font-bold text-sm rounded-xl hover:bg-[#1E3A5F] transition">
                           Create account & activate →
@@ -853,12 +1114,12 @@ export default function OnboardingPage() {
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </div>
+                </form>
               )}
 
               {/* ── STEP 8: Dashboard Entry ───────────────────────────────── */}
               {step === 8 && (
-                <div className="text-center pt-2">
+                <form onSubmit={e => e.preventDefault()} className="text-center pt-2">
                   <div className="mb-7">
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Step 08 of 08</p>
                     <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-1">Activating your coverage</h2>
@@ -884,15 +1145,15 @@ export default function OnboardingPage() {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-slate-500">Plan</span>
-                      <span className="font-bold text-[#0F2044] capitalize">{selectedPlan} · ₹{PLAN_DETAILS[selectedPlan]?.price}/week</span>
+                      <span className="font-bold text-[#0F2044]">Personalised Plan · ₹{premiumResult?.final_premium ?? "—"}/week</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-slate-500">Coverage</span>
-                      <span className="font-bold text-emerald-600">₹{PLAN_DETAILS[selectedPlan]?.cover}/day</span>
+                      <span className="font-bold text-emerald-600">₹{premiumResult?.coverage_per_day ?? "—"}/day</span>
                     </div>
                   </div>
 
-                  <button onClick={completeRegistration} disabled={registering}
+                  <button type="submit" onClick={completeRegistration} disabled={registering}
                     className="w-full py-4 bg-[#0F2044] text-white font-bold text-sm rounded-xl hover:bg-[#1E3A5F] transition disabled:opacity-40">
                     {registering ? (
                       <span className="flex items-center gap-2 justify-center"><Spinner />Creating account…</span>
@@ -903,7 +1164,7 @@ export default function OnboardingPage() {
                     By continuing you agree to our{" "}
                     <Link href="/terms" className="text-[#0F2044] hover:underline">Terms & Conditions</Link>
                   </p>
-                </div>
+                </form>
               )}
 
             </motion.div>

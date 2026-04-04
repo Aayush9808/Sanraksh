@@ -57,19 +57,19 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 
 const PLANS = [
   {
-    name: "GigArmor Lite", tag: "1 platform", price: "₹29", period: "week",
+    name: "GigInsu₹ Lite", tag: "1 platform", price: "₹29", period: "week",
     desc: "Protect your primary gig income stream",
     features: ["1 platform (Swiggy, Zomato, Uber, etc.)", "₹200/day weather & rain cover", "₹200/incident app outage cover", "SMS + email alerts", "Weekly auto-debit on trigger"],
     cta: "Start Lite →", featured: false,
   },
   {
-    name: "GigArmor Standard", tag: "3 platforms · Most popular", price: "₹49", period: "week",
+    name: "GigInsu₹ Standard", tag: "3 platforms · Most popular", price: "₹49", period: "week",
     desc: "Complete protection for active gig workers",
     features: ["3 platforms covered", "₹280/day weather & curfew cover", "₹200/incident app outage", "Bandh & strike protection", "Instant payout (< 4 hrs)", "WhatsApp + SMS alerts"],
     cta: "Start Standard →", featured: true,
   },
   {
-    name: "GigArmor Pro", tag: "All platforms", price: "₹79", period: "week",
+    name: "GigInsu₹ Pro", tag: "All platforms", price: "₹79", period: "week",
     desc: "Total protection across every platform",
     features: ["All 8 platforms covered", "₹350/day max income cover", "AQI, flood & cyclone triggers", "Instant payout (< 2 hrs)", "Dedicated support manager", "Family notification alerts"],
     cta: "Start Pro →", featured: false,
@@ -77,7 +77,7 @@ const PLANS = [
 ];
 
 const FAQS = [
-  { q: "How does automatic payout work?", a: "GigArmor monitors weather APIs, platform status, and government alerts 24/7. When a qualifying event hits your registered zone, payouts trigger automatically — no claim required." },
+  { q: "How does automatic payout work?", a: "GigInsu₹ monitors weather APIs, platform status, and government alerts 24/7. When a qualifying event hits your registered zone, payouts trigger automatically — no claim required." },
   { q: "When do I receive the money?", a: "Standard Shield: within 4 hours of trigger. Max Shield: within 2 hours. Money goes directly to your registered bank account via IMPS." },
   { q: "What events trigger a payout?", a: "Heavy rainfall, platform app outages (>30 min), government curfews, flooding alerts, extreme heat, poor AQI days, and declared bandhs or strikes in your registered city." },
   { q: "Is there any waiting period?", a: "No. Coverage activates the moment you complete registration. You are protected from day one, immediately." },
@@ -144,9 +144,9 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2 flex-shrink-0">
             <div className="w-8 h-8 rounded-lg bg-[#0F2044] flex items-center justify-center">
-              <span className="text-white font-black text-xs tracking-tight">GA</span>
+              <span className="text-white font-black text-xs tracking-tight">GI</span>
             </div>
-            <span className="font-bold text-slate-900 text-lg tracking-tight">GigArmor</span>
+            <span className="font-bold text-slate-900 text-lg tracking-tight">GigInsu₹</span>
           </Link>
           <nav className="hidden md:flex items-center gap-6">
             {[["#how", "How it works"], ["#plans", "Plans"], ["#about", "About"], ["#faq", "FAQ"], ["#help", "Customer Care"]].map(([href, label]) => (
@@ -225,7 +225,7 @@ export default function LandingPage() {
                   />
                 </div>
               </div>
-              <Link href={phone.length === 10 ? `/onboarding?phone=${phone}` : "/onboarding"}>
+              <Link href="/register">
                 <button className="w-full bg-[#0F2044] text-white font-bold py-3.5 rounded-xl hover:bg-[#1E3A5F] transition-all hover:shadow-lg text-sm">
                   Check my coverage →
                 </button>
@@ -260,13 +260,13 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-14">
             <div className="lbl mb-3">Simple 3-step process</div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">How GigArmor works</h2>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">How GigInsu₹ works</h2>
             <p className="text-slate-400 mt-3 max-w-md mx-auto">From registration to payout, everything is automatic. You focus on your work.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {[
               { n: "01", icon: "\ud83d\udcf1", title: "Register in 3 minutes", desc: "Enter your details, pick your platforms, verify your phone. Done. Coverage activates instantly." },
-              { n: "02", icon: "\ud83d\udd0d", title: "We monitor 24/7", desc: "GigArmor tracks weather data, platform uptime, and government alerts across your registered zones all the time." },
+              { n: "02", icon: "\ud83d\udd0d", title: "We monitor 24/7", desc: "GigInsu\u20b9 tracks weather data, platform uptime, and government alerts across your registered zones all the time." },
               { n: "03", icon: "\ud83d\udcb8", title: "Payout lands automatically", desc: "Qualifying event detected, payout initiated, money in your bank. No action needed on your part." },
             ].map((s, i) => (
               <motion.div key={s.n} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
@@ -427,7 +427,7 @@ export default function LandingPage() {
               <div className="lbl mb-3">Our mission</div>
               <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-5">Built for the people who keep India moving</h2>
               <p className="text-slate-600 leading-relaxed mb-5">India's 15 million gig workers — delivery partners, ride-hail drivers, freelancers — form the backbone of the digital economy. Yet they are the first to lose income when a storm, power cut, app crash, or curfew hits. No employer. No safety net. No recourse.</p>
-              <p className="text-slate-600 leading-relaxed mb-6">GigArmor exists to change that. We built the country's first parametric income protection product for gig workers — automatic, data-driven payouts that arrive before the worker even realizes they need help.</p>
+              <p className="text-slate-600 leading-relaxed mb-6">GigInsu₹ exists to change that. We built the country's first parametric income protection product for gig workers — automatic, data-driven payouts that arrive before the worker even realizes they need help.</p>
               <div className="grid grid-cols-2 gap-4">
                 {[
                   { val: "14,200+", label: "Workers protected" },
@@ -443,10 +443,10 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="bg-[#0F2044] rounded-3xl p-8 text-white">
-              <h3 className="text-xl font-bold mb-6 text-amber-400">How GigArmor is different</h3>
+              <h3 className="text-xl font-bold mb-6 text-amber-400">How GigInsu₹ is different</h3>
               <div className="space-y-5">
                 {[
-                  { icon: "⚡", title: "No claims, ever", desc: "Traditional insurance makes you prove your loss. GigArmor pays automatically when our data confirms the event happened in your zone." },
+                  { icon: "⚡", title: "No claims, ever", desc: "Traditional insurance makes you prove your loss. GigInsu₹ pays automatically when our data confirms the event happened in your zone." },
                   { icon: "🛰️", title: "Verified by real data", desc: "IMD weather APIs, platform status feeds, CPCB AQI, and government alerts — not self-reporting. No fraud, no delays." },
                   { icon: "📆", title: "Weekly, not annual", desc: "Gig workers live week-to-week. So do we. Start, pause, or cancel with no long-term lock-in." },
                   { icon: "🔒", title: "AI fraud protection", desc: "Our scoring engine protects the fund from fraud rings — so genuine workers always get paid first." },
@@ -550,7 +550,7 @@ export default function LandingPage() {
           {/* Contact channels */}
           <div className="grid sm:grid-cols-3 gap-5 mb-12">
             {[
-              { icon: "📧", title: "Email Support", value: "support@gigarmor.in", sub: "We reply within 24 hours", href: "mailto:support@gigarmor.in" },
+              { icon: "📧", title: "Email Support", value: "support@giginsur.in", sub: "We reply within 24 hours", href: "mailto:support@giginsur.in" },
               { icon: "📞", title: "Request a Callback", value: "Free callback in 2 hours", sub: "Hindi · Tamil · Telugu · English", href: "#quote" },
               { icon: "💬", title: "Live Chat Support", value: "Visit our Support Center", sub: "FAQs, guides & contact form", href: "/support" },
             ].map((c, i) => (
@@ -614,16 +614,16 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded bg-[#1E3A5F] flex items-center justify-center">
-              <span className="text-white font-black text-xs">GA</span>
+              <span className="text-white font-black text-xs">GI</span>
             </div>
-            <span className="text-slate-500 text-sm font-medium">GigArmor</span>
+            <span className="text-slate-500 text-sm font-medium">GigInsu₹</span>
           </div>
           <div className="flex items-center gap-6 text-xs text-slate-600">
             <Link href="/login" className="hover:text-slate-400 transition-colors">Login</Link>
             <Link href="/onboarding" className="hover:text-slate-400 transition-colors">Register</Link>
             <Link href="/terms" className="hover:text-slate-400 transition-colors">Terms</Link>
             <Link href="/support" className="hover:text-slate-400 transition-colors">Support</Link>
-            <span>© 2026 GigArmor</span>
+            <span>© 2026 GigInsu₹</span>
           </div>
         </div>
       </footer>

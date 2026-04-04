@@ -21,7 +21,7 @@ const SCENARIOS = [
 ];
 
 const INIT_LOGS = [
-  "[system] GigArmor automation engine v2.0 — ready",
+  "[system] GigInsuR automation engine v2.0 — ready",
   "[system] Signal sources: IMD API, OpenWeather, Platform Status",
   "[system] Fraud scorer: ML model loaded (XGBoost v1.4)",
   "[system] Payout dispatcher: connected to payment gateway",

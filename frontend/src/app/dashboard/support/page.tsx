@@ -25,7 +25,7 @@ const FAQS = [
   { q: "How do I upgrade or change my plan?", a: "Go to My Policy → Change Plan. Upgrades take effect immediately. Downgrades apply from the next billing cycle." },
   { q: "How do I update my UPI or bank details?", a: "Go to Profile → Edit Profile → Payout Details. Changes are verified within 1 hour before payouts route to the new account." },
   { q: "Can I cancel my policy?", a: "Yes. Go to My Policy → Cancel. You'll remain covered until the end of the current billing week. No penalties." },
-  { q: "Why was my payout less than expected?", a: "Payouts are calculated based on the event severity, your plan tier, and the number of covered platforms. Check the payout breakdown in Live Triggers." },
+  { q: "Why was my payout less than expected?", a: "Payouts are calculated based on the event severity, your plan type, and the number of covered platforms. Check the payout breakdown in Live Triggers." },
   { q: "I'm seeing an error on my dashboard", a: "Try refreshing the page. If the error persists, clear your browser cache or try a different browser. Still stuck? File a ticket below." },
 ];
 
@@ -119,7 +119,7 @@ export default function WorkerSupportPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: "Worker",
-          email: "worker@gigarmor.in",
+          email: "worker@giginsur.in",
           category,
           message: message.trim(),
         }),
@@ -130,7 +130,7 @@ export default function WorkerSupportPage() {
       // Refresh tickets
       setTimeout(() => loadTickets(), 500);
     } catch {
-      setFormError("Failed to submit. Please try again or email support@gigarmor.in.");
+      setFormError("Failed to submit. Please try again or email support@giginsur.in.");
     } finally {
       setSending(false);
     }
@@ -158,7 +158,7 @@ export default function WorkerSupportPage() {
       {/* Quick contact bar */}
       <div className="grid sm:grid-cols-3 gap-3 mb-6">
         {[
-          { icon: "📧", label: "Email us", value: "support@gigarmor.in", href: "mailto:support@gigarmor.in" },
+          { icon: "📧", label: "Email us", value: "support@giginsur.in", href: "mailto:support@giginsur.in" },
           { icon: "📞", label: "Request callback", value: "Free · within 2 hours", href: "#new-ticket" },
           { icon: "🕐", label: "Response time", value: "< 24 hours", href: "#" },
         ].map(c => (
@@ -398,7 +398,7 @@ export default function WorkerSupportPage() {
                     </button>
 
                     <p className="text-center text-xs text-slate-400">
-                      Or email us directly at <a href="mailto:support@gigarmor.in" className="text-[#0F2044] font-semibold hover:underline">support@gigarmor.in</a>
+                      Or email us directly at <a href="mailto:support@giginsur.in" className="text-[#0F2044] font-semibold hover:underline">support@giginsur.in</a>
                     </p>
                   </form>
                 )}

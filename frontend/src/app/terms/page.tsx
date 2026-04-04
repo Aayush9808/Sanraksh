@@ -3,7 +3,7 @@ import Link from "next/link";
 
 const PLANS = [
   {
-    name: "GigArmor Lite",
+    name: "GigInsu₹ Lite",
     price: "₹29/week",
     triggers: ["Heavy rain (≥ 8 mm/hr in your zone)", "Platform outage (≥ 2 hours)"],
     payout: "₹280 per qualifying event",
@@ -12,7 +12,7 @@ const PLANS = [
     exclusions: ["Self-reported incidents without data confirmation", "Events outside registered zone"],
   },
   {
-    name: "GigArmor Standard",
+    name: "GigInsu₹ Standard",
     price: "₹49/week",
     triggers: ["Heavy rain (≥ 6 mm/hr)", "Platform outage (≥ 1.5 hours)", "Government-declared curfew", "AQI > 300 (Severe)"],
     payout: "₹420 per qualifying event",
@@ -21,7 +21,7 @@ const PLANS = [
     exclusions: ["Events not corroborated by official data feeds", "Duplicate claims in same event window"],
   },
   {
-    name: "GigArmor Pro",
+    name: "GigInsu₹ Pro",
     price: "₹79/week",
     triggers: ["Heavy rain (≥ 5 mm/hr)", "Platform outage (≥ 1 hour)", "Curfew", "AQI > 250", "Heat wave (≥ 42°C)", "Cyclone / extreme weather advisory"],
     payout: "₹840 per qualifying event",
@@ -34,15 +34,15 @@ const PLANS = [
 const SECTIONS = [
   {
     title: "1. Introduction",
-    body: `These Terms and Conditions ("Terms") govern your use of GigArmor, a parametric income protection platform operated for gig workers ("you", "worker") by GigArmor ("we", "us"). By registering or activating a policy, you agree to these Terms in full. If you do not agree, do not use the platform.`,
+    body: `These Terms and Conditions ("Terms") govern your use of GigInsu₹, a parametric income protection platform operated for gig workers ("you", "worker") by GigInsu₹ ("we", "us"). By registering or activating a policy, you agree to these Terms in full. If you do not agree, do not use the platform.`,
   },
   {
     title: "2. What is Parametric Insurance?",
-    body: `GigArmor uses parametric (index-based) income protection. This means payouts are triggered automatically when a pre-defined measurable event (e.g., rain exceeding a threshold, platform downtime) is confirmed by an independent data feed — not by your individual claim. You do not need to file a claim. Payouts are issued within 24–72 hours of confirmed event data, depending on your plan.`,
+    body: `GigInsu₹ uses parametric (index-based) income protection. This means payouts are triggered automatically when a pre-defined measurable event (e.g., rain exceeding a threshold, platform downtime) is confirmed by an independent data feed — not by your individual claim. You do not need to file a claim. Payouts are issued within 24–72 hours of confirmed event data, depending on your plan.`,
   },
   {
     title: "3. Eligibility",
-    body: `You must be at least 18 years old, registered as a delivery or gig service partner on at least one supported platform (Swiggy, Zomato, Uber, Ola, Blinkit, Dunzo, Zepto, or similar), and have a valid Indian mobile number and UPI ID or bank account for payout receipt. GigArmor does not cover vehicle damage, health incidents, accidents, or any form of non-income loss.`,
+    body: `You must be at least 18 years old, registered as a delivery or gig service partner on at least one supported platform (Swiggy, Zomato, Uber, Ola, Blinkit, Dunzo, Zepto, or similar), and have a valid Indian mobile number and UPI ID or bank account for payout receipt. GigInsu₹ does not cover vehicle damage, health incidents, accidents, or any form of non-income loss.`,
   },
   {
     title: "4. Policy Activation & Coverage Period",
@@ -50,39 +50,39 @@ const SECTIONS = [
   },
   {
     title: "5. Covered Events (Triggers)",
-    body: `Qualifying triggers are determined solely by verified third-party data sources including the India Meteorological Department (IMD), platform status APIs, Central Pollution Control Board (CPCB) AQI feeds, and government gazette notifications. GigArmor reserves the right to update trigger thresholds with 7-day advance notice.`,
+    body: `Qualifying triggers are determined solely by verified third-party data sources including the India Meteorological Department (IMD), platform status APIs, Central Pollution Control Board (CPCB) AQI feeds, and government gazette notifications. GigInsu₹ reserves the right to update trigger thresholds with 7-day advance notice.`,
   },
   {
     title: "6. Payout Process",
-    body: `When a qualifying trigger is confirmed by data, payouts are automatically credited to your registered UPI ID or bank account within 24–72 hours. No paperwork, photos, or claim submission is required. Payouts are in Indian Rupees and are subject to applicable taxes as per Indian law. GigArmor may withhold payouts if fraud is detected (see Section 8).`,
+    body: `When a qualifying trigger is confirmed by data, payouts are automatically credited to your registered UPI ID or bank account within 24–72 hours. No paperwork, photos, or claim submission is required. Payouts are in Indian Rupees and are subject to applicable taxes as per Indian law. GigInsu₹ may withhold payouts if fraud is detected (see Section 8).`,
   },
   {
     title: "7. Exclusions",
-    body: `GigArmor does NOT cover: (a) physical injuries or accidents, (b) vehicle damage or repair costs, (c) health or life insurance events, (d) income loss from personal reasons unrelated to a qualifying disruption event, (e) events in zones other than your registered area, (f) duplicate payout claims for the same event window, or (g) any loss arising from your own negligence or misconduct.`,
+    body: `GigInsu₹ does NOT cover: (a) physical injuries or accidents, (b) vehicle damage or repair costs, (c) health or life insurance events, (d) income loss from personal reasons unrelated to a qualifying disruption event, (e) events in zones other than your registered area, (f) duplicate payout claims for the same event window, or (g) any loss arising from your own negligence or misconduct.`,
   },
   {
     title: "8. Fraud Prevention & AI Monitoring",
-    body: `GigArmor employs AI-based fraud detection that monitors GPS patterns, device reuse, route feasibility, and peer-event correlation. If our system detects a high-risk fraud signal (risk score ≥ 75%), your claim will be blocked and sent to an investigation queue. Payouts may be delayed or denied if fraud is confirmed. Attempting to manipulate GPS data or file false claims may result in permanent account suspension and legal action.`,
+    body: `GigInsu₹ employs AI-based fraud detection that monitors GPS patterns, device reuse, route feasibility, and peer-event correlation. If our system detects a high-risk fraud signal (risk score ≥ 75%), your claim will be blocked and sent to an investigation queue. Payouts may be delayed or denied if fraud is confirmed. Attempting to manipulate GPS data or file false claims may result in permanent account suspension and legal action.`,
   },
   {
     title: "9. Premium Deduction",
-    body: `The weekly premium is deducted from your registered payment method at policy activation. If payment fails, coverage lapses immediately. Premiums are non-refundable once the coverage period has begun. A pro-rated refund may be issued for unused days only in cases of documented technical errors by GigArmor.`,
+    body: `The weekly premium is deducted from your registered payment method at policy activation. If payment fails, coverage lapses immediately. Premiums are non-refundable once the coverage period has begun. A pro-rated refund may be issued for unused days only in cases of documented technical errors by GigInsu₹.`,
   },
   {
     title: "10. Cancellation & Renewal",
-    body: `You may cancel auto-renewal at any time before the next billing cycle from your dashboard. Cancellation takes effect at the end of the current coverage week. GigArmor may terminate your policy if fraudulent activity is confirmed or if you breach these Terms. Upon termination, pending legitimate payouts (if any) will still be processed.`,
+    body: `You may cancel auto-renewal at any time before the next billing cycle from your dashboard. Cancellation takes effect at the end of the current coverage week. GigInsu₹ may terminate your policy if fraudulent activity is confirmed or if you breach these Terms. Upon termination, pending legitimate payouts (if any) will still be processed.`,
   },
   {
     title: "11. Data & Privacy",
-    body: `GigArmor collects your phone number, zone, platform registrations, and UPI/bank details for the sole purpose of operating the coverage and processing payouts. We do not sell your data to third parties. Location data is used only for zone verification and fraud detection. For full details, refer to our Privacy Policy.`,
+    body: `GigInsu₹ collects your phone number, zone, platform registrations, and UPI/bank details for the sole purpose of operating the coverage and processing payouts. We do not sell your data to third parties. Location data is used only for zone verification and fraud detection. For full details, refer to our Privacy Policy.`,
   },
   {
     title: "12. Dispute Resolution",
-    body: `All disputes arising from these Terms shall be subject to the exclusive jurisdiction of courts in Bengaluru, Karnataka, India. Disputes will first be attempted to be resolved through our internal support process (see Support page) before escalation. GigArmor's decision on trigger confirmation, fraud flags, and payout denial is final subject to the dispute review period.`,
+    body: `All disputes arising from these Terms shall be subject to the exclusive jurisdiction of courts in Bengaluru, Karnataka, India. Disputes will first be attempted to be resolved through our internal support process (see Support page) before escalation. GigInsu₹'s decision on trigger confirmation, fraud flags, and payout denial is final subject to the dispute review period.`,
   },
   {
     title: "13. Changes to Terms",
-    body: `GigArmor reserves the right to modify these Terms at any time. Material changes will be communicated via registered mobile number with at least 7 days' notice. Continued use of the platform after changes constitutes acceptance.`,
+    body: `GigInsu₹ reserves the right to modify these Terms at any time. Material changes will be communicated via registered mobile number with at least 7 days' notice. Continued use of the platform after changes constitutes acceptance.`,
   },
 ];
 
@@ -94,9 +94,9 @@ export default function TermsPage() {
         <div className="max-w-4xl mx-auto w-full flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-[#0F2044] flex items-center justify-center">
-              <span className="text-white font-black text-xs">GA</span>
+              <span className="text-white font-black text-xs">GI</span>
             </div>
-            <span className="font-bold text-slate-900 tracking-tight">GigArmor</span>
+            <span className="font-bold text-slate-900 tracking-tight">GigInsu₹</span>
           </Link>
           <Link href="/" className="text-sm text-slate-500 hover:text-slate-900 font-medium transition-colors">← Back to home</Link>
         </div>
@@ -115,7 +115,7 @@ export default function TermsPage() {
         {/* Intro callout */}
         <div className="bg-[#0F2044] rounded-2xl p-6 mb-10 text-white">
           <p className="text-base font-semibold leading-relaxed">
-            GigArmor is a <span className="text-amber-400">parametric income protection platform</span> — not traditional insurance. Payouts are triggered automatically by verified external data (weather, platform APIs, government alerts). No claim forms, no paperwork, no waiting room.
+            GigInsu₹ is a <span className="text-amber-400">parametric income protection platform</span> — not traditional insurance. Payouts are triggered automatically by verified external data (weather, platform APIs, government alerts). No claim forms, no paperwork, no waiting room.
           </p>
         </div>
 

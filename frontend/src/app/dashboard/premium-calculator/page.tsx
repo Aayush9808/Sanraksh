@@ -170,7 +170,7 @@ export default function PremiumCalculatorPage() {
 
           <div>
             <label className="lbl block mb-1.5">
-              Tenure with GigArmor
+              Tenure with GigInsu₹
               <span className="text-amber-500 font-bold ml-2">{tenure} month{tenure !== 1 ? "s" : ""}</span>
             </label>
             <input
@@ -332,7 +332,7 @@ export default function PremiumCalculatorPage() {
                     </div>
                   </div>
                   <p className="text-xs text-slate-400 mt-3">
-                    If you lose {result.weekly_roi_breakeven_days.toFixed(1)} or more working days per week due to disruptions, GigArmor pays for itself.
+                    If you lose {result.weekly_roi_breakeven_days.toFixed(1)} or more working days per week due to disruptions, GigInsu₹ pays for itself.
                     With ₹{result.coverage_per_day}/day coverage, one qualifying event covers {((result.coverage_per_day / result.final_premium) * 7).toFixed(1)} days of premium.
                   </p>
                 </div>
