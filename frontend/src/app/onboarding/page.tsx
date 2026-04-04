@@ -388,11 +388,24 @@ export default function OnboardingPage() {
       const coveragePerDay = premiumResult!.coverage_per_day; // = premium * 15
 
       const currentUser = getCurrentUser();
+      // Build a PremiumResult-compatible object from backend API response
+      const riskTierMap: Record<string, "low" | "medium" | "high"> = {
+        Low: "low", Medium: "medium", High: "high",
+      };
+      const apiPremiumResult = {
+        worker_id: worker.worker_id,
+        riskTier: riskTierMap[premiumResult!.risk_level] ?? "medium" as "low" | "medium" | "high",
+        basePremium: 10,
+        adjustedPremium: planPrice,
+        finalPremium: planPrice,
+        breakdown: premiumResult!.factors?.map((f: { factor: string; adjustment: number }) =>
+          `${f.factor}: ${f.adjustment > 0 ? "+" : ""}${f.adjustment}`) ?? [],
+      };
       const sessionPayload = {
         userId: currentUser?.id ?? `phone-${phone.slice(-6)}`,
         worker,
         underwritingResult,
-        premiumResult: { finalPremium: planPrice, coveragePerDay },
+        premiumResult: apiPremiumResult,
         policy: {
           plan: "Personalised Plan",
           weeklyPremium: planPrice,
@@ -442,7 +455,7 @@ export default function OnboardingPage() {
         riskTier: underwritingResult.riskTier,
         riskScore: underwritingResult.riskScore,
         eligible: underwritingResult.eligible,
-        finalPremium: engineResult.finalPremium,
+        finalPremium: planPrice,
         plan: sessionPayload.policy.plan,
         coveragePerDay,
       });
