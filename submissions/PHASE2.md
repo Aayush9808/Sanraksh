@@ -29,6 +29,27 @@
 
 ---
 
+## ✅ Phase 2 Requirements — Fulfillment Status
+
+> **All Phase 2 requirements have been successfully fulfilled and implemented in the current system.**
+
+| Requirement | Status | Implementation |
+|---|---|---|
+| Registration Process | ✅ Done | Full onboarding (5 steps) + Demo Mode shortcut |
+| Insurance Policy Management | ✅ Done | `/dashboard/my-policy` — active policy, coverage, claim history |
+| Dynamic Premium Calculation | ✅ Done | Formula-computed ₹10–₹60/wk, unique per worker, no fixed plans |
+| Claims Management | ✅ Done | Parametric auto-claims, fraud scoring, admin review queue |
+| 2-minute Demo Video | ✅ Done | [Watch on Google Drive](https://drive.google.com/file/d/1CvnhmhemT_G60ETTXPxhS2chgMhp3N_m/view) |
+
+**Additional features implemented beyond requirements:**
+- 🎭 **Demo Mode** — judges complete the full onboarding in 30 seconds, no real data needed
+- 💬 **Customer Care / Support Section** — in-app FAQ, quick-action links, and contact form at `/dashboard/support`
+- 📊 **Admin Analytics Dashboard** — live KPIs, 7-day trend charts, policy mix breakdown
+- 🗺️ **Risk Map** — geo-visualisation of disruption zones
+- 🔬 **Disruption Simulator** — admin can trigger city-level events and watch the automation engine run
+
+---
+
 ## 🎯 Phase 2 Objective
 
 Phase 1 delivered a complete prototype with every screen functional. **Phase 2's mandate:** make it real, make it polished, and make it demeable by a judge in 30 seconds.
@@ -166,7 +187,7 @@ Judges can complete the full worker onboarding in under 30 seconds without enter
 | My Policy | `/dashboard/my-policy` | Coverage details · personalised weekly premium · claim history |
 | Simulation | `/dashboard/simulation` | Interactive disruption simulator with fraud score output |
 | Profile | `/dashboard/profile` | Personal details · KYC status · platform connections |
-| Customer Care | `/dashboard/support` | FAQ · quick links · contact form |
+| Customer Care | `/dashboard/support` | In-app FAQ · quick-action links · contact form |
 
 ---
 
