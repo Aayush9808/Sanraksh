@@ -5,18 +5,14 @@
 
 ---
 
-## ⚡ Live Demo (No Setup Needed)
+## ⚡ Live Demo
 
-If you just want to evaluate the product, the live deployment is ready:
+| Service | Status | URL |
+|---------|--------|-----|
+| 🌐 Frontend | ✅ Live | [https://sanraksh.vercel.app](https://sanraksh.vercel.app) |
+| 📡 Backend API | ⚠️ Offline | AWS EC2 server encountered an error and is currently down |
 
-| Service | URL |
-|---------|-----|
-| 🌐 Frontend | [https://sanraksh.vercel.app](https://sanraksh.vercel.app) |
-| 📡 Backend API | [http://3.111.197.41:8000/docs](http://3.111.197.41:8000/docs) |
-
-**Demo credentials (pre-seeded):**
-- Email: `ravi@example.com` / Password: `password123`
-- Or register a new account — takes 30 seconds
+> **Note for Judges:** The AWS EC2 backend crashed after deployment. The frontend is live on Vercel but the backend API is unavailable on the cloud. **Please use the local setup below** to run the full application — the entire stack works perfectly on a local machine.
 
 ---
 
