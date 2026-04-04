@@ -4,7 +4,7 @@
 <img width="100%" src="https://capsule-render.vercel.app/api?type=waving&height=220&color=0:0f172a,30:0c1f3f,60:0d3a6e,100:1a56a0&text=Sanraksh&fontSize=72&fontColor=ffffff&animation=twinkling&fontAlignY=40&desc=AI-Powered%20Parametric%20Income%20Protection%20for%20India%E2%80%99s%20Gig%20Workers&descAlignY=62&descSize=19&descColor=94c3f5" />
 
 <!-- ANIMATED HEADLINE -->
-<img src="https://readme-typing-svg.herokuapp.com?font=Inter&weight=800&size=22&pause=1200&color=38BDF8&center=true&vCenter=true&width=960&lines=Guidewire+DEVTrails+2026+%E2%80%94+Loss+of+Income+Insurance+Reimagined;Zero+Mock+Data+%E2%80%94+Every+Number+From+a+Live+API;Parametric+Auto-Claims+%7C+AI+Fraud+Scoring+%7C+Instant+Payout;6-Factor+AI+Premium+Engine+%7C+Full+CI%2FCD+Pipeline" alt="Typing SVG" />
+<img src="https://readme-typing-svg.herokuapp.com?font=Inter&weight=800&size=22&pause=1200&color=38BDF8&center=true&vCenter=true&width=960&lines=Guidewire+DEVTrails+2026+%E2%80%94+Loss+of+Income+Insurance+Reimagined;AI+Dynamic+Premium+%E2%82%B910%E2%80%9360%2Fwk+%7C+Zero+Fixed+Plans+%7C+Zero+Claim+Forms;Parametric+Auto-Claims+%7C+AI+Fraud+Scoring+%7C+Instant+Payout;Full+Demo+Mode+%E2%80%94+Onboard+in+30+Seconds" alt="Typing SVG" />
 
 <br/><br/>
 
@@ -19,23 +19,21 @@
 
 <!-- DEPLOY + CI BADGES -->
 <a href="https://sanraksh.vercel.app"><img src="https://img.shields.io/badge/%F0%9F%8C%90%20Live%20Demo-sanraksh.vercel.app-000000?style=for-the-badge&logo=vercel" /></a>
-<a href="https://github.com/Aayush9808/Sanraksh/actions"><img src="https://github.com/Aayush9808/Sanraksh/actions/workflows/ci.yml/badge.svg" /></a>
+<a href="https://github.com/Aayush9808/GigArmor/actions"><img src="https://github.com/Aayush9808/GigArmor/actions/workflows/ci.yml/badge.svg" /></a>
 <img src="https://img.shields.io/badge/Tests-Passing-22c55e?style=for-the-badge&logo=pytest&logoColor=white" />
 <img src="https://img.shields.io/badge/Zero%20Mock%20Data-100%25%20Real%20APIs-f59e0b?style=for-the-badge" />
 
 <br/><br/>
 
-<!-- QUICK NAV -->
-<table>
-<tr>
-<td align="center"><a href="https://sanraksh.vercel.app"><b>🌐 Live Demo</b></a></td>
-<td align="center"><a href="submissions/PHASE1.md"><b>📋 Phase 1 Submission</b></a></td>
-<td align="center"><a href="submissions/PHASE2.md"><b>⚙️ Phase 2 Submission</b></a></td>
-<td align="center"><a href="LOCAL_SETUP.md"><b>🛠️ Local Setup</b></a></td>
-<td align="center"><a href="https://drive.google.com/file/d/1CvnhmhemT_G60ETTXPxhS2chgMhp3N_m/view"><b>🎬 Demo Video</b></a></td>
-<td align="center"><a href="#api-reference"><b>📡 API Docs</b></a></td>
-</tr>
-</table>
+<!-- QUICK LINKS -->
+<p>
+<a href="https://sanraksh.vercel.app"><img src="https://img.shields.io/badge/%F0%9F%8C%90%20Live%20Demo-Visit-0d3a6e?style=flat-square" /></a>&nbsp;
+<a href="LOCAL_SETUP.md"><img src="https://img.shields.io/badge/%F0%9F%9B%A0%EF%B8%8F%20Local%20Setup-Run%20Locally-1a56a0?style=flat-square" /></a>&nbsp;
+<a href="submissions/PHASE1.md"><img src="https://img.shields.io/badge/%F0%9F%93%8B%20Phase%201-Submission-0f2044?style=flat-square" /></a>&nbsp;
+<a href="submissions/PHASE2.md"><img src="https://img.shields.io/badge/%E2%9A%99%EF%B8%8F%20Phase%202-Submission-0f2044?style=flat-square" /></a>&nbsp;
+<a href="https://drive.google.com/file/d/1CvnhmhemT_G60ETTXPxhS2chgMhp3N_m/view"><img src="https://img.shields.io/badge/%F0%9F%8E%AC%20Demo%20Video-Watch-ef4444?style=flat-square" /></a>&nbsp;
+<a href="#api-reference"><img src="https://img.shields.io/badge/%F0%9F%93%A1%20API%20Docs-Reference-009688?style=flat-square" /></a>
+</p>
 
 </div>
 
@@ -93,14 +91,17 @@ Traditional insurance breaks for gig workers:
 
 **Sanraksh flips every one of these.**
 
+> No fixed plans. No claim forms. No manual review for 72% of claims.  
+> Premium is computed per-worker. Payout is automatic. Recovery is same-day.
+
 </td>
 <td width="40%" align="center">
 
 ```
-₹61 / week
+₹29 / week
 ────────────────────
-Coverage:  ₹800/day
-Platform:  Swiggy
+Coverage:  ₹435/day
+Platforms: Swiggy · Zomato · Blinkit
 City:      Mumbai
 Risk:      Medium
 ────────────────────
@@ -108,6 +109,8 @@ Auto-settle: < 30s
 Fraud check: Real-time
 Claim form:  None
 ```
+
+*Dynamic pricing, not a fixed plan.*
 
 </td>
 </tr>
@@ -118,25 +121,27 @@ Claim form:  None
 ## 🎯 The Problem We Solve
 
 ```
-  DISRUPTION                   TRADITIONAL               SANRAKSH
-  HAPPENS                      INSURANCE                 RESPONSE
-     │                             │                         │
-     ▼                             ▼                         ▼
- Heavy Rain              Fill claim form (3 days)    Trigger detected
- App Outage              Submit documents              in < 60 seconds
- Civil Curfew            Wait for adjuster            ─────────────────
- AQI Shutdown            Wait 14–30 days              Fraud check runs
-                         Receive partial payout       Auto-approved
-                                                      ₹800 settled
-                                                      Notification sent
-                                                      
-       Worker loses income for weeks    ←→    Worker paid same day ✓
+  DISRUPTION          TRADITIONAL INSURANCE         SANRAKSH
+  HAPPENS             ─────────────────────         ────────
+     │                                                  │
+     ▼                Fill 3-page claim form         Trigger auto-detected (< 60s)
+ Heavy Rain     →     Submit physical docs      →    Fraud score computed
+ App Outage           Wait for adjuster (days)       Auto-approved if score ≤ 0.35
+ Civil Curfew         Adjuster may reject            ₹435 settled to UPI/bank
+ AQI Shutdown         Wait 14–30 days                Notification sent
+
+        Worker waits weeks, loses rent money    ←→    Worker paid same day ✓
 ```
 
-**Persona:** Food delivery partner on Swiggy/Zomato, Tier-1 city, earning ₹4,000–7,000/week.
-**Coverage scope:** Loss of income **only** — strictly compliant with DEVTrails constraints.
+| | Traditional | Sanraksh |
+|--|--|--|
+| **Claim trigger** | Worker initiates | Automatic (parametric signal) |
+| **Processing time** | 14–30 days | < 30 seconds (auto) · 2–4 hours (manual review) |
+| **Premium** | Fixed tiers, opaque | AI-computed per worker, ₹10–₹60/wk |
+| **Fraud protection** | Manual adjuster | Real-time ML scoring (5 signals) |
+| **Coverage scope** | Health/accident | Loss of income only (DEVTrails-compliant) |
 
----
+**Persona:** Food delivery partner, 3 platforms (Swiggy · Zomato · Blinkit), Mumbai, earning ₹4,000–7,000/week.  
 
 ## ✨ Key Features
 
@@ -147,31 +152,31 @@ Claim form:  None
 ### 🌩️ Parametric Triggers
 Weather · Outages · Floods · Curfews · AQI
 
-Auto-detects threshold breach and fires claims — **no form needed**
+Auto-detects threshold breach and fires claims — **no form, no call needed**
 
 </td>
 <td align="center" width="25%">
 
-### 🤖 AI Premium Calc
-6-factor pricing engine
+### 🤖 Dynamic AI Premium
+Formula-computed, ₹10–₹60/wk
 
-City risk · Platform stability · Season · Earnings band · Loyalty · No-claim bonus
+City risk · Platform count · Earnings band — unique rate per worker, no fixed plans
 
 </td>
 <td align="center" width="25%">
 
 ### 🔍 Fraud Intelligence
-Real-time ML scoring
+Real-time ML scoring (5 signals)
 
 Route plausibility · GPS continuity · Peer corroboration · Duplicate detection
 
 </td>
 <td align="center" width="25%">
 
-### 📊 Admin Command Center
-Live analytics dashboard
+### 🎭 Demo Mode
+30-second full onboarding
 
-KPI cards · Claims feed · Disruption monitor · Risk zones · Simulation engine
+One-click demo data at every step — judges can try the complete flow instantly
 
 </td>
 </tr>
@@ -181,7 +186,11 @@ KPI cards · Claims feed · Disruption monitor · Risk zones · Simulation engin
 
 ## 🌐 Live Demo & Credentials
 
-> **Live at:** [https://sanraksh.vercel.app](https://sanraksh.vercel.app)
+> **Frontend (Vercel):** ✅ Live at [https://sanraksh.vercel.app](https://sanraksh.vercel.app)  
+> **Backend (AWS EC2):** ⚠️ Currently down — the EC2 instance has been stopped to avoid costs.  
+> **→ For full functionality (real API calls, claims, automation engine), please [run locally](LOCAL_SETUP.md).**
+
+### Pre-seeded credentials (use these to log in)
 
 <table>
 <tr>
@@ -194,15 +203,19 @@ KPI cards · Claims feed · Disruption monitor · Risk zones · Simulation engin
 <td>🔴 Admin / Insurer</td>
 <td><code>9999000000</code></td>
 <td><code>000000</code></td>
-<td>Full dashboard · claims · analytics · control tower · premium calc</td>
+<td>Command Center · Claims · Analytics · Simulation Engine · Risk Map</td>
 </tr>
 <tr>
 <td>🟢 Worker</td>
 <td><code>9999000001</code></td>
 <td><code>123456</code></td>
-<td>My policy · live triggers · payout history · profile</td>
+<td>My Policy · Live Triggers · Simulation · Profile · Customer Care</td>
 </tr>
 </table>
+
+### Or try Demo Mode (no real data needed)
+
+On the Register page, click **"Use Demo Credentials"** → complete the full onboarding with one-click shortcuts at every step. No phone number or Aadhaar required.
 
 ---
 
@@ -313,7 +326,7 @@ KPI cards · Claims feed · Disruption monitor · Risk zones · Simulation engin
            ┌─────────────────────┐
            │   AUDIT TRAIL       │
            │  reason_codes[]     │
-           │  decision_notes     │
+           │  payout: ₹435/day   │
            │  payout_tx_id       │
            └─────────────────────┘
 ```
@@ -406,16 +419,21 @@ KPI cards · Claims feed · Disruption monitor · Risk zones · Simulation engin
 
 ## 🤖 AI & ML Layer
 
-### Premium Pricing Engine — 6 Factors
+### Premium Pricing Engine — Dynamic Formula
 
-| Factor | Signal Source | Max Impact | Confidence |
-|--------|--------------|-----------|------------|
-| City Risk | 24-month IMD/CPCB disruption history | +₹13.5 | 88% |
-| Platform Stability | Monthly uptime-degradation probability | +₹2.25 | 76% |
-| Seasonal Adjustment | Current monsoon/summer/winter season | ±₹7.0 | 92% |
-| Earnings Coverage Scale | Weekly earnings band → coverage amount | ±₹4.5 | 95% |
-| Loyalty Discount | Tenure with Sanraksh (months) | −₹6.0 | 100% |
-| No-Claim Bonus | Claims in last 30 days | −₹2.5 | 100% |
+```
+weekly_premium = 10 + (city_risk × 6) + (min(platforms, 4) × 4) + (earnings_midpoint / 2000)
+capped between ₹10 and ₹60  ·  coverage_per_day = premium × 15
+```
+
+| Factor | Values | Max Contribution |
+|--------|--------|------------------|
+| **Base** | Fixed | ₹10.00 |
+| **City Risk** | Mumbai 0.75 · Delhi 0.65 · Bengaluru 0.55 · Kolkata 0.45 | ₹4.50 |
+| **Platform Count** | 1–4 platforms × ₹4 each | ₹16.00 |
+| **Earnings Band** | ₹1K–₹14K midpoint ÷ 2000 | ₹7.00 |
+
+**Example:** Mumbai · 3 platforms · ₹4K–7K/wk → `10 + 4.5 + 12 + 2.75 = ₹29/wk` · coverage ₹435/day
 
 ### Fraud Detection Architecture
 
@@ -440,16 +458,16 @@ score > 0.70 → REJECT        ( 9.1% of claims)
 <table>
 <tr>
 <th width="50%">📋 Phase 1 — Seed Submission</th>
-<th width="50%">⚙️ Phase 2 — Build & Automate</th>
+<th width="50%">⚙️ Phase 2 — Build & Ship</th>
 </tr>
 <tr>
 <td>
 
-**Submitted:** March 2026
+**Submitted:** March 2026  
+**Project name at submission:** GigArmor *(renamed Sanraksh after Phase 1)*
 
 **Deliverables:**
 - ✅ Persona-focused problem definition
-- ✅ Weekly premium model (transparent)
 - ✅ Parametric trigger matrix
 - ✅ AI/ML integration plan
 - ✅ Adversarial anti-spoofing strategy
@@ -462,17 +480,19 @@ score > 0.70 → REJECT        ( 9.1% of claims)
 </td>
 <td>
 
-**Submitted:** March 30, 2026
+**Submitted:** April 2026  
+**UI/UX and product name fully redesigned from Phase 1**
 
 **Deliverables:**
-- ✅ FastAPI backend — live, seeded, tested
-- ✅ SQLite database (zero setup required)
-- ✅ All 6 admin pages — zero mock data
-- ✅ AI premium calculator (6-factor)
+- ✅ FastAPI backend — seeded, tested (16 tests)
+- ✅ OTP-only auth (no password storage)
+- ✅ Dynamic AI premium — ₹10–₹60/wk, formula-driven
+- ✅ Zero fixed plans — unique rate per worker
 - ✅ Real automation engine (simulate-disruption)
 - ✅ CI/CD: lint + test-backend + test-frontend
 - ✅ Vercel deploy — live on every push
-- ✅ Full pytest suite (16 tests passing)
+- ✅ Full Demo Mode — judge onboards in 30 seconds
+- ✅ LOCAL_SETUP.md for judges running locally
 
 [**→ Full Phase 2 Document**](submissions/PHASE2.md)
 
@@ -514,21 +534,25 @@ score > 0.70 → REJECT        ( 9.1% of claims)
 
 ## 🚀 Quick Start
 
+> **Full guide with troubleshooting:** [LOCAL_SETUP.md](LOCAL_SETUP.md)
+
 ```bash
 # 1. Clone
-git clone https://github.com/Aayush9808/Sanraksh.git && cd Sanraksh
+git clone https://github.com/Aayush9808/GigArmor.git
+cd GigArmor/gigshield-dev
 
 # 2. Backend (Python 3.11+, no Docker needed)
 cd backend
-pip install -r requirements.txt
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements_local.txt
 uvicorn app.main:app --port 8000 --reload
 # ✅ Auto-seeded: 11 users · 8 policies · 11 claims · 5 disruptions · 7 risk zones
 # ✅ API explorer: http://localhost:8000/docs
 
 # 3. Frontend (new terminal)
-cd frontend
+cd ../frontend
 npm install && npm run dev
-# ✅ Running: http://localhost:3000
+# ✅ http://localhost:3000
 ```
 
 ---
@@ -536,60 +560,64 @@ npm install && npm run dev
 ## 📦 Repository Structure
 
 ```
-Sanraksh/
-│
-├── frontend/                        # Next.js 14 · TypeScript · Tailwind
-│   └── src/app/
-│       ├── dashboard/
-│       │   ├── page.tsx             # Admin + Worker home (real API)
-│       │   ├── analytics/           # Live charts (bar, line, pie)
-│       │   ├── claims/              # Claims feed + fraud score
-│       │   ├── control-tower/       # Automation engine simulator
-│       │   ├── workers/             # Worker roster
-│       │   ├── triggers/            # Active disruptions
-│       │   ├── premium-calculator/  # AI pricing UI
-│       │   └── layout.tsx           # Nav + auth guard
-│       ├── login/                   # OTP login flow
-│       └── register/                # Worker onboarding
-│
-├── backend/                         # FastAPI · SQLAlchemy 2.0 · Pydantic
-│   └── app/
-│       ├── main.py                  # App entrypoint + seed data
-│       ├── config.py                # Pydantic settings (zero-config demo)
-│       ├── database.py              # SQLite + StaticPool
-│       ├── models/                  # User · Policy · Claim · Disruption · RiskZone
-│       └── routers/
-│           ├── auth.py              # JWT + in-memory OTP
-│           ├── workers.py           # Worker CRUD
-│           ├── claims.py            # Claims + fraud routing
-│           ├── analytics.py         # KPIs + trend data
-│           ├── disruptions.py       # Signal feed
-│           ├── phase2.py            # Automation engine
-│           └── premium.py           # AI 6-factor pricing
-│
-├── submissions/
-│   ├── PHASE1.md                    # Phase 1 — Seed submission
-│   └── PHASE2.md                    # Phase 2 — Build & Automate
-│
-├── .github/workflows/ci.yml         # lint + test-backend + test-frontend
-└── backend/tests/
-    ├── test_auth.py                 # JWT · bcrypt · OTP tests
-    ├── test_phase2.py               # Automation engine tests
-    └── test_policies.py             # Premium + policy tests
+GigArmor/                            # GitHub repo (project renamed Sanraksh)
+└── gigshield-dev/
+    │
+    ├── frontend/                    # Next.js 14 · TypeScript · Tailwind CSS
+    │   └── src/app/
+    │       ├── dashboard/
+    │       │   ├── page.tsx         # Admin + Worker home (real API)
+    │       │   ├── analytics/       # Live charts (bar, line, pie)
+    │       │   ├── claims/          # Claims feed + fraud scores
+    │       │   ├── simulation/      # Disruption simulator
+    │       │   ├── workers/         # Worker roster
+    │       │   ├── triggers/        # Active disruptions
+    │       │   ├── my-policy/       # Worker policy + dynamic premium
+    │       │   ├── premium-calculator/ # Admin AI pricing tool
+    │       │   └── layout.tsx       # Sidebar nav + auth guard
+    │       ├── login/               # OTP login flow
+    │       └── register/            # Worker onboarding (with Demo Mode)
+    │
+    ├── backend/                     # FastAPI · SQLAlchemy 2.0 · Pydantic
+    │   └── app/
+    │       ├── main.py              # App entrypoint + auto-seed data
+    │       ├── config.py            # Pydantic settings (zero-config)
+    │       ├── database.py          # SQLite + StaticPool
+    │       ├── models/              # User · Policy · Claim · Disruption · RiskZone
+    │       └── routers/
+    │           ├── auth.py          # JWT + OTP-only auth
+    │           ├── workers.py       # Worker CRUD
+    │           ├── claims.py        # Claims + fraud routing
+    │           ├── analytics.py     # KPIs + trend data
+    │           ├── disruptions.py   # Signal feed
+    │           ├── phase2.py        # Automation engine
+    │           └── premium.py       # Dynamic AI pricing formula
+    │
+    ├── submissions/
+    │   ├── PHASE1.md                # Phase 1 seed submission
+    │   └── PHASE2.md                # Phase 2 build submission
+    │
+    ├── LOCAL_SETUP.md               # Step-by-step local run guide for judges
+    ├── .github/workflows/ci.yml     # lint + test-backend + test-frontend
+    └── backend/tests/
+        ├── test_auth.py             # JWT · OTP tests
+        ├── test_phase2.py           # Automation engine tests
+        └── test_policies.py        # Premium calculation tests
 ```
 
 ---
 
 ## 🔗 Links
 
-| Resource | URL |
-|----------|-----|
-| 🌐 Live Demo | https://sanraksh.vercel.app |
-| 📦 GitHub | https://github.com/Aayush9808/Sanraksh |
-| 🎬 Phase 1 Video | https://drive.google.com/file/d/1CvnhmhemT_G60ETTXPxhS2chgMhp3N_m/view |
-| 📡 API Docs (local) | http://localhost:8000/docs |
-| 📋 Phase 1 Submission | [submissions/PHASE1.md](submissions/PHASE1.md) |
-| ⚙️ Phase 2 Submission | [submissions/PHASE2.md](submissions/PHASE2.md) |
+| Resource | URL | Status |
+|----------|-----|--------|
+| 🌐 Live Demo (Frontend) | https://sanraksh.vercel.app | ✅ Live |
+| 📦 GitHub | https://github.com/Aayush9808/GigArmor | ✅ Live |
+| 🛠️ Local Setup Guide | [LOCAL_SETUP.md](LOCAL_SETUP.md) | ✅ |
+| 🎬 Phase 1 Demo Video | https://drive.google.com/file/d/1CvnhmhemT_G60ETTXPxhS2chgMhp3N_m/view | ✅ |
+| 📡 API Docs | http://localhost:8000/docs *(run locally)* | ⚠️ Local only |
+| 📋 Phase 1 Submission | [submissions/PHASE1.md](submissions/PHASE1.md) | ✅ |
+| ⚙️ Phase 2 Submission | [submissions/PHASE2.md](submissions/PHASE2.md) | ✅ |
 
 ---
 
