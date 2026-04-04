@@ -22,7 +22,7 @@ Make sure these are installed on your machine before starting:
 
 | Tool | Required Version | Check Command | Download |
 |------|-----------------|---------------|----------|
-| Python | 3.11 or 3.12 | `python3 --version` | [python.org](https://www.python.org/downloads/) |
+| Python | 3.11 or higher | `python3 --version` | [python.org](https://www.python.org/downloads/) |
 | Node.js | 18 or higher | `node --version` | [nodejs.org](https://nodejs.org/) |
 | npm | comes with Node | `npm --version` | (bundled with Node) |
 | Git | any | `git --version` | [git-scm.com](https://git-scm.com/) |
@@ -78,12 +78,16 @@ source .venv/bin/activate
 ### 2c. Install Python dependencies
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements_local.txt
 ```
 
-This installs FastAPI, SQLAlchemy, scikit-learn, and ~30 other packages. Takes 1-3 minutes.
+This installs FastAPI, SQLAlchemy, JWT auth and ~10 other packages needed to run locally. Takes ~1 minute.
 
-### 2d. Create the environment file
+> **Why not `requirements.txt`?** The main `requirements.txt` includes production-only packages (PostgreSQL driver, ML libraries, payment SDKs) that aren't needed locally and may fail to install on some machines.
+
+### 2d. Create the environment file (optional but recommended)
+
+> **The app works without this file** — all settings have safe defaults. But creating it is good practice.
 
 Create a file called `.env` inside the `backend/` folder:
 
@@ -105,7 +109,7 @@ SECRET_KEY=local-dev-secret-key-judges-2026
 CORS_ORIGINS=http://localhost:3000
 ```
 
-> All other API keys (Razorpay, Twilio, etc.) are optional. The core premium calculation, registration, onboarding, dashboard, and simulation all work without them.
+> All other API keys (Razorpay, Twilio, etc.) are **not required**. Premium calculation, registration, onboarding, dashboard, and simulation all work without them.
 
 ### 2e. Start the backend server
 
@@ -242,7 +246,7 @@ Ensure you installed dependencies inside the venv:
 ```bash
 cd backend
 source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements_local.txt
 ```
 
 ### Frontend shows "Connection Error" or "Unable to calculate premium"
@@ -307,7 +311,7 @@ The backend calculates premium from 4 parameters:
 premium = 10 + (cityRisk × 6) + (min(platforms, 4) × 4) + (weeklyEarnings ÷ 2000)
 
 Range: ₹10 – ₹60 per week  (hard capped)
-Coverage = premium × 15    (e.g. ₹30 premium → ₹450 coverage/day)
+Coverage = earnings_band_base  (₹450–₹1200/day based on earnings)
 ```
 
 - **cityRisk**: 0–5 scale based on city (Mumbai=4, Delhi=3, Bangalore=2, etc.)
