@@ -17,6 +17,10 @@ eggs/
 .eggs/
 lib/
 lib64/
+
+# Do NOT ignore frontend src lib (overrides the lib/ rule above)
+!frontend/src/lib/
+!frontend/src/lib/**
 parts/
 sdist/
 var/
