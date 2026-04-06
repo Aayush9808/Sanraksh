@@ -253,35 +253,35 @@ On the Register page, click **"Use Demo Credentials"** → complete the full onb
 ║                           SANRAKSH PLATFORM                                  ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                              ║
-║   ┌─────────────────────────────────────────────────────────────────────┐   ║
-║   │                      PRESENTATION LAYER                             │   ║
-║   │  ┌──────────────────────────┐   ┌───────────────────────────────┐  │   ║
-║   │  │   Worker Portal          │   │   Admin / Insurer Dashboard   │  │   ║
-║   │  │  • My Policy             │   │  • Command Center (KPIs)      │  │   ║
-║   │  │  • Live Triggers         │   │  • Claims Feed (real-time)    │  │   ║
-║   │  │  • Payout History        │   │  • Analytics + Charts         │  │   ║
-║   │  │  • Profile / KYC         │   │  • Control Tower (simulate)   │  │   ║
-║   │  │                          │   │  • Premium Calculator         │  │   ║
-║   │  └──────────────────────────┘   │  • Risk Map + Triggers        │  │   ║
-║   │     Next.js 14 · TypeScript     └───────────────────────────────┘  │   ║
-║   │     Framer Motion · Recharts · Tailwind CSS                         │   ║
-║   └─────────────────────────────────────────────────────────────────────┘   ║
+║   ┌─────────────────────────────────────────────────────────────────────┐    ║
+║   │                      PRESENTATION LAYER                             │    ║
+║   │  ┌──────────────────────────┐   ┌───────────────────────────────┐   │    ║
+║   │  │   Worker Portal          │   │   Admin / Insurer Dashboard   │   │    ║
+║   │  │  • My Policy             │   │  • Command Center (KPIs)      │   │    ║
+║   │  │  • Live Triggers         │   │  • Claims Feed (real-time)    │   │    ║
+║   │  │  • Payout History        │   │  • Analytics + Charts         │   │    ║
+║   │  │  • Profile / KYC         │   │  • Control Tower (simulate)   │   │    ║
+║   │  │                          │   │  • Premium Calculator         │   │    ║
+║   │  └──────────────────────────┘   │  • Risk Map + Triggers        │   │    ║
+║   │     Next.js 14 · TypeScript     └───────────────────────────────┘   │    ║
+║   │     Framer Motion · Recharts · Tailwind CSS                         │    ║
+║   └─────────────────────────────────────────────────────────────────────┘    ║
 ║                              │ REST API (JSON)                               ║
 ║                              ▼                                               ║
-║   ┌─────────────────────────────────────────────────────────────────────┐   ║
-║   │                       API GATEWAY LAYER                             │   ║
-║   │                        FastAPI 0.104                                │   ║
-║   │   ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌────────┐  │   ║
-║   │   │  /auth   │ │/workers  │ │ /claims  │ │/analytics│ │/phase2 │  │   ║
-║   │   │  JWT OTP │ │ KYC Risk │ │ Fraud AI │ │ KPIs     │ │ Engine │  │   ║
-║   │   └──────────┘ └──────────┘ └──────────┘ └──────────┘ └────────┘  │   ║
-║   │   ┌──────────┐ ┌──────────────────────┐ ┌────────────────────────┐ │   ║
-║   │   │/premium  │ │    /disruptions       │ │      /policies         │ │   ║
-║   │   │6-Factor  │ │  Active Signal Feed   │ │  Coverage + Premiums   │ │   ║
-║   │   │Pricing   │ └──────────────────────┘ └────────────────────────┘ │   ║
-║   │   └──────────┘                                                      │   ║
+║   ┌─────────────────────────────────────────────────────────────────────┐    ║
+║   │                       API GATEWAY LAYER                             │    ║
+║   │                        FastAPI 0.104                                │    ║
+║   │   ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌────────┐    │    ║
+║   │   │  /auth   │ │/workers  │ │ /claims  │ │/analytics│ │/phase2 │    │    ║
+║   │   │  JWT OTP │ │ KYC Risk │ │ Fraud AI │ │ KPIs     │ │ Engine │    │    ║
+║   │   └──────────┘ └──────────┘ └──────────┘ └──────────┘ └────────┘    │    ║
+║   │   ┌──────────┐ ┌──────────────────────┐ ┌────────────────────────┐  │    ║
+║   │   │/premium  │ │    /disruptions      │ │      /policies         │  │    ║
+║   │   │6-Factor  │ │  Active Signal Feed  │ │  Coverage + Premiums   │  │    ║
+║   │   │Pricing   │ └──────────────────────┘ └────────────────────────┘  │    ║
+║   │   └──────────┘                                                      │    ║
 ║   └─────────────────────────────────────────────────────────────────────┘   ║
-║                              │                                               ║
+║                              │                                              ║
 ║         ┌────────────────────┼────────────────────┐                         ║
 ║         ▼                    ▼                    ▼                         ║
 ║   ┌────────────┐    ┌─────────────────┐   ┌─────────────────────────────┐  ║
