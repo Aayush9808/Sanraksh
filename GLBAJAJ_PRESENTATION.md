@@ -1,5 +1,4 @@
 # SANRAKSH: AI-Powered Parametric Income Protection for Gig Workers
-## Final Year Computer Science Project
 
 <div align="center">
 
@@ -862,11 +861,9 @@ Performance Achieved:
 
 ## Contact & Support
 
-**Project Author**: [Your Name]  
-**Email**: [your.email@university.edu]  
-**GitHub Repository**: [Link to your repo]  
-**University**: [Your University Name]  
-**Course**: Final Year Computer Science Project  
+**Project Author**: Aayush Tiwari  
+**GitHub**: [github.com/Aayush9808](https://github.com/Aayush9808)  
+**Live Demo**: [sanraksh.vercel.app](https://sanraksh.vercel.app)  
 **Project Date**: June 2026
 
 ---
@@ -892,7 +889,6 @@ for educational and commercial purposes with proper attribution.
 
 ---
 
-**Project Type**: Final Year Computer Science Project  
 **Status**: Complete & Tested  
 **Last Updated**: June 2026  
-**Confidentiality**: Public Repository
+**License**: MIT — Public Repository

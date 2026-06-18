@@ -49,15 +49,15 @@
 
 ---
 
-## 🎯 Phase 2 Objective
+## 🎯 Build Objective
 
-Phase 1 delivered a complete prototype with every screen functional. **Phase 2's mandate:** make it real, make it polished, and make it demeable by a judge in 30 seconds.
+**Mandate:** make it real, make it polished, and demeable end-to-end in 30 seconds.
 
-> Every API call hits a live backend. Every number comes from a database. Premium pricing is computed dynamically, not from a plan catalogue. Any judge can onboard end-to-end without signing up — via Demo Mode.
+> Every API call hits a live backend. Every number comes from a database. Premium pricing is computed dynamically, not from a plan catalogue. Anyone can onboard end-to-end without signing up — via Demo Mode.
 
 ---
 
-## ✅ What Was Built in Phase 2
+## ✅ What Was Built
 
 ### 1. Backend — Fully Operational
 
@@ -87,11 +87,11 @@ GET  /api/v1/workers/me/policy        — worker's active policy
 GET  /api/v1/workers/me/claims        — worker's claim history
 ```
 
-### 3. Frontend — Redesigned from Phase 1
+### 3. Frontend — Redesigned
 
-The entire worker-facing UI was redesigned between phases. Key changes:
+Key changes in the UI:
 
-| Area | Phase 1 | Phase 2 |
+| Area | Before | After |
 |---|---|---|
 | Auth | Email + password form | **OTP-only** (phone → 6-digit code) |
 | Pricing | Fixed plans (Lite / Standard / Pro cards) | **Dynamic AI pricing** — ₹10–₹60/wk, no plan selection |
@@ -190,7 +190,7 @@ Judges can complete the full worker onboarding in under 30 seconds without enter
 
 ---
 
-## 🏗️ Phase 2 Architecture
+## 🏗️ Architecture
 
 ```mermaid
 flowchart TD
@@ -250,7 +250,7 @@ Or use the **🎭 Demo Mode** button on the register page to onboard as a new us
 
 ---
 
-## 📊 Phase 2 By The Numbers
+## 📊 By The Numbers
 
 | Metric | Value |
 |---|---|
@@ -267,8 +267,8 @@ Or use the **🎭 Demo Mode** button on the register page to onboard as a new us
 
 <div align="center">
 
-### ⚙️ Phase 2 — Prototype → Product → Demeable in 30 seconds.
+### ⚙️ Prototype → Product → Demeable in 30 seconds.
 
-**[← Back to main README](../README.md)** · **[Phase 1 Submission](./PHASE1.md)** · **[Local Setup Guide](../LOCAL_SETUP.md)**
+**[← Back to main README](../README.md)** · **[Local Setup Guide](../LOCAL_SETUP.md)**
 
 </div>

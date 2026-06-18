@@ -6,7 +6,7 @@
 
 ## Introduction
 
-Sanraksh is a full-stack AI-powered parametric income protection platform built as my final year individual computer science project. It addresses a concrete, understudied problem: India's gig delivery workers — 7.7 million people — have no access to affordable income insurance despite facing highly predictable, measurable income disruptions every single week.
+Sanraksh is a full-stack AI-powered parametric income protection platform built to address a concrete, understudied problem: India's gig delivery workers — 7.7 million people — have no access to affordable income insurance despite facing highly predictable, measurable income disruptions every single week.
 
 The platform automatically detects disruptions (heavy rain, app outages, civil curfews, severe AQI), matches affected workers to their active policies, runs real-time ML fraud scoring, and settles payouts — all without the worker ever filing a form. Average end-to-end settlement time is 22.3 seconds.
 
@@ -636,12 +636,11 @@ The core platform is complete and tested. What would meaningfully extend it:
 
 ## About the Developer
 
-This is my individual final year computer science project, completed over 16 weeks. I built every component — the FastAPI backend, the Next.js frontend, the ML pipeline, the database schema, the CI/CD pipeline, and all documentation — independently.
+Built solo over 16 weeks. Every component — the FastAPI backend, the Next.js frontend, the ML pipeline, the database schema, the CI/CD pipeline, and all documentation — was designed and implemented independently.
 
 The project grew out of genuine curiosity about why financial inclusion in India's gig economy remains so poor despite the availability of the exact technology needed to fix it. Every design decision was driven by what would actually work for a delivery partner in Dharavi or Koramangala, not by what was technically interesting.
 
 **Aayush Tiwari**  
-B.Tech Computer Science  
 GitHub: [github.com/Aayush9808](https://github.com/Aayush9808)  
 Live Demo: [sanraksh.vercel.app](https://sanraksh.vercel.app)
 

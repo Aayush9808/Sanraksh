@@ -168,7 +168,7 @@ Where:
 riskScore ≈ 0.78  =>  premium ≈ ₹61/week
 ```
 
-This aligns with the challenge requirement: **weekly pricing model**.
+This implements the core **weekly pricing model**.
 
 ---
 
@@ -286,7 +286,7 @@ flowchart TD
 
 ### Admin Experience
 - `/dashboard` overview
-- `/dashboard/control-tower` (Phase 2 command center)
+- `/dashboard/control-tower` (automation command center)
 - `/dashboard/workers`
 - `/dashboard/policies`
 - `/dashboard/claims`
@@ -299,7 +299,7 @@ flowchart TD
 - PostgreSQL + Redis
 - Dockerized local stack
 
-### Phase 2 Automation Engine (New)
+### Automation Engine
 - `POST /api/v1/phase2/simulate-disruption`
 	- Creates disruption events and auto-routes claims into paid/review/rejected buckets
 	- Ingests multi-source confidence signals (weather, pollution, traffic, platform, civic)
@@ -381,20 +381,16 @@ To make it even more premium for final judging, add 2 GIFs inside `docs/assets/`
 
 ---
 
-## 🗓️ 6-Week Plan Alignment
+## 🗓️ 6-Week Build Plan
 
-### Phase 1 (Weeks 1–2) — Ideation & Foundation ✅
+### Sprint 1 (Weeks 1–2) — Ideation & Foundation ✅
 - Problem understanding, persona selection, architecture baseline, working prototype
 
-### Phase 2 (Weeks 3–4) — Automation & Protection
-- Expand trigger reliability
-- strengthen claim orchestration
-- tighten fraud checks
+### Sprint 2 (Weeks 3–4) — Automation & Protection
+- Expand trigger reliability, strengthen claim orchestration, tighten fraud checks
 
-### Phase 3 (Weeks 5–6) — Scale & Optimise
-- advanced fraud model tuning
-- payout integration hardening
-- final performance + production polish
+### Sprint 3 (Weeks 5–6) — Scale & Optimise
+- Advanced fraud model tuning, payout integration hardening, production polish
 
 ---
 
@@ -418,9 +414,9 @@ To make it even more premium for final judging, add 2 GIFs inside `docs/assets/`
 
 ## 🧭 Why Web First?
 
-We chose web first for Phase 1 because it enables:
+Web-first because it enables:
 
-- fastest demo and judging access,
+- fastest demo access,
 - easier dashboard analytics presentation,
 - rapid iteration across worker/admin flows,
 - lower integration friction while validating core insurance logic.
