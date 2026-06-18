@@ -6,8 +6,32 @@
 
 ---
 
+## INTRODUCTION
+*[0:00 – 0:30] — Calm and confident. Don't rush.*
+
+Hello, my name is Aayush Shrivastava.
+
+Throughout my journey I have worked on multiple projects —
+across web development, backend systems, and machine learning.
+
+One of my projects is Sanraksh —
+which I will be presenting today.
+
+Sanraksh is an AI-powered insurance platform
+built specifically for gig delivery workers in India.
+It detects disruptions automatically,
+files claims on the worker's behalf,
+and settles payouts in under 22 seconds —
+with zero forms and zero waiting.
+
+Let me walk you through why I built it,
+how it works,
+and what makes it different.
+
+---
+
 ## OPENING — The Hook
-*[0:00 – 0:45] — Slow. Let it land.*
+*[0:30 – 1:15] — Slow. Let it land.*
 
 Let me start with a simple question.
 
