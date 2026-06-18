@@ -11,7 +11,7 @@
 - [Q2: How would you explain this to someone with no technical background?](#q2)
 - [Q3: What problem does this solve?](#q3)
 - [Q4: What is parametric insurance and how is it different from regular insurance?](#q4)
-- [Q5: Who is this built for?](#q5)
+- [Q5: Who is this built for ?](#q5)
 - [Q6: What does a gig worker actually experience when using this?](#q6)
 - [Q7: What makes this different from existing insurance products?](#q7)
 - [Q8: What is a "trigger" — the core concept of this system?](#q8)
