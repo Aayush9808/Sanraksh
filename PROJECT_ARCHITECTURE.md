@@ -15,7 +15,7 @@
 
 ## Project Overview
 
-**Sanraksh** is an AI-powered parametric income protection platform designed to address the income volatility crisis faced by India's 7.7 million gig economy workers. Unlike traditional insurance products that rely on fixed plans and manual claims processing, Sanraksh uses real-time parametric triggers and machine learning to provide instant, automated protection.
+**Sanraksh** is an AI-powered parametric income protection platform designed to address the income volatility crisis faced by India's 7.7 million gig economy workers. Unlike traditional insurance products that rely on fixed plans and manual claims processing, Sanraksh uses real-time parametric triggers and machine learning to provide instant,  automated protection.
 
 ### Project Conception
 Sanraksh was built to address the insurance gap in India's gig economy—where workers earning ₹4,000–₹8,000 weekly have zero protection against income loss from weather disruptions, app outages, or civil disturbances.
