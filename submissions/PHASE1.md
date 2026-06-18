@@ -5,7 +5,7 @@
 # 🛡️ Sanraksh
 ### AI-Powered Parametric Income Protection for India’s Gig Workers
 
-<img src="https://readme-typing-svg.herokuapp.com?font=Inter&weight=700&size=22&pause=1000&color=22D3EE&center=true&vCenter=true&width=900&lines=Built+for+Guidewire+DEVTrails+2026;Loss+of+Income+Only+(Weekly+Model);AI+Risk+Scoring+%2B+Parametric+Auto-Claims+%2B+Instant+Payout+Simulation" alt="typing banner" />
+<img src="https://readme-typing-svg.herokuapp.com?font=Inter&weight=700&size=22&pause=1000&color=22D3EE&center=true&vCenter=true&width=900&lines=Loss+of+Income+Protection+%E2%80%94+Weekly+Model;AI+Risk+Scoring+%2B+Parametric+Auto-Claims+%2B+Instant+Payout+Simulation" alt="typing banner" />
 
 <br/>
 
@@ -20,35 +20,18 @@
 
 ---
 
-## 🔗 Submission Links
+## 🔗 Links
 
 - **Live Demo (Web):** https://sanraksh.vercel.app
-- **Repository:** https://github.com/Aayush9808/Sanraksh
-- **2-Minute Strategy Video (Phase 1):** https://drive.google.com/file/d/1CvnhmhemT_G60ETTXPxhS2chgMhp3N_m/view?usp=drivesdk
+- **Repository:** https://github.com/Aayush9808/GigArmor
+- **Demo Video:** https://drive.google.com/file/d/1CvnhmhemT_G60ETTXPxhS2chgMhp3N_m/view?usp=drivesdk
 
 ---
-
-## 🏁 Phase 1 Deliverables (Exact Compliance)
-
-This README is intentionally structured to satisfy every item from the Phase 1 brief.
-
-### Mandatory item 1: Idea document in GitHub README
-
-- ✅ Persona-based requirement + workflow: [Problem Statement](#-problem-statement-persona-first) and [End-to-End Worker Workflow](#-end-to-end-worker-workflow)
-- ✅ Weekly premium model + parametric triggers + Web choice: [Weekly Premium Model](#-weekly-premium-model-transparent), [Parametric Trigger Matrix](#-parametric-trigger-matrix-loss-of-income-events), [Why Web First](#-why-web-first)
-- ✅ AI/ML integration plan (premium + fraud): [AI/ML Integration Plan](#-aiml-integration-plan)
-- ✅ Tech stack + development plan: [Tech Stack](#-tech-stack), [6-Week Plan Alignment](#-6-week-plan-alignment)
-- ✅ Threat Defense anti-spoofing update: [Adversarial Defense & Anti-Spoofing](#-adversarial-defense--anti-spoofing-strategy-threat-defense)
-
-### Mandatory item 2: 2-minute public video
-
-- ✅ Link slot present in [Submission Links](#-submission-links)
 
 ---
 
 ## 🧭 Quick Navigation
 
-- [Phase 1 Submission Snapshot](#-phase-1-march-420-submission-snapshot)
 - [Problem Statement](#-problem-statement-persona-first)
 - [Solution Summary](#-solution-summary)
 - [Worker Workflow](#-end-to-end-worker-workflow)
@@ -61,29 +44,11 @@ This README is intentionally structured to satisfy every item from the Phase 1 b
 
 ---
 
-## ✅ Phase 1 (March 4–20) Submission Snapshot
-
-This repository is structured to satisfy **Phase 1: Ideation & Foundation** with both:
-
-- a clear strategic concept document (problem, persona, model, roadmap), and
-- a working prototype that demonstrates the core insurtech flow.
-
-### What is submitted today
-
-- ✅ Persona-focused problem definition
-- ✅ End-to-end workflow for target worker
-- ✅ Weekly premium model (transparent + explainable)
-- ✅ Parametric trigger strategy (event → claim → payout)
-- ✅ AI/ML integration plan (pricing + fraud + anomaly)
-- ✅ Tech stack + execution roadmap
-- ✅ Working prototype (worker portal + admin + trigger simulation)
-- ✅ Public repository + video placeholder for submission
-
 ---
 
 ## 🧪 Requirement-to-Implementation Mapping
 
-| Hackathon Requirement | Sanraksh Implementation | Status |
+| Requirement | Sanraksh Implementation | Status |
 |---|---|---|
 | AI-powered risk assessment | Worker-level weekly premium scoring from zone + platform + activity | ✅ |
 | Weekly pricing model | Premium generated and displayed in weekly format across worker dashboard | ✅ |
@@ -98,7 +63,7 @@ This repository is structured to satisfy **Phase 1: Ideation & Foundation** with
 
 ## 🏢 Product-Grade Positioning (How to Present)
 
-When presenting to evaluators, position Sanraksh as a production-style insurtech platform with three layers:
+Sanraksh is a production-style insurtech platform with three layers:
 
 1. **Risk Intelligence Layer**
 	- dynamic weekly pricing,
@@ -115,7 +80,7 @@ When presenting to evaluators, position Sanraksh as a production-style insurtech
 	- transparent claim state progression,
 	- worker trust via visible logic.
 
-This framing makes the solution sound not just like a hackathon demo, but a deployable product foundation.
+This framing positions Sanraksh not just as a prototype, but as a deployable product foundation.
 
 ---
 
@@ -464,9 +429,9 @@ Mobile/WhatsApp channel remains a planned expansion path for distribution scale.
 
 ---
 
-## 🤝 Team Note
+## Developer Note
 
-Built for **Guidewire DEVTrails 2026** with a focus on practical insurtech outcomes for India’s gig workforce.
+Built with a focus on practical insurtech outcomes for India’s gig workforce.
 
 ---
 

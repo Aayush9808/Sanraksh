@@ -385,12 +385,12 @@ For deeper technical information, see:
 
 ## Future Roadmap
 
-### Phase 2 (Months 6-12)
+### Near-term (Months 6–12)
 - Scale to 5,000 active users across 10 cities
 - Add more parametric triggers (traffic demand, local events)
 - Integration with microfinance for credit lines
 
-### Phase 3 (Months 12-18)
+### Long-term (Months 12–18)
 - IRDAI regulatory approval
 - Partnership with insurance companies
 - Expand to other gig sectors (freelancers, micro-tasks)

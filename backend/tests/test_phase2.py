@@ -1,4 +1,4 @@
-"""Phase 2 unit tests for orchestration utilities and signal ingestion."""
+"""Unit tests for automation orchestration utilities and signal ingestion."""
 
 import pytest
 

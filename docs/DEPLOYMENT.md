@@ -13,8 +13,8 @@
 
 1. **Clone and setup environment:**
 ```bash
-git clone https://github.com/Aayush9808/Guidewire-Temp.git
-cd Guidewire-Temp
+git clone https://github.com/Aayush9808/GigArmor.git
+cd GigArmor
 cp .env.example .env
 # Edit .env with your API keys
 ```
@@ -75,8 +75,8 @@ sudo chmod +x /usr/local/bin/docker-compose
 
 2. **Clone and configure:**
 ```bash
-git clone https://github.com/Aayush9808/Guidewire-Temp.git
-cd Guidewire-Temp
+git clone https://github.com/Aayush9808/GigArmor.git
+cd GigArmor
 cp .env.example .env
 # Edit .env with production values
 ```

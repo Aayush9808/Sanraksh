@@ -1,4 +1,4 @@
-"""Phase 2 orchestration router."""
+"""Automation orchestration router — disruption simulation, claim routing, and settlement."""
 
 from datetime import datetime, timedelta
 from typing import Any

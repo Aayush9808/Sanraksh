@@ -350,31 +350,31 @@ ML Model Target:
 ### Development Approach: Agile Prototyping
 
 ```
-Phase 1: Discovery & Design (Weeks 1–2)
+Sprint 1: Discovery & Design (Weeks 1–2)
 ├─ Worker interviews (n=50)
 ├─ Competitor analysis (n=6 insurance companies)
 ├─ Tech stack evaluation
 └─ Data collection setup
 
-Phase 2: Core MVP (Weeks 3–6)
+Sprint 2: Core MVP (Weeks 3–6)
 ├─ Backend API (FastAPI) - Premium calculation
 ├─ Frontend UI (Next.js) - Registration flow
 ├─ Database schema (SQLAlchemy)
 └─ Basic auth system
 
-Phase 3: AI Integration (Weeks 7–10)
+Sprint 3: AI Integration (Weeks 7–10)
 ├─ Premium engine (XGBoost risk model)
 ├─ Fraud detection (XGBoost classifier)
 ├─ ML model training & validation
 ├─ Performance tuning
 
-Phase 4: Full Stack Integration (Weeks 11–14)
+Sprint 4: Full Stack Integration (Weeks 11–14)
 ├─ API integration
 ├─ End-to-end claim flow
 ├─ Disruption event processing
 ├─ Testing & bug fixes
 
-Phase 5: Deployment & Launch (Weeks 15–16)
+Sprint 5: Deployment & Launch (Weeks 15–16)
 ├─ Docker containerization
 ├─ Cloud deployment (Vercel + Railway)
 ├─ Monitoring setup
@@ -785,13 +785,13 @@ Neutral (7%):
 
 ### Future Roadmap
 
-**Phase 2 (Months 6–12):**
+**Near-term (Months 6–12):**
 - Scale to 5,000 active users across 10 cities
 - Add more parametric triggers (traffic, demand signals)
 - Integrate with banking/fintech for credit lines
 - Build admin dashboard for claims review team
 
-**Phase 3 (Months 12–18):**
+**Long-term (Months 12–18):**
 - Regulatory approval (IRDAI licensure)
 - Partnership with larger insurers
 - Expand to other gig sectors (freelancers, micro-tasks)
@@ -867,7 +867,7 @@ Performance Achieved:
 **GitHub Repository**: [Link to your repo]  
 **University**: [Your University Name]  
 **Course**: Final Year Computer Science Project  
-**Submission Date**: June 2026
+**Project Date**: June 2026
 
 ---
 

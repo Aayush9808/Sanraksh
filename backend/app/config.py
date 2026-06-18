@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     REDIS_URL: str = "redis://localhost:6379"
     
     # Security
-    SECRET_KEY: str = "sanraksh-dev-secret-key-2026-hackathon-do-not-use-in-prod"
+    SECRET_KEY: str = "sanraksh-dev-secret-key-2026-do-not-use-in-prod"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     

@@ -49,7 +49,7 @@ app.include_router(claims.router, prefix="/api/v1/claims", tags=["Claims"])
 app.include_router(disruptions.router, prefix="/api/v1/disruptions", tags=["Disruptions"])
 app.include_router(risk_zones.router, prefix="/api/v1/risk-zones", tags=["Risk Zones"])
 app.include_router(analytics.router, prefix="/api/v1/analytics", tags=["Analytics"])
-app.include_router(phase2.router, prefix="/api/v1/phase2", tags=["Phase 2 Automation"])
+app.include_router(phase2.router, prefix="/api/v1/phase2", tags=["Automation Engine"])
 app.include_router(premium_router.router, prefix="/api/v1/premium", tags=["Premium Calculator"])
 app.include_router(support_router.router, prefix="/api/v1/support", tags=["Support"])
 

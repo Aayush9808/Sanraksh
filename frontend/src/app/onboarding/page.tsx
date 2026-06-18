@@ -1181,7 +1181,7 @@ export default function OnboardingPage() {
                             <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full translate-x-16 -translate-y-16 pointer-events-none" />
                             <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full -translate-x-8 translate-y-8 pointer-events-none" />
                             <div className="inline-flex items-center gap-1.5 bg-white/10 border border-white/20 rounded-full px-2.5 py-1 text-[10px] font-bold text-blue-200 mb-4">
-                              <span>🔒</span> Demo mode — hackathon
+                              <span>🔒</span> Demo mode — test card
                             </div>
                             <div className="font-mono text-xl tracking-widest mb-4">4242  ****  ****  4242</div>
                             <div className="flex justify-between text-sm">

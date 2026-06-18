@@ -1,7 +1,7 @@
-# Phase 2 Execution Roadmap
+# Automation Layer — Execution Roadmap
 
 ## Objective
-Deliver a production-style automation layer over Phase 1 so disruption events trigger real claim routing, fraud-aware decisions, and payout orchestration at scale.
+Deliver a production-style automation layer so disruption events trigger real claim routing, fraud-aware decisions, and payout orchestration at scale.
 
 ## Build Plan (Owner: Sanraksh Engineering)
 
@@ -13,7 +13,7 @@ Deliver a production-style automation layer over Phase 1 so disruption events tr
 - [x] Keep robust fallback simulation for demo continuity
 - [x] Align coverage taxonomy with loss-of-income-only constraints
 
-## Phase 2 Architecture Enhancements
+## Architecture Enhancements
 
 1. Event Ingestion Layer
 - Disruption event capture with typed severity and metadata

@@ -1,5 +1,5 @@
 """
-Signal ingestion service for Phase 2 orchestration.
+Signal ingestion service.
 Combines weather, pollution, traffic, platform, and social indicators into event confidence.
 """
 

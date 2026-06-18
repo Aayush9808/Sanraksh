@@ -1,5 +1,5 @@
 """
-Phase 2 Automation Engine
+Automation Engine
 Orchestrates disruption simulation, claim generation, and settlement routing.
 """
 

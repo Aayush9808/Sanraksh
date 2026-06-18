@@ -316,4 +316,4 @@ Coverage = premium × 15    (e.g. ₹30 premium → ₹450 coverage/day)
 
 ---
 
-*Built for Guidewire DEVTrails 2026 — Aayush Tiwari*
+*Sanraksh — AI-Powered Parametric Income Protection for India's Gig Workers*
